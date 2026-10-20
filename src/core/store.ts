@@ -17,8 +17,15 @@ export class Store {
     const r = await this.doc.send(new GetCommand({ TableName: this.table, Key: { pk, sk }, ConsistentRead: true }));
     return r.Item as Item | undefined;
   }
-  async put(item: Item, opts: { ifNotExists?: boolean } = {}): Promise<void> {
-    await this.doc.send(new PutCommand({ TableName: this.table, Item: item, ...(opts.ifNotExists ? { ConditionExpression: 'attribute_not_exists(pk)' } : {}) }));
+  async put(item: Item, opts: { ifNotExists?: boolean; ifVersion?: number } = {}): Promise<void> {
+    await this.doc.send(
+      new PutCommand({
+        TableName: this.table,
+        Item: item,
+        ...(opts.ifNotExists ? { ConditionExpression: 'attribute_not_exists(pk)' } : {}),
+        ...(opts.ifVersion !== undefined ? { ConditionExpression: 'v = :v', ExpressionAttributeValues: { ':v': opts.ifVersion } } : {}),
+      }),
+    );
   }
   async delete(pk: string, sk: string): Promise<void> {
     await this.doc.send(new DeleteCommand({ TableName: this.table, Key: { pk, sk } }));

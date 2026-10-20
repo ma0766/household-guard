@@ -4,6 +4,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
 import { bearerOf, originAllowed, readToken } from '../auth.js';
 import { requestAction, type Deps } from '../core/request-action.js';
+import { confirmIdentity } from '../identity/confirm.js';
+import { jobStatus } from '../core/jobs.js';
 
 // Fixed facade: tool names never change, so nothing behind them needs a redeploy to Alexa.
 export function buildMcpServer(deps: Deps, hh: string): McpServer {
@@ -34,6 +36,25 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as Record<string, unknown> };
     },
   );
+  server.registerTool(
+    'confirm_identity',
+    {
+      description: 'Say who is talking. People with a phone get a number to match on their own phone. People without one give a PIN.',
+      inputSchema: { name: z.string().describe('The name the speaker gave'), pin: z.string().optional().describe('4-digit PIN, only for people without a phone') },
+    },
+    async (args) => {
+      const r = await confirmIdentity(deps, hh, args);
+      return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+    },
+  );
+  server.registerTool(
+    'job_status',
+    { description: 'How is a waiting job going?', inputSchema: { job_id: z.string() } },
+    async ({ job_id }) => {
+      const r = await jobStatus(deps, hh, job_id);
+      return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+    },
+  );
   return server;
 }
 
@@ -53,7 +74,7 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
 export async function handleMcp(req: IncomingMessage, res: ServerResponse, deps: Deps): Promise<void> {
   if (!originAllowed(req)) return send(res, 403, { error: 'Origin not allowed' });
   const claims = readToken(bearerOf(req));
-  if (!claims) {
+  if (!claims || claims.aud !== 'alexa') {
     res.setHeader('www-authenticate', 'Bearer');
     return send(res, 401, { error: 'Sign in first' });
   }

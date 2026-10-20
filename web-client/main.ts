@@ -2,6 +2,7 @@
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const logEl = $('log');
 let token = '';
+let phoneTokens: Record<string, string> = {};
 let nextId = 1;
 
 function log(dir: '→' | '←', obj: unknown) {
@@ -26,7 +27,9 @@ async function rpc(method: string, params?: unknown, id: number | undefined = ne
 let connected = false;
 async function connect() {
   if (connected) return;
-  token = (await (await fetch(`/demo-token?hh=${encodeURIComponent(new URLSearchParams(location.search).get('hh') ?? 'demo')}`)).json()).token;
+  const t = await (await fetch(`/demo-token?hh=${encodeURIComponent(new URLSearchParams(location.search).get('hh') ?? 'demo')}`)).json();
+  token = t.token;
+  phoneTokens = t.phones; // each simulated phone holds only its own person's key
   await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'web-client', version: '0.1.0' } });
   await rpc('notifications/initialized', undefined, undefined);
   connected = true;
@@ -40,26 +43,113 @@ async function callTool(name: string, args: Record<string, unknown>) {
 
 // ---- who is talking ----
 const PEOPLE = [
-  { id: 'mom', name: 'Mom' },
-  { id: 'maya', name: 'Maya' },
-  { id: 'leo', name: 'Leo' },
-  { id: 'guest', name: 'Guest' },
+  { id: 'mom', name: 'Mom', phone: true },
+  { id: 'maya', name: 'Maya', phone: true },
+  { id: 'leo', name: 'Leo', phone: false },
+  { id: 'guest', name: 'Guest', phone: false },
 ];
-let speaker = 'guest';
+const saysEl = $('alexa-says');
+function says(text: string, outcome = 'allowed') {
+  saysEl.textContent = text;
+  saysEl.className = `says ${outcome === 'allowed' ? '' : outcome}`;
+  saysEl.dataset.outcome = outcome;
+  if ('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+
+// A waiting job (confirm on phone, a ride being booked…): ask again until it ends — Alexa never holds the line open.
+async function waitJob(id: string) {
+  for (let i = 0; i < 240; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    const r = await callTool('job_status', { job_id: id });
+    if (r.status && r.status !== 'waiting') {
+      says(r.say, r.done ? 'allowed' : 'held');
+      void refresh();
+      return r;
+    }
+  }
+}
+
 const speakersEl = $('speakers');
+const pinRow = document.createElement('div');
+pinRow.className = 'row';
+pinRow.hidden = true;
+pinRow.innerHTML = '<input id="pin" data-testid="pin" placeholder="4-digit PIN" inputmode="numeric" maxlength="4" /><button id="btn-pin" data-testid="btn-pin">Say PIN</button>';
+speakersEl.after(pinRow);
+let pinFor = '';
 for (const p of PEOPLE) {
   const b = document.createElement('button');
   b.className = 'secondary who';
   b.setAttribute('data-testid', `who-${p.id}`);
   b.textContent = p.name;
   b.onclick = async () => {
-    await connect();
-    await fetch('/dev/session', { method: 'POST', headers: { authorization: `Bearer ${token}` }, body: JSON.stringify({ person: p.id }) });
-    speaker = p.id;
     document.querySelectorAll('.who').forEach((e) => e.classList.toggle('active', e === b));
+    pinRow.hidden = true;
+    if (p.id === 'guest') {
+      await connect();
+      await fetch('/demo/guest', { method: 'POST', headers: { authorization: `Bearer ${token}` } });
+      return says('Hi. I do not know you yet.', 'held');
+    }
+    if (!p.phone) { pinFor = p.id; pinRow.hidden = false; return says('Say your PIN.', 'held'); }
+    const r = await callTool('confirm_identity', { name: p.name });
+    says(r.say, r.status === 'waiting' ? 'held' : 'denied');
+    if (r.status === 'waiting') void waitJob(r.challenge_id);
   };
   speakersEl.appendChild(b);
 }
+$('btn-pin').onclick = async () => {
+  const r = await callTool('confirm_identity', { name: pinFor, pin: ($('pin') as HTMLInputElement).value });
+  says(r.say, r.status === 'confirmed' ? 'allowed' : 'denied');
+};
+
+// ---- simulated phones: one per family member, each polls its own inbox ----
+const phonesEl = $('phones');
+const phoneEls: Record<string, HTMLElement> = {};
+for (const p of PEOPLE.filter((x) => x.id !== 'guest')) {
+  const d = document.createElement('div');
+  d.className = 'phone';
+  d.setAttribute('data-testid', `phone-${p.id}`);
+  d.innerHTML = `<h3>${p.name}'s phone</h3><div class="body">${p.phone ? 'Nothing waiting.' : 'No phone. Uses a PIN.'}</div>`;
+  phonesEl.appendChild(d);
+  phoneEls[p.id] = d.querySelector('.body') as HTMLElement;
+}
+async function refreshPhones() {
+  if (!connected) return;
+  for (const p of PEOPLE.filter((x) => x.phone)) {
+    const r = await fetch(`/phone/${p.id}/inbox`, { headers: { authorization: `Bearer ${phoneTokens[p.id]}` } });
+    if (!r.ok) continue;
+    const inbox = await r.json();
+    const body = phoneEls[p.id];
+    const sig = JSON.stringify([inbox.challenges, inbox.notices]);
+    if (body.dataset.sig === sig) continue;
+    body.dataset.sig = sig;
+    body.innerHTML = '';
+    for (const c of inbox.challenges) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<p>${c.text}</p>`;
+      for (const n of c.options) {
+        const btn = document.createElement('button');
+        btn.textContent = String(n);
+        btn.setAttribute('data-testid', `phone-${p.id}-num-${n}`);
+        btn.onclick = async () => {
+          const out = await (await fetch(`/phone/${p.id}/confirm`, { method: 'POST', headers: { authorization: `Bearer ${phoneTokens[p.id]}`, 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: c.id, number: n }) })).json();
+          if (out.status !== 'confirmed') says(out.say, 'denied');
+        };
+        card.appendChild(btn);
+      }
+      body.appendChild(card);
+    }
+    for (const n of inbox.notices) {
+      const e = document.createElement('p');
+      e.className = 'notice';
+      e.textContent = n.text;
+      body.appendChild(e);
+    }
+    if (!inbox.challenges.length && !inbox.notices.length) body.textContent = 'Nothing waiting.';
+  }
+}
+async function refresh() { await refreshPhones(); }
+setInterval(() => void refreshPhones().catch(() => undefined), 600);
 
 // ---- words → one tool call ----
 function parse(text: string): Record<string, unknown> | undefined {
@@ -73,19 +163,12 @@ function parse(text: string): Record<string, unknown> | undefined {
   return undefined;
 }
 
-const saysEl = $('alexa-says');
 async function say(text: string) {
   const args = parse(text);
-  if (!args) {
-    saysEl.textContent = "Sorry, I didn't get that.";
-    saysEl.className = 'says';
-    return;
-  }
+  if (!args) return says("Sorry, I didn't get that.", 'held');
   const r = await callTool('request_action', args);
-  saysEl.textContent = r.say ?? r.reason;
-  saysEl.className = `says ${r.outcome === 'allowed' ? '' : r.outcome}`;
-  saysEl.dataset.outcome = r.outcome;
-  if ('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance(saysEl.textContent!));
+  says(r.say ?? r.reason, r.outcome === 'allowed' && !r.done ? 'held' : r.outcome);
+  if (r.next === 'confirm_on_phone' && r.job_id) void waitJob(r.job_id);
   return r;
 }
 
@@ -114,4 +197,3 @@ $('btn-talk').onclick = () => {
 $('btn-connect').onclick = connect;
 $('btn-tools').onclick = async () => { await connect(); await rpc('tools/list'); };
 $('btn-status').onclick = async () => { await connect(); await rpc('tools/call', { name: 'household_status', arguments: {} }); };
-void speaker;

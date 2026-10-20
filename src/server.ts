@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { handleMcp } from './mcp/server.js';
 import { bearerOf, mintToken, readToken } from './auth.js';
 import { defaultStore, Store } from './core/store.js';
-import { ensureSeeded, setSession } from './core/household.js';
+import { handlePhone } from './phone/routes.js';
 import type { Deps } from './core/request-action.js';
 
 const WEB_ROOT = process.env.HG_WEB_ROOT ?? join(fileURLToPath(new URL('..', import.meta.url)), 'dist', 'web');
@@ -16,6 +16,12 @@ const TYPES: Record<string, string> = {
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
 };
+
+// demo sign-in: one voice-side token, plus one token per simulated phone (each phone only speaks for its own person)
+function demoTokens(url: URL) {
+  const hh = /^[a-z0-9-]{1,32}$/.test(url.searchParams.get('hh') ?? '') ? url.searchParams.get('hh')! : 'demo';
+  return { token: mintToken('demo', 86400, hh), phones: Object.fromEntries(['mom', 'maya'].map((p) => [p, mintToken(p, 86400, hh, 'phone')])) };
+}
 
 async function serveStatic(req: IncomingMessage, res: ServerResponse) {
   const path = normalize(new URL(req.url ?? '/', 'http://x').pathname).replace(/^(\.\.[/\\])+/, '');
@@ -43,18 +49,16 @@ export function createApp(given?: Deps) {
         if (url.pathname === '/mcp') return await handleMcp(req, res, getDeps());
         // local demo only: hands out a signed token so the web client can sign in
         if (url.pathname === '/demo-token' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
-          return void res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ token: mintToken('demo', 86400, /^[a-z0-9-]{1,32}$/.test(url.searchParams.get('hh') ?? '') ? url.searchParams.get('hh')! : 'demo') }));
+          return void res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(demoTokens(url)));
         }
-        // S1 only: instant "confirmed" session so the lights demo works before phone confirmation exists (S2 replaces it)
-        if (url.pathname === '/dev/session' && req.method === 'POST' && process.env.HG_LOCAL === '1') {
+        // demo only: "nobody has confirmed" — so a guest can speak after a family member's turn ended
+        if (url.pathname === '/demo/guest' && req.method === 'POST' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
           const claims = readToken(bearerOf(req));
           if (!claims) return void res.writeHead(401).end();
-          const body = JSON.parse(await new Promise<string>((ok) => { let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => ok(b || '{}')); }));
-          await ensureSeeded(getDeps().store, claims.hh);
-          if (body.person && body.person !== 'guest') await setSession(getDeps().store, claims.hh, body.person, 'phone');
-          else await getDeps().store.delete(Store.hk(claims.hh), 'SESSION#current');
+          await getDeps().store.delete(Store.hk(claims.hh), 'SESSION#current');
           return void res.writeHead(200, { 'content-type': 'application/json' }).end('{"ok":true}');
         }
+        if (url.pathname.startsWith('/phone/')) return await handlePhone(req, res, getDeps());
         return await serveStatic(req, res);
       } catch {
         if (!res.headersSent) res.writeHead(500, { 'content-type': 'application/json' });

@@ -3,7 +3,10 @@ import { getSession, loadHousehold, ensureSeeded } from './household.js';
 import { formatLocal } from './time.js';
 import { decide, type DecisionInput } from '../policy/evaluator.js';
 import { KNOWN_ACTIONS } from '../policy/rules.js';
-import { execSimHome, SIM_HOME } from '../connectors/sim-home.js';
+import { SIM_HOME } from '../connectors/sim-home.js';
+import { tierOf } from './tiers.js';
+import { executeAction } from './execute.js';
+import { openChallenge } from '../approvals/challenge.js';
 import { T } from '../text.js';
 import type { ActionArgs, ActionResult, Outcome } from './types.js';
 
@@ -50,8 +53,15 @@ export async function requestAction(deps: Deps, hh: string, args: ActionArgs): P
 
     if (d.answer === 'allow') {
       if (args.service === SIM_HOME) {
-        await execSimHome(deps.store, hh, args.action, args.item, args.value);
-        return result({ outcome: 'allowed', reason: T.done(args.action, args.item, args.value), done: true }, tz, now, base);
+        const tier = tierOf(args);
+        // low risk: just do it. Medium by PIN (no phone): do it. Otherwise: a number to match on the person's OWN phone.
+        if (tier === 'low' || (tier === 'medium' && method === 'pin')) {
+          const ex = await executeAction(deps, hh, person.id, args);
+          return result({ outcome: 'allowed', reason: ex.reason, done: ex.done }, tz, now, base);
+        }
+        const { challenge, locked } = await openChallenge(deps, hh, person, 'action', args);
+        if (locked || !challenge) return result({ outcome: 'held', reason: T.locked, done: false }, tz, now, base);
+        return result({ outcome: 'allowed', reason: T.confirmOnPhone(challenge.number), done: false }, tz, now, { ...base, next: 'confirm_on_phone', number: challenge.number, job_id: challenge.id, tier });
       }
       // allowed by the rules, but no connector for this service yet
       return result({ outcome: 'held', reason: T.notReady, done: false }, tz, now, base);

@@ -6,13 +6,14 @@ const secret = () => process.env.HG_TOKEN_SECRET || 'local-dev-secret-not-for-pr
 
 const b64 = (s: string | Buffer) => Buffer.from(s).toString('base64url');
 
-export function mintToken(sub = 'demo', ttlSeconds = 60 * 60 * 24, hh = 'demo'): string {
-  const payload = b64(JSON.stringify({ sub, hh, exp: Math.floor(Date.now() / 1000) + ttlSeconds }));
+// aud 'alexa' = the voice side (MCP). aud 'phone' = one person's own phone; sub is that person.
+export function mintToken(sub = 'demo', ttlSeconds = 60 * 60 * 24, hh = 'demo', aud: 'alexa' | 'phone' = 'alexa'): string {
+  const payload = b64(JSON.stringify({ sub, hh, aud, exp: Math.floor(Date.now() / 1000) + ttlSeconds }));
   const sig = createHmac('sha256', secret()).update(payload).digest('base64url');
   return `${payload}.${sig}`;
 }
 
-export interface Claims { sub: string; hh: string; exp: number }
+export interface Claims { sub: string; hh: string; aud: 'alexa' | 'phone'; exp: number }
 
 export function verifyToken(token: string | undefined): boolean {
   return readToken(token) !== undefined;
@@ -28,7 +29,7 @@ export function readToken(token: string | undefined): Claims | undefined {
   if (got.length !== want.length || !timingSafeEqual(got, want)) return undefined;
   try {
     const c = JSON.parse(Buffer.from(payload, 'base64url').toString());
-    return typeof c.exp === 'number' && c.exp > Date.now() / 1000 ? { sub: c.sub, hh: c.hh ?? 'demo', exp: c.exp } : undefined;
+    return typeof c.exp === 'number' && c.exp > Date.now() / 1000 ? { sub: c.sub, hh: c.hh ?? 'demo', aud: c.aud === 'phone' ? 'phone' : 'alexa', exp: c.exp } : undefined;
   } catch {
     return undefined;
   }

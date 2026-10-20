@@ -1,6 +1,7 @@
 import { Store } from './store.js';
 import type { HouseholdMeta, Person, SessionMethod } from './types.js';
 import { defaultRules, type RulesConfig } from '../policy/rules.js';
+import { hashPin } from '../identity/pin.js';
 
 export const SESSION_SECONDS = 5 * 60;
 
@@ -11,6 +12,9 @@ export const DEMO_PEOPLE: Person[] = [
   { id: 'guest', name: 'Guest', role: 'guest', hasPhone: false }, // who anyone is until they confirm
 ];
 
+// demo PINs for people without a phone (documented in the README); stored only as scrypt hashes
+const DEMO_PINS: Record<string, string> = { leo: '4821' };
+
 const seeded = new Set<string>();
 
 // Idempotent: safe on every cold start. Writes only what is missing.
@@ -20,7 +24,7 @@ export async function ensureSeeded(store: Store, hh: string): Promise<void> {
   const pk = Store.hk(hh);
   const meta: HouseholdMeta = { id: hh, name: 'The Rivera house', timezone: 'America/New_York' };
   await store.put({ pk, sk: 'META', ...meta }, { ifNotExists: true }).catch(ignoreExists);
-  for (const p of DEMO_PEOPLE) await store.put({ pk, sk: `PERSON#${p.id}`, ...p }, { ifNotExists: true }).catch(ignoreExists);
+  for (const p of DEMO_PEOPLE) await store.put({ pk, sk: `PERSON#${p.id}`, ...p, ...(DEMO_PINS[p.id] ? { pinHash: hashPin(DEMO_PINS[p.id]) } : {}) }, { ifNotExists: true }).catch(ignoreExists);
   await store.put({ pk, sk: 'RULES#current', config: defaultRules() }, { ifNotExists: true }).catch(ignoreExists);
   seeded.add(key);
 }
