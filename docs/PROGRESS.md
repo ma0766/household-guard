@@ -24,6 +24,7 @@ Update after every slice. One line per check, with the command that proved it.
 
 ## Left for the human (not in the goal)
 
+- Make the GitLab repo PUBLIC (GitLab: Settings → General → Visibility → Public) and add an MIT LICENSE before submitting on Devpost.
 - Record the 2:45 video (script in docs/SPEC.md, "Demo script")
 - Hallway test with two people (docs/SLICES.md, "Usability standard")
 - Fill the friction log "what happened" column from real build notes
