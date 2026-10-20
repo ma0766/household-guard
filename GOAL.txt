@@ -1,0 +1,15 @@
+Build Household Guard slices S0 through S8 exactly as written in docs/SLICES.md, using the stack and hard rules in CLAUDE.md and the design in docs/SPEC.md. Work one slice at a time, in order. Do not ask me questions: choose the simplest option that fits the spec, log it under Decisions in docs/PROGRESS.md, and keep going. If something truly needs me (AWS login, Bedrock access), log it under Blocked on user, mock that dependency, and continue.
+
+For each slice: write the tests first from its "Done when" line, build until they pass, run the end-to-end UI check with Playwright and save screenshots, have a subagent review the diff against that slice's text in docs/SLICES.md, fix real gaps, update docs/PROGRESS.md with the proving command and result, then commit "S<n>: <name>" and push.
+
+Constraints that must hold the whole time: never delete, skip or weaken a test to make it pass; request_action never takes a person or speaker argument; every error path returns hold or deny; no secrets in git; the replay suite from S1 keeps passing after every later slice; user-facing text has no tech words.
+
+The goal is met only when ALL of these are shown in this conversation:
+1. `npm run verify` exits 0 and prints a table with S0, S1, S2, S3, S4, S5, S6, S7 and S8 each marked PASS.
+2. The replay suite reports 30 of 30 cases passing.
+3. The concurrency test (two simultaneous buys against one cap: one allowed, one held), the duplicate-request test, the price-surge test, the injection test and the audit-tamper test each pass.
+4. `npm run e2e` passes, including: a teen's $38 ride is held, a $14 shared ride that fits is offered and accepted, and the $24 saving appears in the audit timeline.
+5. `npm run deploy` succeeded and `npm run smoke:deployed` completes initialize, tools/list and tools/call against the deployed URL. If AWS access is blocked, this item may instead show the same smoke test passing against the local server, with the block recorded in docs/PROGRESS.md.
+6. README.md, FEEDBACK.md, FRICTION_LOG.md and an MIT LICENSE exist, and docs/PROGRESS.md marks S0 through S8 done with proof for each.
+
+Stop after 150 turns if not met, and report what is left.
