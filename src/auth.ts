@@ -6,24 +6,31 @@ const secret = () => process.env.HG_TOKEN_SECRET || 'local-dev-secret-not-for-pr
 
 const b64 = (s: string | Buffer) => Buffer.from(s).toString('base64url');
 
-export function mintToken(sub = 'demo', ttlSeconds = 60 * 60 * 24): string {
-  const payload = b64(JSON.stringify({ sub, exp: Math.floor(Date.now() / 1000) + ttlSeconds }));
+export function mintToken(sub = 'demo', ttlSeconds = 60 * 60 * 24, hh = 'demo'): string {
+  const payload = b64(JSON.stringify({ sub, hh, exp: Math.floor(Date.now() / 1000) + ttlSeconds }));
   const sig = createHmac('sha256', secret()).update(payload).digest('base64url');
   return `${payload}.${sig}`;
 }
 
+export interface Claims { sub: string; hh: string; exp: number }
+
 export function verifyToken(token: string | undefined): boolean {
-  if (!token) return false;
+  return readToken(token) !== undefined;
+}
+
+// returns the household this token belongs to; undefined = not signed in
+export function readToken(token: string | undefined): Claims | undefined {
+  if (!token) return undefined;
   const [payload, sig] = token.split('.');
-  if (!payload || !sig) return false;
+  if (!payload || !sig) return undefined;
   const want = createHmac('sha256', secret()).update(payload).digest();
   const got = Buffer.from(sig, 'base64url');
-  if (got.length !== want.length || !timingSafeEqual(got, want)) return false;
+  if (got.length !== want.length || !timingSafeEqual(got, want)) return undefined;
   try {
-    const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString());
-    return typeof exp === 'number' && exp > Date.now() / 1000;
+    const c = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    return typeof c.exp === 'number' && c.exp > Date.now() / 1000 ? { sub: c.sub, hh: c.hh ?? 'demo', exp: c.exp } : undefined;
   } catch {
-    return false;
+    return undefined;
   }
 }
 

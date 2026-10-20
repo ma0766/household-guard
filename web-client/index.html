@@ -9,12 +9,32 @@
 <body>
   <header><h1>Household Guard</h1><p class="sub">One set of house rules for everyone at home.</p></header>
   <main>
-    <section id="log-panel">
+    <section id="speaker-panel" aria-label="Alexa">
+      <h2>Alexa</h2>
+      <p class="hint">Who is talking?</p>
+      <div class="row" id="speakers"></div>
+      <div class="row">
+        <input id="say" data-testid="say" placeholder="Say something…" aria-label="What did they say" />
+        <button id="btn-say" data-testid="btn-say">Send</button>
+        <button id="btn-talk" class="secondary" title="Use your voice (Chrome)">🎤 Talk</button>
+      </div>
+      <div class="row" id="quick"></div>
+      <div id="alexa-says" data-testid="alexa-says" class="says" aria-live="polite">Alexa is listening.</div>
+    </section>
+    <section id="phones-panel" aria-label="Phones">
+      <h2>Phones</h2>
+      <div id="phones" class="phones"></div>
+    </section>
+    <section id="timeline-panel" aria-label="What happened">
+      <h2>What happened</h2>
+      <div id="timeline" data-testid="timeline"></div>
+    </section>
+    <section id="log-panel" aria-label="Message log">
       <h2>Message log</h2>
       <div class="row">
-        <button id="btn-connect">Connect</button>
-        <button id="btn-tools">List tools</button>
-        <button id="btn-status">Ask: house status</button>
+        <button id="btn-connect" class="secondary">Connect</button>
+        <button id="btn-tools" class="secondary">List tools</button>
+        <button id="btn-status" class="secondary">Ask: house status</button>
       </div>
       <pre id="log" data-testid="log"></pre>
     </section>

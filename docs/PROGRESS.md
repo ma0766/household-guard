@@ -5,7 +5,7 @@ Update after every slice. One line per check, with the command that proved it.
 | Slice | Status | Proof (command + result) | Commit |
 | --- | --- | --- | --- |
 | S0 Walking skeleton | DONE | `npx vitest run tests/s0` 6/6 (both protocol versions, 403 bad Origin, 401 no token); `npx playwright test` s0 PASS; `npm run deploy` + `npm run smoke:deployed` → initialize/tools/list/tools/call ✓ + bad Origin 403 against deployed URL | S0 |
-| S1 First decision: lights | not started | | |
+| S1 First decision: lights | DONE | `npm run verify` S1 PASS: `npx vitest run tests/s1 tests/replay` 10/10 replay cases, forced-DynamoDB-error → held, tz tests; `npx playwright test e2e/s1-lights.spec.ts` PASS (teen lights done, unlock denied, delete account denied; screenshot test-results/s1-denied.png) | S1 |
 | S2 Who is speaking | not started | | |
 | S3 Money: the ride | not started | | |
 | S4 Approvals + a yes that fits | not started | | |
@@ -21,6 +21,10 @@ Update after every slice. One line per check, with the command that proved it.
 - 2026-10-20 Origin check: 403 only when an Origin header is present and is neither same-host nor in `HG_ALLOWED_ORIGINS`; CLI clients send none.
 - 2026-10-20 Bedrock: `anthropic.claude-haiku-5-5` is not available to this account; `us.anthropic.claude-haiku-4-5-20251001-v1:0` answers a Converse call. Use that for S5.
 - 2026-10-20 Lambda Web Adapter layer `...LambdaAdapterLayerX86:30` (from adapter README).
+
+- 2026-10-20 Cedar text is generated from a rules config (`src/policy/rules.ts`) so adults edit cards, never Cedar (S7); defaults are committed as `src/policy/auto.cedar` / `approvable.cedar` and a test keeps them in sync.
+- 2026-10-20 Replay "outcome" is the three-answer decision (allowed/held/denied); later slices add a `done:false` + confirm step on top without changing the decision.
+- 2026-10-20 Guest is a stored person; no confirmed session = guest.
 
 ## Blocked on user
 

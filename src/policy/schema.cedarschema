@@ -1,0 +1,15 @@
+entity Role;
+entity Person in [Role];
+entity Service;
+
+action light, thermostat, unlock, garage, purchase appliesTo {
+  principal: [Person],
+  resource: [Service],
+  context: {
+    service_known: Bool,
+    amount_cents: Long,
+    week_spent_cents: Long,
+    value: Long,
+    session: String,
+  },
+};

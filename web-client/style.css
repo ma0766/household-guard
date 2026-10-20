@@ -9,3 +9,12 @@ button { background:var(--accent); color:#fff; border:0; border-radius:8px; padd
 button.secondary { background:#e7e3d8; color:var(--ink); } button:disabled { opacity:.5; }
 .row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
 pre { background:#11151f; color:#d7e3ff; padding:10px; border-radius:8px; max-height:340px; overflow:auto; font-size:12px; white-space:pre-wrap; }
+input { font:inherit; padding:8px; border:1px solid var(--line); border-radius:8px; flex:1; min-width:160px; }
+.says { margin-top:10px; padding:10px; border-radius:8px; background:#eef5f1; min-height:44px; font-size:17px; }
+.says.held { background:#fdf1e3; } .says.denied { background:#fbe9e9; }
+.hint { margin:0 0 6px; color:#5b6477; }
+.phones { display:flex; gap:10px; flex-wrap:wrap; }
+.phone { width:210px; border:2px solid var(--ink); border-radius:18px; padding:10px; background:#fafafa; min-height:200px; }
+.phone h3 { margin:0 0 6px; font-size:15px; }
+.who.active { outline:3px solid var(--accent); }
+.tl { padding:6px 0; border-bottom:1px solid var(--line); font-size:15px; }
