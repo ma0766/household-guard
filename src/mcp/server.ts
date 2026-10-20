@@ -3,9 +3,13 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
 import { bearerOf, originAllowed, readToken } from '../auth.js';
-import { requestAction, type Deps } from '../core/request-action.js';
+import type { Deps } from '../core/request-action.js';
+import { requestActionOnce } from '../core/idempotent.js';
 import { confirmIdentity } from '../identity/confirm.js';
 import { jobStatus } from '../core/jobs.js';
+import { approveRequest } from '../approvals/approvals.js';
+import { getSession } from '../core/household.js';
+import { T } from '../text.js';
 
 // Fixed facade: tool names never change, so nothing behind them needs a redeploy to Alexa.
 export function buildMcpServer(deps: Deps, hh: string): McpServer {
@@ -28,11 +32,13 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
         action: z.string().describe('What to do, e.g. light, unlock, thermostat, garage, purchase'),
         item: z.string().optional().describe('What it is about, e.g. front door'),
         value: z.union([z.string(), z.number()]).optional().describe('e.g. off, or 72'),
+        option_id: z.string().optional().describe('Which option, e.g. shared'),
+        replaces: z.string().optional().describe('The held request this one replaces (taking the cheaper option)'),
         request_id: z.string().optional().describe('Same id on a retry = the action happens once'),
       },
     },
     async (args) => {
-      const r = await requestAction(deps, hh, args);
+      const r = await requestActionOnce(deps, hh, args);
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as Record<string, unknown> };
     },
   );
@@ -44,6 +50,18 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     },
     async (args) => {
       const r = await confirmIdentity(deps, hh, args);
+      return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+    },
+  );
+  server.registerTool(
+    'approve_request',
+    {
+      description: 'An adult says yes (or no) to a held request by giving the number Alexa said. Needs a phone-confirmed adult.',
+      inputSchema: { approval_id: z.string(), number: z.number().optional(), decision: z.enum(['yes', 'no']).optional() },
+    },
+    async (a) => {
+      const s = await getSession(deps.store, hh, (deps.now ?? Date.now)());
+      const r = s ? await approveRequest(deps, hh, s.personId, a.approval_id, { number: a.number, decision: a.decision, method: s.method === 'phone' ? 'phone' : 'pin', voiceConfirmedAt: s.confirmedAt }) : { status: 'not_adult', say: T.whoAreYou };
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
     },
   );

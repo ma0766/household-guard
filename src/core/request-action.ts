@@ -9,15 +9,21 @@ import { executeAction } from './execute.js';
 import { openChallenge } from '../approvals/challenge.js';
 import { T } from '../text.js';
 import type { ActionArgs, ActionResult, Outcome } from './types.js';
+import type { JobQueue } from '../queue/queue.js';
+import type { RiskChecker } from '../risk/risk.js';
+import { handlePurchase } from './purchase.js';
 
 export interface Deps {
   store: Store;
   now?: () => number;
+  queue?: JobQueue;
+  risk?: RiskChecker; // AI risk check, run by the worker; can only make a decision stricter
+  hooks?: { beforeReserve?: () => Promise<void> }; // tests only: line two requests up at the same instant
 }
 
 const GUEST_ID = 'guest';
 
-function result(base: { outcome: Outcome; reason: string; done: boolean }, tz: string, now: number, extra: Record<string, unknown> = {}): ActionResult {
+export function result(base: { outcome: Outcome; reason: string; done: boolean }, tz: string, now: number, extra: Record<string, unknown> = {}): ActionResult {
   return { ...base, say: base.reason, at: new Date(now).toISOString(), at_local: formatLocal(now, tz), ...extra };
 }
 
@@ -36,6 +42,8 @@ export async function requestAction(deps: Deps, hh: string, args: ActionArgs): P
     const person = found || people.find((p) => p.id === GUEST_ID) || { id: GUEST_ID, name: 'Guest', role: 'guest' as const, hasPhone: false };
     const isGuest = person.id === GUEST_ID;
     const method = isGuest || !session ? 'none' : session.method;
+
+    if (args.action === 'purchase') return await handlePurchase(deps, hh, { person, method, rules, tz, now, args });
 
     const value = Number(args.value);
     const input: DecisionInput = {

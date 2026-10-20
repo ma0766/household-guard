@@ -1,7 +1,9 @@
 import { App, CfnOutput, Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Code, Function as Fn, FunctionUrlAuthType, InvokeMode, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import type { Construct } from 'constructs';
 
 // Lambda Web Adapter layer — version from the adapter's README (checked 2026-10-20)
@@ -44,6 +46,18 @@ class HouseholdGuardStack extends Stack {
     });
     table.grantReadWriteData(web);
     queue.grantSendMessages(web);
+    const worker = new Fn(this, 'Worker', {
+      runtime: Runtime.NODEJS_22_X,
+      handler: 'index.handler',
+      code: Code.fromAsset('dist/worker'),
+      memorySize: 256,
+      timeout: Duration.seconds(30),
+      environment: { HG_TABLE: table.tableName, HG_RISK: 'bedrock' },
+    });
+    // the risk check calls Claude Haiku on Amazon Bedrock (us-east-1)
+    worker.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel', 'bedrock:Converse'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
+    table.grantReadWriteData(worker);
+    worker.addEventSource(new SqsEventSource(queue, { batchSize: 5 }));
     const url = web.addFunctionUrl({ authType: FunctionUrlAuthType.NONE, invokeMode: InvokeMode.RESPONSE_STREAM });
     new CfnOutput(this, 'Url', { value: url.url });
   }

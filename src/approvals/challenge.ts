@@ -18,7 +18,8 @@ export interface Challenge {
   options: number[];
   status: 'open' | 'done' | 'failed' | 'expired';
   args?: ActionArgs;
-  result?: { done: boolean; reason: string };
+  meta?: Record<string, unknown>; // e.g. the money reservation this tap will release into a job
+  result?: { done: boolean; reason: string; jobId?: string };
   expiresAt: number;
 }
 
@@ -32,11 +33,11 @@ export function pickOptions(real: number): number[] {
 
 const key = (id: string) => `CHAL#${id}`;
 
-export async function openChallenge(deps: Deps, hh: string, p: { id: string; name: string }, kind: Challenge['kind'], args?: ActionArgs): Promise<{ challenge?: Challenge; locked: boolean }> {
+export async function openChallenge(deps: Deps, hh: string, p: { id: string; name: string }, kind: Challenge['kind'], args?: ActionArgs, meta?: Record<string, unknown>): Promise<{ challenge?: Challenge; locked: boolean }> {
   const now = (deps.now ?? Date.now)();
   if ((await recordPush(deps.store, hh, p.id, p.name, now)) === 'locked') return { locked: true };
   const number = two();
-  const challenge: Challenge = { id: randomUUID().slice(0, 12), kind, personId: p.id, number, options: pickOptions(number), status: 'open', args, expiresAt: now + CHALLENGE_MS };
+  const challenge: Challenge = { id: randomUUID().slice(0, 12), kind, personId: p.id, number, options: pickOptions(number), status: 'open', args, meta, expiresAt: now + CHALLENGE_MS };
   await deps.store.put({ pk: Store.hk(hh), sk: key(challenge.id), ...challenge, ttl: Math.floor(now / 1000) + 3600 });
   return { challenge, locked: false };
 }
@@ -83,7 +84,7 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
     result = { done: true, reason: `${name} is confirmed.` };
   } else {
     try {
-      result = await executeAction(deps, hh, personId, c.args!);
+      result = await executeAction(deps, hh, personId, c.args!, c.meta);
     } catch {
       result = { done: false, reason: 'Something went wrong. Ask an adult.' };
     }

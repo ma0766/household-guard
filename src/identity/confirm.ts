@@ -5,6 +5,8 @@ import { beginAttempt, clearWrong, failAttempt, isLocked } from './guard.js';
 import { verifyPin } from './pin.js';
 import { T } from '../text.js';
 import { Store } from '../core/store.js';
+import { openApprovals } from '../approvals/approvals.js';
+import { money } from '../text.js';
 
 export interface ConfirmOutcome {
   status: 'waiting' | 'confirmed' | 'locked' | 'failed' | 'unknown';
@@ -56,7 +58,9 @@ export async function phoneInbox(deps: Deps, hh: string, personId: string) {
     return { id: c.id, kind: c.kind, text, options: c.options };
   });
   const notices = me?.role === 'adult' ? (await deps.store.query(Store.hk(hh), 'NOTICE#', { reverse: true, limit: 5 })).filter((n) => now - n.at < 3600_000).map((n) => ({ text: n.text as string, at: n.at as number })) : [];
-  return { person: personId, has_phone: !!me?.hasPhone, challenges, notices };
+  // an adult's phone also shows held requests: who, what, how much, why — plus the number Alexa said (among 3)
+  const approvals = me?.role === 'adult' && me.hasPhone ? (await openApprovals(deps, hh)).map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, amount: money(a.amountCents), why: a.reason, options: a.options, text: `${a.personName} wants: ${a.itemText ?? a.itemKey}. ${money(a.amountCents)}. ${a.reason}` })) : [];
+  return { person: personId, has_phone: !!me?.hasPhone, challenges, notices, approvals };
 }
 
 function describe(a?: { action: string; item?: string; value?: string | number }): string {

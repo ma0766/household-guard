@@ -8,7 +8,7 @@ export type Item = Record<string, any> & { pk: string; sk: string };
 // and callers turn errors into "hold", never "allow".
 export class Store {
   readonly doc: DynamoDBDocumentClient;
-  constructor(client: DynamoDBClient, readonly table = TABLE) {
+  constructor(readonly client: DynamoDBClient, readonly table = TABLE) {
     this.doc = DynamoDBDocumentClient.from(client, { marshallOptions: { removeUndefinedValues: true } });
   }
   static hk = (hh: string) => `H#${hh}`;

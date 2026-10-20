@@ -2,7 +2,7 @@ import { Store } from '../core/store.js';
 
 // Spend cap is enforced HERE, in the database, as the last guard.
 // Rules said yes to two $15 buys at once? Both read "$0 spent". Only one conditional write can win.
-export const RESERVATION_MS = 10 * 60 * 1000;
+export const RESERVATION_MS = 11 * 60 * 1000; // a minute longer than a confirmation lives, so a last-second tap still has its money
 
 export interface Reservation {
   id: string;
@@ -24,6 +24,7 @@ export async function spentThisWeek(store: Store, hh: string, week: string, pers
 // DynamoDB conditions cannot add, so: ADD spent :amt  with condition  spent <= cap - amt.
 // One TransactWriteItems = the counter bump and the reservation record succeed or fail together.
 export async function reserve(store: Store, hh: string, r: Omit<Reservation, 'state'>, cap: number | null): Promise<'ok' | 'cap'> {
+  if (cap !== null && r.amount > cap) return 'cap'; // a missing spend row must not let an over-cap amount through
   const pk = Store.hk(hh);
   const bump: any = {
     Update: {
@@ -54,6 +55,13 @@ export async function reserve(store: Store, hh: string, r: Omit<Reservation, 'st
     }
     throw e; // anything else: caller fails closed (held)
   }
+}
+
+// Once a job owns the money, the expiry sweep must leave it alone.
+export async function pinReservation(store: Store, hh: string, id: string): Promise<void> {
+  await store.update({ Key: { pk: Store.hk(hh), sk: resKey(id) }, UpdateExpression: 'SET expiresAt = :far', ConditionExpression: '#s = :r', ExpressionAttributeNames: { '#s': 'state' }, ExpressionAttributeValues: { ':far': Date.now() + 7 * 86400_000, ':r': 'reserved' } }).catch((e: any) => {
+    if (e?.name !== 'ConditionalCheckFailedException') throw e;
+  });
 }
 
 export async function getReservation(store: Store, hh: string, id: string): Promise<Reservation | undefined> {

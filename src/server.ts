@@ -4,7 +4,8 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { handleMcp } from './mcp/server.js';
 import { bearerOf, mintToken, readToken } from './auth.js';
-import { defaultStore, Store } from './core/store.js';
+import { Store } from './core/store.js';
+import { makeDeps } from './core/deps.js';
 import { handlePhone } from './phone/routes.js';
 import type { Deps } from './core/request-action.js';
 
@@ -40,7 +41,7 @@ async function serveStatic(req: IncomingMessage, res: ServerResponse) {
 
 export function createApp(given?: Deps) {
   let deps = given;
-  const getDeps = (): Deps => (deps ??= { store: defaultStore() });
+  const getDeps = (): Deps => (deps ??= makeDeps());
   return createServer((req, res) => {
     const url = new URL(req.url ?? '/', 'http://x');
     void (async () => {

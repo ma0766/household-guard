@@ -7,9 +7,9 @@ Update after every slice. One line per check, with the command that proved it.
 | S0 Walking skeleton | DONE | `npx vitest run tests/s0` 6/6 (both protocol versions, 403 bad Origin, 401 no token); `npx playwright test` s0 PASS; `npm run deploy` + `npm run smoke:deployed` → initialize/tools/list/tools/call ✓ + bad Origin 403 against deployed URL | S0 |
 | S1 First decision: lights | DONE | `npm run verify` S1 PASS: `npx vitest run tests/s1 tests/replay` 10/10 replay cases, forced-DynamoDB-error → held, tz tests; `npx playwright test e2e/s1-lights.spec.ts` PASS (teen lights done, unlock denied, delete account denied; screenshot test-results/s1-denied.png) | S1 |
 | S2 Who is speaking | DONE | `npx vitest run tests/s2` (name alone → denied; number lands on own phone only; 4th push → locked; 3 wrong PIN/number → locked, incl. 30 parallel guesses; PIN scrypt-hashed; phone keys bound to one person); `npx playwright test e2e/s2-who.spec.ts` PASS (test-results/s2-number-match.png) | S2 |
-| S3 Money: the ride | not started | | |
-| S4 Approvals + a yes that fits | not started | | |
-| S5 Risk check | not started | | |
+| S3 Money: the ride | DONE | `npx vitest run tests/s3 tests/replay`: concurrency (two $15 vs $20 cap → one allowed, one held by the DB reservation, `why: cap_race`), duplicate (same request_id twice → one ride, one spend), worker failure releases money; replay at 20 cases; `npx playwright test e2e/s3-ride.spec.ts` PASS; deployed with SQS + worker Lambda | S3 (in S2/S4 commits) |
+| S4 Approvals + a yes that fits | DONE | `npx vitest run tests/s4` 18 tests (teen $38 held → $14 shared offered → accepted, $24 SAVED row; Mom approves by number → booked; surge → held again + new approval, money released; PIN/non-adult can't approve; voice approval needs a fresh phone confirmation); `npx playwright test e2e/s4-approvals.spec.ts` PASS (test-results/s4-*.png) | S4 |
+| S5 Risk check | DONE (mock) — live Bedrock blocked, see below | `npx vitest run tests/s5` 17 pass + 1 live-Bedrock test skipped until access works; gift card allowed by rules → held by risk check; injection tests; BedrockRisk fail-closed (throw/timeout/garbage/not-low → hold); `npx playwright test e2e/s5-risk.spec.ts` PASS | S5 |
 | S6 Audit and status | not started | | |
 | S7 Editable rules + full replay | not started | | |
 | S8 Hardening + submission pack (code parts) | not started | | |
@@ -29,10 +29,13 @@ Update after every slice. One line per check, with the command that proved it.
 - 2026-10-20 A request waiting for a phone tap returns outcome `allowed` + `done:false` + `next:confirm_on_phone` (the rules said yes; nothing has run). Agents must check `done`.
 - 2026-10-20 Phone keys: each simulated phone gets a token with aud=phone and sub=person; the voice-side token cannot read or tap phones (reviewer finding).
 - 2026-10-20 Guess guard counts an attempt BEFORE checking it (optimistic-concurrency write), so parallel guesses cannot beat the 3-try limit.
+- 2026-10-20 Approvals only for purchases (money). An adult's yes on an exact purchase skips the AI risk check (stronger than the check). The risk check is skipped never otherwise (PIN path, cheaper-option path, tap path all get checked).
+- 2026-10-20 Idempotency: with a `request_id` a retry is remembered for an hour; without one only for 5 seconds (so asking the same thing again, later, gets a fresh answer). The web client sends a fresh request_id per utterance.
+- 2026-10-20 By voice, `approve_request` needs the adult's phone confirmation to be newer than the held request and under a minute old; the number is spoken aloud so it proves nothing alone. The phone route is the strong path.
 
 ## Blocked on user
 
-- (none yet)
+- Amazon Bedrock: `aws bedrock-runtime converse` on `us.anthropic.claude-haiku-4-5-20251001-v1:0` returns "Model use case details have not been submitted for this account" (it worked once early on, then stopped; looks like account verification still in progress). Needs: AWS console → Bedrock → Model access → submit the Anthropic use-case form, wait ~15 min. Until then the deployed worker's risk check fails closed (every purchase gets held for an adult) and local/tests use the mock. The live test in tests/s5/risk.test.ts un-skips itself when the call works. Retried 2026-10-20 (3 times) — still blocked.
 
 ## Left for the human (not in the goal)
 

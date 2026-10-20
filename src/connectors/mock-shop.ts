@@ -11,8 +11,10 @@ export function quoteItem(item: string | undefined): { item: string; total_cents
   return key ? { item: key, total_cents: CATALOG[key] } : undefined;
 }
 
-export async function bookItem(store: Store, hh: string, item: string, total: number) {
-  const booking_id = randomUUID().slice(0, 8);
-  await store.put({ pk: Store.hk(hh), sk: `BOOKING#${booking_id}`, booking_id, item, total_cents: total, at: Date.now() });
+export async function bookItem(store: Store, hh: string, item: string, total: number, bookingId: string = randomUUID().slice(0, 8)) {
+  const booking_id = bookingId;
+  await store.put({ pk: Store.hk(hh), sk: `BOOKING#${booking_id}`, booking_id, item, total_cents: total, at: Date.now() }, { ifNotExists: true }).catch((e: any) => {
+    if (e?.name !== 'ConditionalCheckFailedException') throw e;
+  });
   return { booking_id, total_cents: total };
 }
