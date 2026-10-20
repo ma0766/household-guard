@@ -1,0 +1,47 @@
+{
+  "name": "household-guard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/idempotency": "^2.36.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.1154.0",
+    "@aws-sdk/client-dynamodb": "^3.1154.0",
+    "@aws-sdk/client-sqs": "^3.1154.0",
+    "@aws-sdk/lib-dynamodb": "^3.1154.0",
+    "@cedar-policy/cedar-wasm": "^4.14.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "aws-cdk": "^2.1146.0",
+    "aws-cdk-lib": "^2.274.0",
+    "constructs": "^10.8.1",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.13.0",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  },
+  "scripts": {
+    "dev": "tsx scripts/dev.ts",
+    "build:web": "vite build",
+    "start:e2e": "npm run build:web && HG_LOCAL=1 tsx scripts/start-local.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "verify": "tsx scripts/verify.ts",
+    "deploy": "tsx scripts/deploy.ts",
+    "smoke:deployed": "tsx scripts/smoke.ts"
+  }
+}

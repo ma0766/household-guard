@@ -1,0 +1,53 @@
+import { App, CfnOutput, Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { Code, Function as Fn, FunctionUrlAuthType, InvokeMode, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
+import type { Construct } from 'constructs';
+
+// Lambda Web Adapter layer — version from the adapter's README (checked 2026-10-20)
+const LWA_LAYER = 'arn:aws:lambda:us-east-1:753240598075:layer:LambdaAdapterLayerX86:30';
+
+class HouseholdGuardStack extends Stack {
+  constructor(scope: Construct, id: string, props: StackProps) {
+    super(scope, id, props);
+    // one table, key prefixes; TTL expires sessions, approvals and audit entries
+    const table = new Table(this, 'Table', {
+      tableName: 'household-guard',
+      partitionKey: { name: 'pk', type: AttributeType.STRING },
+      sortKey: { name: 'sk', type: AttributeType.STRING },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      timeToLiveAttribute: 'ttl',
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+    const secret = process.env.HG_TOKEN_SECRET;
+    if (!secret) throw new Error('HG_TOKEN_SECRET is required — run npm run deploy');
+    const queue = new Queue(this, 'Jobs', { visibilityTimeout: Duration.seconds(60) });
+
+    const web = new Fn(this, 'Web', {
+      runtime: Runtime.NODEJS_22_X,
+      handler: 'run.sh',
+      code: Code.fromAsset('dist/lambda'),
+      layers: [LayerVersion.fromLayerVersionArn(this, 'Lwa', LWA_LAYER)],
+      memorySize: 512,
+      timeout: Duration.seconds(29),
+      environment: {
+        AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap',
+        AWS_LWA_INVOKE_MODE: 'response_stream',
+        PORT: '8080',
+        HG_HOST: '0.0.0.0',
+        HG_WEB_ROOT: '/var/task/web',
+        HG_TABLE: table.tableName,
+        HG_QUEUE_URL: queue.queueUrl,
+        HG_TOKEN_SECRET: secret,
+        HG_DEMO: '1', // demo-token endpoint so the hosted web client can sign in (decision logged in PROGRESS.md)
+      },
+    });
+    table.grantReadWriteData(web);
+    queue.grantSendMessages(web);
+    const url = web.addFunctionUrl({ authType: FunctionUrlAuthType.NONE, invokeMode: InvokeMode.RESPONSE_STREAM });
+    new CfnOutput(this, 'Url', { value: url.url });
+  }
+}
+
+const app = new App();
+new HouseholdGuardStack(app, 'HouseholdGuard', { env: { region: 'us-east-1', account: process.env.CDK_DEFAULT_ACCOUNT } });

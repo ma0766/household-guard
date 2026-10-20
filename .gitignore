@@ -1,5 +1,8 @@
-node_modules
 dist
+node_modules
 cdk.out
 .env*
 test-results
+playwright-report
+.claude/session.md
+.claude/log.md

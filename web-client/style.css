@@ -1,0 +1,11 @@
+:root { --bg:#f6f4ef; --ink:#1d2433; --card:#fff; --line:#d9d4c7; --accent:#1b6b57; --warn:#b4540a; --bad:#a32424; }
+* { box-sizing: border-box; }
+body { margin:0; font:16px/1.4 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+header { padding:16px 20px; border-bottom:1px solid var(--line); background:var(--card); }
+h1 { margin:0; font-size:22px; } h2 { font-size:16px; margin:0 0 8px; } .sub { margin:2px 0 0; color:#5b6477; }
+main { display:grid; gap:16px; padding:16px 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:8px 12px; font:inherit; cursor:pointer; }
+button.secondary { background:#e7e3d8; color:var(--ink); } button:disabled { opacity:.5; }
+.row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+pre { background:#11151f; color:#d7e3ff; padding:10px; border-radius:8px; max-height:340px; overflow:auto; font-size:12px; white-space:pre-wrap; }
