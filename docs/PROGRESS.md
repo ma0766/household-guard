@@ -41,6 +41,20 @@ Update after every slice. One line per check, with the command that proved it.
 - 2026-10-20 Provisioned concurrency is documented in the README as off-by-default (not scripted); `/demo-token` stays enabled on the deployed Lambda (`HG_DEMO=1`) so the hosted web client can sign in — remove it after judging.
 - 2026-10-20 Review fixes (S7/S8): undo of a change that re-enabled a locked rule needs the warning + second tap; the rule change record commits in the same transaction as the new rules; refused rule attempts are all logged; `-c demo=0` switches the open demo sign-in off after judging.
 
+## Roadmap branch (S9–S16): audit before new work
+
+Tag `submission-v1` marks the entry as first submitted. All new work is on branch `roadmap`; it merges to `main` only when `npm run verify` and `npm run e2e` pass.
+
+Independent review (a subagent with no prior context compared each S0–S8 "Done when" line to its tests). Gaps found and fixed:
+- Deployed worker Lambda crashed on start (`__dirname is not defined`): the bundle did not carry Cedar. Fixed in `scripts/build-lambda.ts`; `tests/s3/bundle.test.ts` builds and loads the bundle; `npm run smoke:deployed` now books a real ride through SQS + worker + live Bedrock.
+- Queue redelivery (same job delivered 3 times books once): `tests/s3/redelivery.test.ts`.
+- S5 live model through the whole flow (gift card held, plain ride booked), plain-ride check tightened to `ok`; the live test no longer skips.
+- Adult garage = medium (own-phone tap; PIN → held; teen/guest denied): `tests/s2/garage.test.ts`.
+- Household zone used on every timestamp (Tokyo test); the busy-reply path no longer hard-codes New York.
+- Must-have "arrives by": `tests/s4/value-honesty.test.ts`; honesty note "The lowest price we found, from the rides we checked." added to every offer.
+- Every `say`/`reason`/`error` string in `src` (not only `src/text.ts`) is checked for tech words, length and grade 5 (found and fixed "Only adults can change rules.").
+- One icon per kind on the timeline; locked rules on by default.
+
 ## Blocked on user
 
 - Nothing. Bedrock access opened 2026-10-20 (after first use in the console); `aws bedrock-runtime converse` on `us.anthropic.claude-haiku-4-5-20251001-v1:0` works and the live test runs.

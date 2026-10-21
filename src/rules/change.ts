@@ -35,7 +35,7 @@ export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleCh
     }
     if (me.role !== 'adult') {
       await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. No. Only adults can.`, data: { refused: 'not_adult' } });
-      return { status: 'denied', say: 'Only adults can change rules.' };
+      return { status: 'denied', say: 'Ask an adult to change rules.' };
     }
     if (s!.method !== 'phone') {
       await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. Needs their phone first.`, data: { refused: 'needs_phone' } });
@@ -103,7 +103,7 @@ export async function completeRule(deps: Deps, hh: string, personId: string, c: 
   const m = c.meta as any;
   const { people, rules } = await loadHousehold(deps.store, hh);
   const me = people.find((p) => p.id === personId);
-  if (!me || me.role !== 'adult') return { done: false, reason: 'Only adults can change rules.' }; // checked again at the moment of the change
+  if (!me || me.role !== 'adult') return { done: false, reason: 'Ask an adult to change rules.' }; // checked again at the moment of the change
 
   if (m.stage === 1 && m.undoVersion !== undefined) {
     const { challenge, locked } = await openChallenge(deps, hh, me, 'rule', undefined, { ...m, stage: 'final', text: `Are you sure? This turns off a locked rule. ${m.text}` });

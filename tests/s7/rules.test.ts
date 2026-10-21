@@ -50,7 +50,7 @@ describe('S7 editable rules', () => {
     const ctx = await newHousehold();
     await speakAs(ctx.store, ctx.hh, 'maya');
     const r = await proposeRule(ctx.deps, ctx.hh, limit('maya', 500));
-    expect(r).toMatchObject({ status: 'denied', say: 'Only adults can change rules.' });
+    expect(r).toMatchObject({ status: 'denied', say: 'Ask an adult to change rules.' });
     expect((await phoneInbox(ctx.deps, ctx.hh, 'mom')).challenges).toEqual([]);
     expect((await loadHousehold(ctx.store, ctx.hh)).rules.version).toBe(1);
     expect((await readAudit(ctx.store, ctx.hh)).some((e) => /^Maya tried to change a rule at .* No\. Only adults can\.$/.test(e.text))).toBe(true);
@@ -203,5 +203,15 @@ describe('S7 review fixes', () => {
     await speakAs(ctx.store, ctx.hh, 'mom');
     await change(ctx, limit('maya', 30));
     expect((await ctx.store.query(Store.hk(ctx.hh), 'RULECHG#')).map((r) => r.status)).toEqual(['applied']);
+  });
+});
+
+describe('S7 safety floor ships locked on a fresh house', () => {
+  it('"children can\'t unlock doors" and "guests can\'t buy" are on by default', async () => {
+    const { defaultRules } = await import('../../src/policy/rules.js');
+    expect(defaultRules().floor).toEqual({ childrenNoUnlock: true, guestsNoBuy: true });
+    const ctx = await newHousehold();
+    const { loadHousehold } = await import('../../src/core/household.js');
+    expect((await loadHousehold(ctx.store, ctx.hh)).rules.floor).toEqual({ childrenNoUnlock: true, guestsNoBuy: true });
   });
 });

@@ -66,7 +66,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
     const alt = bestValue(rules, person, method, args.service, rideOptions, amount, spent, now, tz);
     const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason });
     const say = [reason, alt ? `${T.altOffer(alt.label.toLowerCase(), alt.total_cents)} ${T.wantThat}` : '', T.adultCanTap(a.number)].filter(Boolean).join(' ');
-    const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents } } : {}) });
+    const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
     out.say = say;
     return out;
   }

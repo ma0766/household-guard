@@ -4,6 +4,7 @@ import { DynamoDBPersistenceLayer } from '@aws-lambda-powertools/idempotency/dyn
 import type { Deps } from './request-action.js';
 import { requestAction } from './request-action.js';
 import { getSession } from './household.js';
+import { Store } from './store.js';
 import { formatLocal } from './time.js';
 import { T } from '../text.js';
 import type { ActionArgs, ActionResult } from './types.js';
@@ -38,6 +39,14 @@ function build(deps: Deps) {
   return { withId: mk(3600), noId: mk(5) }; // without an id, only a retry within seconds counts as the same request
 }
 
+async function zoneOf(deps: Deps, hh: string): Promise<string> {
+  try {
+    return ((await deps.store.get(Store.hk(hh), 'META'))?.timezone as string) ?? 'America/New_York';
+  } catch {
+    return 'America/New_York'; // the store itself is failing; the time is only a label
+  }
+}
+
 export async function requestActionOnce(deps: Deps, hh: string, args: ActionArgs): Promise<ActionResult> {
   const now = (deps.now ?? Date.now)();
   try {
@@ -50,6 +59,6 @@ export async function requestActionOnce(deps: Deps, hh: string, args: ActionArgs
   } catch (e) {
     if (process.env.HG_DEBUG) console.error('idempotent wrapper failed', e);
     // already-in-progress, or the store failed: hold. Never allow, never run twice.
-    return { outcome: 'held', reason: T.busy, done: false, say: T.busy, at: new Date(now).toISOString(), at_local: formatLocal(now, 'America/New_York') };
+    return { outcome: 'held', reason: T.busy, done: false, say: T.busy, at: new Date(now).toISOString(), at_local: formatLocal(now, await zoneOf(deps, hh)) };
   }
 }

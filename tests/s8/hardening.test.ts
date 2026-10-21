@@ -100,6 +100,30 @@ describe('S8 words (usability standard, checked in CI)', () => {
       expect(grade(line), `${line} (grade ${grade(line).toFixed(1)})`).toBeLessThanOrEqual(5);
     }
   });
+  it('every line written outside the text file is held to the same rules (say / reason / error)', async () => {
+    const { readdirSync, statSync } = await import('node:fs');
+    const files: string[] = [];
+    const walk = (d: string) => { for (const f of readdirSync(d)) { const p = `${d}/${f}`; if (statSync(p).isDirectory()) walk(p); else if (p.endsWith('.ts') && p !== 'src/text.ts') files.push(p); } };
+    walk('src');
+    const found: string[] = [];
+    for (const f of files) {
+      for (const line of readFileSync(f, 'utf8').split('\n')) {
+        if (/jsonrpc|\bsend\(|res\.end\(/.test(line)) continue; // web-address error replies for programs, never spoken
+        for (const m of line.matchAll(/\b(?:say|reason|error|warning|why|message)\s*:\s*('(?:[^'\\]|\\.)*'|`[^`]*`)/g)) {
+          const text = m[1].slice(1, -1).replace(/\$\{[^}]*\}/g, '5').replace(/\\'/g, "'");
+          if (/[A-Z][a-z]+ [a-z]+/.test(text) && text.includes(' ')) found.push(text);
+        }
+      }
+    }
+    expect(found.length).toBeGreaterThan(25); // the scan really finds lines
+    const bad: string[] = [];
+    for (const line of found) {
+      if (line.split(/(?<=[.!?])\s+/).some((x) => x.split(/\s+/).length >= 12)) bad.push(`too long: ${line}`);
+      if (BANNED_WORDS.some((w) => new RegExp(`\\b${w}\\b`).test(line.toLowerCase()))) bad.push(`tech word: ${line}`);
+      if (grade(line) > 5) bad.push(`grade ${grade(line).toFixed(1)}: ${line}`);
+    }
+    expect(bad).toEqual([]);
+  });
   it('the web client has no tech words in its buttons and labels', () => {
     const html = readFileSync('web-client/index.html', 'utf8').replace(/<script[\s\S]*?<\/script>/g, '');
     const visible = [...html.matchAll(/>([^<>]{3,})</g)].map((m) => m[1]).join(' ').toLowerCase();

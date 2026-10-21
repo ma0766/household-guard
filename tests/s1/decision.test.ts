@@ -154,3 +154,19 @@ describe('S1 policy files', () => {
     expect(people.map((p) => p.role).sort()).toEqual(['adult', 'child', 'guest', 'teen']);
   });
 });
+
+describe('S1 household time zone: every timestamp (gap 13)', () => {
+  it('a household in Tokyo gets Tokyo times on the answer and on the log sentence', async () => {
+    const { hh, store, deps } = await newHousehold();
+    await store.update({ Key: { pk: Store.hk(hh), sk: 'META' }, UpdateExpression: 'SET #tz = :z', ExpressionAttributeNames: { '#tz': 'timezone' }, ExpressionAttributeValues: { ':z': 'Asia/Tokyo' } });
+    const at = Date.parse('2026-10-20T03:30:00Z'); // 12:30 PM Tuesday in Tokyo, 11:30 PM Monday in New York
+    const r = await requestAction({ ...deps, now: () => at }, hh, home('light', 'lights', 'on'));
+    expect(r.at_local).toBe('Tue 12:30 PM');
+    await speakAs(store, hh, 'maya', 'phone', at);
+    await requestAction({ ...deps, now: () => at }, hh, { service: 'mock-ride', action: 'purchase', item: 'ride to the airport' });
+    const { readAudit } = await import('../../src/audit/audit.js');
+    const text = (await readAudit(store, hh)).map((e) => e.text).join(' ');
+    expect(text).toMatch(/12:30 PM/);
+    expect(text).not.toMatch(/11:30 PM/);
+  });
+});
