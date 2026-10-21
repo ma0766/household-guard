@@ -11,6 +11,7 @@ const dir = `audit/${date}`; mkdirSync(dir, { recursive: true });
 const PAUSE = 1500; // a natural beat between a person's actions
 const consoleErrors: string[] = []; const slow: string[] = []; const segs: { seg: string; window: string; seconds: number; note?: string }[] = [];
 
+test.use({ trace: 'off' }); // the recorder's own script in the sandboxed frames would add fake console errors to the take
 test('B: the 2:45 demo, start to finish', async ({ browser }) => {
   test.setTimeout(400000);
   const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, recordVideo: { dir: `${dir}/pw-${target}/demo`, size: { width: 1920, height: 1080 } } });

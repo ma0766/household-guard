@@ -1,0 +1,56 @@
+
+> household-guard@0.1.0 deploy:roadmap
+> STAGE=roadmap tsx scripts/deploy.ts
+
+stage: roadmap (stack HouseholdGuard-roadmap)
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 5 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/web/index.html                  6.12 kB │ gzip: 1.74 kB
+dist/web/assets/index-D03zJS_p.css   1.78 kB │ gzip: 0.74 kB
+dist/web/assets/index-D6PqylPg.js   15.83 kB │ gzip: 5.76 kB
+
+✓ built in 58ms
+lambda bundle ready
+AI agent detected
+
+✨  Synthesis time: 2.49s
+
+HouseholdGuard-roadmap: start: Building Web/Code
+HouseholdGuard-roadmap: success: Built Web/Code
+HouseholdGuard-roadmap: start: Building Worker/Code
+HouseholdGuard-roadmap: success: Built Worker/Code
+HouseholdGuard-roadmap: start: Building Heal/Code
+HouseholdGuard-roadmap: success: Built Heal/Code
+HouseholdGuard-roadmap: start: Building HouseholdGuard-roadmap Template
+HouseholdGuard-roadmap: success: Built HouseholdGuard-roadmap Template
+HouseholdGuard-roadmap: start: Publishing Web/Code (679241558430-us-east-1-53ebd556)
+HouseholdGuard-roadmap: start: Publishing HouseholdGuard-roadmap Template (679241558430-us-east-1-a5e29907)
+HouseholdGuard-roadmap: start: Publishing Worker/Code (679241558430-us-east-1-7ccebf26)
+HouseholdGuard-roadmap: start: Publishing Heal/Code (679241558430-us-east-1-0cf9e4f5)
+HouseholdGuard-roadmap: success: Published HouseholdGuard-roadmap Template (679241558430-us-east-1-a5e29907)
+HouseholdGuard-roadmap: success: Published Worker/Code (679241558430-us-east-1-7ccebf26)
+HouseholdGuard-roadmap: success: Published Web/Code (679241558430-us-east-1-53ebd556)
+HouseholdGuard-roadmap: success: Published Heal/Code (679241558430-us-east-1-0cf9e4f5)
+HouseholdGuard-roadmap: creating CloudFormation changeset...
+HouseholdGuard-roadmap: deploying... [1/1]
+
+✅  HouseholdGuard-roadmap
+
+✨  Deployment time: 21.72s
+
+Outputs:
+HouseholdGuard-roadmap.ServiceClientId = 55hr9scs7bggekorkbbtv6a403
+HouseholdGuard-roadmap.SignInDomain = https://hg-roadmap-679241558430.auth.us-east-1.amazoncognito.com
+HouseholdGuard-roadmap.Url = https://qnvjnhktlzgkb6kcrhi7g2tb5i0tgrtw.lambda-url.us-east-1.on.aws/
+HouseholdGuard-roadmap.UserPoolId = us-east-1_PqwvjHSvt
+HouseholdGuard-roadmap.WebClientId = cbkkd952duv046qus6fjp82e9
+Stack ARN:
+arn:aws:cloudformation:us-east-1:679241558430:stack/HouseholdGuard-roadmap/12753860-ccf2-11f1-8ea6-0efaa0a22f4d
+
+✨  Total time: 40.23s
+
+deployed: https://qnvjnhktlzgkb6kcrhi7g2tb5i0tgrtw.lambda-url.us-east-1.on.aws
+exit=0

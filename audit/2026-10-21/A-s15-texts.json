@@ -2,21 +2,12 @@
   "teenText": "That's new here. An adult must say yes.",
   "guestText": "Tell me who you are first.",
   "seen": [
-    "Confirm on your phone: 46",
+    "Confirm on your phone: 68",
     "Your site is ready. Sunny Bakery."
   ],
-  "screenText": "Your site is ready: Sunny Bakery\n\nScan the code, or open the link, on your phone.\n\nhttps://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/preview/EC5ZxLwCh7qc460M",
-  "previewText": "Sunny Bakery\n\nFresh and local.\n\nWelcome to Sunny Bakery.\n\nA one-page site for Sunny Bakery.\n\nCome by and say hello.",
-  "link": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/preview/EC5ZxLwCh7qc460M",
-  "answerMs": 234,
-  "errs": [
-    "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
-    "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
-    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
-    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
-    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
-    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
-    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
-    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."
-  ]
+  "screenText": "Your site is ready: Sunny Bakery\n\nScan the code, or open the link, on your phone.\n\nhttp://127.0.0.1:8016/preview/THr4rNqiTjY82ISO",
+  "previewText": "Sunny Bakery\n\nFresh and local.\n\nWelcome to Sunny Bakery.\n\nA one-page site for Sunny Bakery.\n\nCome by and say hello.\n\nPractice site made by the demo's stand-in site builder.",
+  "link": "http://127.0.0.1:8016/preview/THr4rNqiTjY82ISO",
+  "answerMs": 126,
+  "errs": []
 }

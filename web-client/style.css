@@ -21,3 +21,7 @@ input { font:inherit; padding:8px; border:1px solid var(--line); border-radius:8
 .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px; margin-bottom:8px; }
 .card button { margin:2px 4px 2px 0; min-width:48px; }
 .notice { color:var(--warn); font-size:14px; }
+/* the quick buttons and the phones are built by the script after the first paint: keep their room reserved so nothing below them jumps (layout shift) */
+#phones { min-height: 620px; }
+#quick { min-height: 317px; }
+@media (min-width: 700px) { #quick { min-height: 224px; } }

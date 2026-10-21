@@ -70,9 +70,8 @@ void (async () => {
   try {
     const list = ((await (await fetch('/config.json')).json()) as { stand_ins?: string[] }).stand_ins ?? [];
     if (!list.length) return;
-    standInText = `Practice versions in this demo: ${list.join(', ')}. They are not the real services.`;
-    $('standin-note').textContent = standInText;
-    $('standin-note').hidden = false;
+    standInText = `Demo stand-ins, not real: ${list.join(', ')}.`;
+    $('standin-note').textContent = standInText; // the space is already reserved in the page, so nothing jumps
   } catch { /* no note if the config cannot be read */ }
 })();
 
@@ -303,7 +302,6 @@ async function openApp(view: string) {
   }
   appView = view;
   $('screen-note').textContent = view === 'connect' ? standInText : '';
-  $('screen-note').hidden = !(view === 'connect' && standInText);
   appFrame.srcdoc = appHtml; // a fresh page; it starts by saying hello and we answer below
 }
 const toApp = (m: Record<string, unknown>) => appFrame.contentWindow?.postMessage({ jsonrpc: '2.0', ...m }, '*');

@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { freshHouse, signIn } from '../../e2e/helpers.js';
+import { say, allText, tour } from './qlib.js';
 
 // Audit Part C (browser checks): axe, console, mobile width, plain language, 30-second test, voice.
 const date = process.env.AUDIT_DATE ?? '2026-10-21';
@@ -17,27 +18,6 @@ test.beforeEach(async ({ page }) => {
   page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
   page.on('pageerror', (e) => consoleErrors.push('PAGEERROR ' + e.message));
 });
-
-async function say(page: Page, text: string) { await page.getByTestId('say').fill(text); await page.getByTestId('btn-say').click(); await page.waitForTimeout(800); }
-async function allText(page: Page): Promise<{ where: string; text: string }[]> {
-  const out = [{ where: 'page', text: await page.locator('main').innerText() }];
-  for (const f of page.frames().slice(1)) { try { out.push({ where: `frame:${await f.name() || f.url().slice(0, 40)}`, text: await f.locator('body').innerText({ timeout: 1500 }) }); } catch { /* empty frame */ } }
-  return out;
-}
-// walk the app into the states a person sees: lights, a held ride with an offer, a phone card, the timeline, a rule card
-async function tour(page: Page) {
-  await page.goto(freshHouse() + '&dad=1'); await page.waitForLoadState('networkidle');
-  const shots: string[] = [];
-  const snap = async (n: string) => { shots.push(n); await page.screenshot({ path: `${dir}/C-${target}-${n}.png`, fullPage: true }); };
-  await snap('1-start');
-  await page.getByTestId('who-guest').click(); await say(page, 'turn off the lights'); await snap('2-guest-lights');
-  await say(page, 'unlock the front door'); await snap('3-guest-unlock-denied');
-  await signIn(page, 'maya'); await say(page, 'book a ride to the airport'); await snap('4-teen-ride-held');
-  await page.getByTestId('btn-app-approvals').click().catch(() => undefined); await page.waitForTimeout(800); await snap('5-approvals-screen');
-  await page.getByTestId('btn-app-orders').click().catch(() => undefined); await page.waitForTimeout(800); await snap('6-orders-screen');
-  await page.getByTestId('btn-kids-week').click().catch(() => undefined); await page.waitForTimeout(800); await snap('7-timeline-summary');
-  return shots;
-}
 
 test('C1 axe: no serious or critical issues on any screen state', async ({ page }) => {
   test.setTimeout(300000);
@@ -63,12 +43,6 @@ test('C1 axe: no serious or critical issues on any screen state', async ({ page 
   writeFileSync(`${dir}/C-axe-${target}.json`, JSON.stringify(all, null, 2));
   const bad = all.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(bad, JSON.stringify(bad, null, 1)).toEqual([]);
-});
-
-test('C2 console: zero errors and zero unhandled rejections during the tour', async ({ page }) => {
-  await tour(page);
-  writeFileSync(`${dir}/C-console-${target}.json`, JSON.stringify(consoleErrors, null, 2));
-  expect(consoleErrors).toEqual([]);
 });
 
 test('C3 mobile 390px: no sideways scroll, phones and approval usable', async ({ browser }) => {

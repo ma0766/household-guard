@@ -40,7 +40,7 @@
     </section>
     <section id="apps-panel" aria-label="Apps">
       <h2>Apps</h2>
-      <p id="standin-note" class="hint" data-testid="standin-note" hidden></p>
+      <p id="standin-note" class="hint" data-testid="standin-note" style="min-height:2.8em"></p>
       <div class="row">
         <button id="btn-connect-spotify" data-testid="btn-connect-spotify" class="secondary">Connect Spotify</button>
         <button id="btn-allow-spotify" data-testid="btn-allow-spotify" class="secondary">Allow Spotify (adult)</button>
@@ -54,8 +54,8 @@
         <button id="btn-app-approvals" data-testid="btn-app-approvals">Show what is waiting</button>
         <button id="btn-app-orders" class="secondary" data-testid="btn-app-orders">Show recent buys</button>
       </div>
-      <p id="screen-note" class="hint" data-testid="screen-note" hidden></p>
-      <iframe id="app-frame" data-testid="app-frame" sandbox="allow-scripts" title="Screen from the house" style="width:100%;height:260px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
+      <p id="screen-note" class="hint" data-testid="screen-note" style="min-height:1.4em"></p>
+      <iframe id="app-frame" srcdoc='<!doctype html><html lang="en"><title>Screen from the house</title><p style="font:16px system-ui">Nothing to show yet.</p>' data-testid="app-frame" sandbox="allow-scripts" title="Screen from the house" style="width:100%;height:260px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
     </section>
     <section id="timeline-panel" aria-label="What happened">
       <h2>What happened</h2>
@@ -64,7 +64,7 @@
         <select id="tl-day" data-testid="tl-day" aria-label="Which day"><option value="">All days</option><option value="today">Today</option></select>
         <button id="btn-voice-summary" class="secondary" data-testid="btn-kids-week">What did the kids buy this week?</button>
       </div>
-      <iframe id="timeline" data-testid="timeline" sandbox="" title="What happened" style="width:100%;height:420px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
+      <iframe id="timeline" srcdoc='<!doctype html><html lang="en"><title>What happened</title><p style="font:16px system-ui">Nothing to show yet.</p>' data-testid="timeline" sandbox="" title="What happened" style="width:100%;height:420px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
       <p id="summary" data-testid="summary" class="says" hidden></p>
     </section>
     <section id="rules-panel" aria-label="House rules">
@@ -79,7 +79,7 @@
         <button id="rule-undo" data-testid="rule-undo" class="secondary">Undo last change</button>
       </div>
       <p id="rule-preview" data-testid="rule-preview" class="hint" aria-live="polite"></p>
-      <iframe id="rules-frame" data-testid="rules-frame" sandbox="" title="House rules" style="width:100%;height:300px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
+      <iframe id="rules-frame" srcdoc='<!doctype html><html lang="en"><title>House rules</title><p style="font:16px system-ui">Nothing to show yet.</p>' data-testid="rules-frame" sandbox="" title="House rules" style="width:100%;height:300px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
     </section>
     <section id="log-panel" aria-label="Message log">
       <h2>Message log</h2>

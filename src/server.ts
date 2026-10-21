@@ -66,7 +66,7 @@ export const PRIVACY = [
 // The stand-in for the app's own sign-in page: "Allow" finishes the connection for the person the link was made for.
 const STANDIN_PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect an app</title>
 <style>body{font:18px/1.4 system-ui,sans-serif;padding:16px;color:#1d2433;background:#f5f3ec}button{font:inherit;padding:12px 20px;border-radius:10px;border:1px solid #1d2433;background:#1d2433;color:#fff}</style></head>
-<body><h1>Connect an app</h1><p data-testid="standin-label"><b>Practice page.</b> A real app would show its own sign-in here.</p><p>Say yes to let the house use this app for you.</p><button id="go" data-testid="standin-allow">Allow</button><p id="out" data-testid="standin-out"></p>
+<body><h1>Connect an app</h1><p data-testid="standin-label"><b>Demo stand-in page.</b> A real app would show its own sign-in here.</p><p>Say yes to let the house use this app for you.</p><button id="go" data-testid="standin-allow">Allow</button><p id="out" data-testid="standin-out"></p>
 <script>document.getElementById('go').onclick=function(){fetch(location.pathname,{method:'POST'}).then(function(r){document.getElementById('out').textContent=r.ok?'Connected. You can close this page.':'This link is old.';});};</script></body></html>`;
 
 function sendJson(res: ServerResponse, body: unknown) {
@@ -100,7 +100,7 @@ export function createApp(given?: Deps) {
         if (url.pathname === '/config.json') {
           const e = process.env;
           // which parts are practice versions (stand-ins), so the page can say so to anyone watching
-          const standIns = [!e.COMPOSIO_API_KEY && 'apps like Spotify', !(e.WIX_API_KEY && e.WIX_ACCOUNT_ID) && 'the site builder', !e.HG_EMAIL_FROM && 'approval emails'].filter(Boolean);
+          const standIns = [!e.COMPOSIO_API_KEY && 'apps', !(e.WIX_API_KEY && e.WIX_ACCOUNT_ID) && 'site builder', !e.HG_EMAIL_FROM && 'emails'].filter(Boolean);
           return sendJson(res, { stand_ins: standIns, sign_in: e.HG_OIDC_AUTHORIZE_URL && e.HG_OIDC_TOKEN_URL && e.HG_OIDC_WEB_CLIENT_ID ? { authorize_url: e.HG_OIDC_AUTHORIZE_URL, token_url: e.HG_OIDC_TOKEN_URL, client_id: e.HG_OIDC_WEB_CLIENT_ID, scope: 'openid hg/mcp' } : null });
         }
         // apps (S13): the hub tells us a sign-in ran out; and, with no Composio key, the stand-in's own "Allow" page
