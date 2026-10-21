@@ -25,3 +25,8 @@ export function formatLocal(ts: number, tz: string): string {
 export function timeOfDay(ts: number, tz: string): string {
   return new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(new Date(ts));
 }
+
+export function hourOf(ts: number, tz: string): number {
+  const h = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', hour12: false }).format(new Date(ts));
+  return Number(h) % 24; // some engines print midnight as 24
+}

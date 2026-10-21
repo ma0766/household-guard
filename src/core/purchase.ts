@@ -5,9 +5,10 @@ import type { ActionArgs, ActionResult, Person } from './types.js';
 import type { SessionMethod } from './types.js';
 import type { RulesConfig } from '../policy/rules.js';
 import { decide } from '../policy/evaluator.js';
-import { weekKey } from './time.js';
+import { hourOf, weekKey } from './time.js';
 import { release, releaseExpired, reserve, spentThisWeek, RESERVATION_MS } from '../spend/spend.js';
-import { MOCK_RIDE, quoteRide, type RideOption } from '../connectors/mock-ride.js';
+import { ConnectorError, MOCK_RIDE, quoteRide, type RideOption } from '../connectors/mock-ride.js';
+import { connectorState } from '../connectors/healing.js';
 import { createApproval, getApproval, supersede } from '../approvals/approvals.js';
 import { MOCK_SHOP, quoteItem } from '../connectors/mock-shop.js';
 import { openChallenge } from '../approvals/challenge.js';
@@ -33,8 +34,18 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
   let optionId: string | undefined;
   let itemKey: string;
   let rideOptions: RideOption[] = [];
+  let owed = false; // a freshly repaired service: one adult yes before money moves (S11)
   if (args.service === MOCK_RIDE) {
-    const q = await quoteRide(deps.store, hh, args.item);
+    const cs = await connectorState(deps.store, hh);
+    if (cs.health === 'broken') return result({ outcome: 'held', reason: T.serviceDown, done: false }, tz, now, base);
+    owed = cs.approvalOwed;
+    let q;
+    try {
+      q = await quoteRide(deps.store, hh, args.item);
+    } catch (e) {
+      if (e instanceof ConnectorError) return result({ outcome: 'held', reason: T.serviceDown, done: false }, tz, now, base); // the service's answer no longer fits: never guess a price
+      throw e;
+    }
     if (!q) return result({ outcome: 'denied', reason: T.cantFind, done: false }, tz, now, base);
     const opt = q.options.find((o) => o.id === (args.option_id ?? 'standard'));
     if (!opt) return result({ outcome: 'denied', reason: T.cantFind, done: false }, tz, now, base);
@@ -53,17 +64,17 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
 
   const week = weekKey(now, tz);
   const spent = await spentThisWeek(deps.store, hh, week, person.id);
-  const d = decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method });
+  const d = decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
   const extra = { ...base, amount_cents: amount, option_id: optionId };
 
   if (d.answer === 'deny') {
-    const reason = d.determining.includes('floor_guests_no_buy') ? T.guestNoBuy : person.role === 'guest' ? T.whoAreYou : T.cantDo;
+    const reason = d.determining.includes('quiet_hours') && rules.quietHours ? T.quietHours(rules.quietHours.fromHour, rules.quietHours.toHour) : d.determining.includes('floor_guests_no_buy') ? T.guestNoBuy : person.role === 'guest' ? T.whoAreYou : T.cantDo;
     return result({ outcome: 'denied', reason, done: false }, tz, now, extra);
   }
-  if (d.answer === 'hold') {
+  if (d.answer === 'hold' || (d.answer === 'allow' && owed)) {
     // Held for an adult. Offer the lowest total that the rules allow and that meets the person's must-haves.
-    const reason = heldReason(rules, person, amount, spent);
-    const alt = bestValue(rules, person, method, args.service, rideOptions, amount, spent, now, tz);
+    const reason = d.answer === 'allow' ? T.afterRepair : heldReason(rules, person, amount, spent);
+    const alt = owed ? undefined : bestValue(rules, person, method, args.service, rideOptions, amount, spent, now, tz);
     const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason });
     const say = [reason, alt ? `${T.altOffer(alt.label.toLowerCase(), alt.total_cents)} ${T.wantThat}` : '', T.adultCanTap(a.number)].filter(Boolean).join(' ');
     const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
@@ -131,7 +142,7 @@ function bestValue(rules: RulesConfig, person: Person, method: SessionMethod, se
       const [h, m] = formatLocal24(now + o.eta_minutes * 60_000, tz);
       if (h * 60 + m > rules.mustHaves.arriveByHour * 60) return false;
     }
-    return decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service, serviceKnown: rules.allowedServices.includes(service), amountCents: o.total_cents, weekSpentCents: spent, value: 0, session: method }).answer === 'allow';
+    return decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service, serviceKnown: rules.allowedServices.includes(service), amountCents: o.total_cents, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) }).answer === 'allow';
   });
   return fits.sort((a, b) => a.total_cents - b.total_cents)[0];
 }

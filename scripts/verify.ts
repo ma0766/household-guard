@@ -12,6 +12,9 @@ const SLICES: Record<string, string> = {
   S6: 'Audit and status',
   S7: 'Editable rules + full replay',
   S8: 'Hardening + submission pack',
+  S9: 'Real screens with MCP Apps',
+  S10: 'Rule proofs in CI + quiet hours',
+  S11: 'Self-healing demo',
 };
 mkdirSync('test-results', { recursive: true });
 const run = (label: string, cmd: string, args: string[]) => {
@@ -30,7 +33,7 @@ const steps = {
 type Tally = { pass: number; fail: number };
 const tally: Record<string, Tally> = Object.fromEntries(Object.keys(SLICES).map((k) => [k, { pass: 0, fail: 0 }]));
 const sliceOf = (file: string): string | undefined => {
-  const m = file.match(/(?:tests\/s|e2e\/s)(\d)/);
+  const m = file.match(/(?:tests\/s|e2e\/s)(\d+)/);
   if (m) return `S${m[1]}`;
   if (file.includes('tests/replay/')) return 'S1';
   return undefined;

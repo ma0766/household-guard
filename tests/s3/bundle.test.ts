@@ -8,5 +8,7 @@ describe('S3 the worker bundle starts', () => {
     execFileSync('npx', ['tsx', 'scripts/build-lambda.ts'], { stdio: 'pipe' });
     const worker = execFileSync('node', ['-e', "import('./index.mjs').then(m=>console.log(typeof m.handler))"], { cwd: 'dist/worker' }).toString().trim();
     expect(worker).toBe('function');
+    const heal = execFileSync('node', ['-e', "import('./index.mjs').then(m=>console.log(typeof m.handler))"], { cwd: 'dist/heal' }).toString().trim();
+    expect(heal).toBe('function'); // the scheduled health check (S11)
   }, 180000);
 });

@@ -25,6 +25,22 @@
       <h2>Phones</h2>
       <div id="phones" class="phones"></div>
     </section>
+    <section id="conn-panel" aria-label="Ride service">
+      <h2>Ride service</h2>
+      <p id="conn-status" data-testid="conn-status" aria-live="polite">The ride service works.</p>
+      <div class="row">
+        <button id="btn-break-ride" class="secondary" data-testid="btn-break-ride" title="Demo: the service ships a new version">Break it (demo)</button>
+        <button id="btn-check-rides" data-testid="btn-check-rides">Check now</button>
+      </div>
+    </section>
+    <section id="app-panel" aria-label="Screen from the house">
+      <h2>Screen</h2>
+      <div class="row">
+        <button id="btn-app-approvals" data-testid="btn-app-approvals">Show what is waiting</button>
+        <button id="btn-app-orders" class="secondary" data-testid="btn-app-orders">Show recent buys</button>
+      </div>
+      <iframe id="app-frame" data-testid="app-frame" sandbox="allow-scripts" title="Screen from the house" style="width:100%;height:260px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
+    </section>
     <section id="timeline-panel" aria-label="What happened">
       <h2>What happened</h2>
       <div class="row">
@@ -42,8 +58,11 @@
         <label for="rule-maya-limit">Maya's limit ($ a week)</label>
         <input id="rule-maya-limit" data-testid="rule-maya-limit" inputmode="numeric" value="20" style="max-width:80px" />
         <button id="rule-save-maya" data-testid="rule-save-maya">Save</button>
+        <button id="rule-quiet-on" class="secondary" data-testid="rule-quiet-on">No buying after 9 PM</button>
+        <button id="rule-quiet-off" class="secondary" data-testid="rule-quiet-off">Quiet hours off</button>
         <button id="rule-undo" data-testid="rule-undo" class="secondary">Undo last change</button>
       </div>
+      <p id="rule-preview" data-testid="rule-preview" class="hint" aria-live="polite"></p>
       <iframe id="rules-frame" data-testid="rules-frame" sandbox="" title="House rules" style="width:100%;height:300px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
     </section>
     <section id="log-panel" aria-label="Message log">

@@ -1,0 +1,11 @@
+# The same rule proofs as .github/workflows/rule-proofs.yml, for the GitLab copy of the repo.
+rule-proofs:
+  image: node:22
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq xz-utils python3 curl >/dev/null
+    - npm ci
+    - npm run prover:install
+  script:
+    - npm run prove
+    - 'if [ -n "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" && npm run prove -- --base-ref "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"; fi'
+    - npx vitest run tests/s10

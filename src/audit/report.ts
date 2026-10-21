@@ -1,3 +1,4 @@
+import { connectorState } from '../connectors/healing.js';
 import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
 import { loadHousehold } from '../core/household.js';
@@ -63,7 +64,10 @@ export async function householdStatus(deps: Deps, hh: string) {
   }
   const sentences = [waiting ? `${waiting} ${waiting === 1 ? 'thing is' : 'things are'} waiting for an adult.` : 'Your house is quiet. Nothing is waiting.'];
   for (const m of members.filter((x) => x.left_cents !== null && x.role !== 'adult')) sentences.push(`${m.name} has ${money(m.left_cents as number)} left this week.`);
-  return { say: sentences.join(' '), members, waiting_approvals: waiting, devices: await readHome(deps.store, hh), timezone: meta.timezone };
+  const ride = await connectorState(deps.store, hh);
+  if (ride.health === 'broken') sentences.push('The ride service is not working. An adult was told.');
+  else if (ride.approvalOwed) sentences.push('The ride service was just fixed. The next ride needs a yes.');
+  return { say: sentences.join(' '), members, waiting_approvals: waiting, connectors: { ride: { health: ride.health, approval_owed: ride.approvalOwed, version: ride.activeVersion } }, devices: await readHome(deps.store, hh), timezone: meta.timezone };
 }
 
 export async function recentOrders(store: Store, hh: string, limit = 10): Promise<AuditEntry[]> {

@@ -6,3 +6,4 @@ test-results
 playwright-report
 .claude/session.md
 .claude/log.md
+tools/

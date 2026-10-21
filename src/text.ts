@@ -4,6 +4,7 @@ import type { Role } from './core/types.js';
 
 export const BANNED_WORDS = ['policy', 'policies', 'cedar', 'token', 'mcp', 'json', 'api', 'session', 'oauth', 'database', 'dynamodb', 'lambda', 'bedrock', 'hash', 'idempotent', 'webhook', 'endpoint'];
 
+export const hourWord = (h: number) => `${h % 12 === 0 ? 12 : h % 12} ${h < 12 ? 'AM' : 'PM'}`;
 export const money = (cents: number) => `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 
 export const T = {
@@ -27,6 +28,9 @@ export const T = {
   oops: 'Something went wrong. Ask an adult.',
   confirmOnPhone: (n: number) => `Confirm on your phone: ${n}`,
   locked: 'Too many tries. Wait 10 minutes.',
+  serviceDown: 'That service is not working. An adult was told.',
+  afterRepair: 'Held: this service was just fixed. An adult must say yes once.',
+  quietHours: (from: number, to: number) => `Quiet hours: no buying from ${hourWord(from)} to ${hourWord(to)}.`,
   guestNoBuy: "Guests can't buy things.",
   childNoBuy: 'An adult must say yes to buys.',
   overWeekly: (name: string, cap: number) => `Held: over ${name}'s ${money(cap)} a week.`,

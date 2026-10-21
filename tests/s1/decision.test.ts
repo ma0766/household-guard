@@ -50,7 +50,7 @@ describe('S1 first decision: lights', () => {
 
   it('forbid beats permit: even an adult-only rule written wrong cannot be outranked', () => {
     const c = defaultRules();
-    const base = { service: 'sim-home', serviceKnown: true, amountCents: 0, weekSpentCents: 0, value: 0, session: 'phone' as const };
+    const base = { service: 'sim-home', serviceKnown: true, amountCents: 0, weekSpentCents: 0, value: 0, session: 'phone' as const, localHour: 12 };
     expect(decide(c, { ...base, person: { id: 'maya', role: 'teen' }, action: 'unlock' }).answer).toBe('deny');
     expect(decide(c, { ...base, person: { id: 'mom', role: 'adult' }, action: 'unlock' }).answer).toBe('allow');
   });

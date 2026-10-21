@@ -15,6 +15,7 @@
     "@aws-sdk/lib-dynamodb": "^3.1154.0",
     "@cedar-policy/cedar-wasm": "^4.14.0",
     "@modelcontextprotocol/sdk": "^1.32.1",
+    "aws-jwt-verify": "^5.2.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "constructs": "^10.8.1",
     "esbuild": "^0.28.2",
     "eslint": "^10.13.0",
+    "jose": "^6.2.13",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.0",
@@ -44,6 +46,8 @@
     "verify": "tsx scripts/verify.ts",
     "deploy": "tsx scripts/deploy.ts",
     "smoke:deployed": "tsx scripts/smoke.ts",
-    "audit:verify": "tsx scripts/verify-audit.ts"
+    "audit:verify": "tsx scripts/verify-audit.ts",
+    "prove": "tsx scripts/prove.ts",
+    "prover:install": "sh scripts/install-prover.sh"
   }
 }

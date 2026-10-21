@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, UpdateCommand, DeleteCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, ScanCommand, GetCommand, PutCommand, QueryCommand, UpdateCommand, DeleteCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { TABLE, localClient } from './local-dynamo.js';
 
 export type Item = Record<string, any> & { pk: string; sk: string };
@@ -50,6 +50,17 @@ export class Store {
       if (opts.limit && out.length >= opts.limit) return out.slice(0, opts.limit);
     } while (key);
     return out;
+  }
+  // every row with exactly this sort key, across households (the scheduled health check; small tables only)
+  async scanSk(sk: string, limit = 500): Promise<Item[]> {
+    const out: Item[] = [];
+    let key: Record<string, any> | undefined;
+    do {
+      const r = await this.doc.send(new ScanCommand({ TableName: this.table, FilterExpression: 'sk = :s', ExpressionAttributeValues: { ':s': sk }, ExclusiveStartKey: key }));
+      out.push(...(r.Items as Item[])); // a Scan page is filtered AFTER it is read, so a page can hold few matches: read every page
+      key = r.LastEvaluatedKey;
+    } while (key);
+    return out.slice(0, limit);
   }
   update(params: Omit<ConstructorParameters<typeof UpdateCommand>[0], 'TableName'>) {
     return this.doc.send(new UpdateCommand({ TableName: this.table, ...params }));

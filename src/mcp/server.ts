@@ -17,6 +17,7 @@ import { openApprovals } from '../approvals/approvals.js';
 import { myRules, proposeRule, rulesHtml } from '../rules/change.js';
 import type { RuleChange } from '../rules/templates.js';
 import { ensureSeeded, loadHousehold } from '../core/household.js';
+import { APP_HTML, APP_META, APP_MIME, APP_URI, cardsOf, rowsOf, type ScreenData } from './apps.js';
 
 // Fixed facade: tool names never change, so nothing behind them needs a redeploy to Alexa.
 // Who is asking, from the confirmed session only. No session → undefined (treated as a guest).
@@ -104,6 +105,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     'show_on_screen',
     {
       description: 'Show a screen: the approval card, recent buys, or what happened. Filter by person or day.',
+      _meta: APP_META,
       inputSchema: { view: z.enum(['approvals', 'orders', 'timeline', 'rules', 'my_rules']), person: z.string().optional(), day: z.string().optional().describe('YYYY-MM-DD') },
     },
     async (a) => {
@@ -120,30 +122,44 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
           const h = await loadHousehold(deps.store, hh);
           return { content: [{ type: 'text', text: 'Here are the house rules.' }], structuredContent: { view: a.view, html: rulesHtml(h.rules, h.people) } };
         }
-        const html =
-          a.view === 'approvals'
-            ? approvalsHtml((await openApprovals(deps, hh)).filter((x) => !mine || x.personId === v.id))
-            : a.view === 'orders'
-              ? ordersHtml((await recentOrders(deps.store, hh, 50)).filter((e) => !mine || e.person === v.id).slice(0, 10))
-              : timelineHtml(await readAudit(deps.store, hh, { person: mine ? v.id : a.person, day: a.day, limit: 50 }));
-        return { content: [{ type: 'text', text: `Here is the ${a.view} screen.` }], structuredContent: { view: a.view, html } };
+        let html: string;
+        let data: ScreenData;
+        if (a.view === 'approvals') {
+          const list = (await openApprovals(deps, hh)).filter((x) => !mine || x.personId === v.id);
+          html = approvalsHtml(list);
+          data = { view: 'approvals', cards: cardsOf(list, !mine) };
+        } else if (a.view === 'orders') {
+          const list = (await recentOrders(deps.store, hh, 50)).filter((e) => !mine || e.person === v.id).slice(0, 10);
+          html = ordersHtml(list);
+          data = { view: 'orders', rows: rowsOf(list) };
+        } else {
+          const list = await readAudit(deps.store, hh, { person: mine ? v.id : a.person, day: a.day, limit: 50 });
+          html = timelineHtml(list);
+          data = { view: 'timeline', rows: rowsOf(list) };
+        }
+        return { content: [{ type: 'text', text: `Here is the ${a.view} screen.` }], structuredContent: { view: a.view, html, data } };
       } catch {
         return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
       }
     },
   );
+  server.registerResource('screen', APP_URI, { title: 'House screen', description: 'Approval card, recent buys, and what happened', mimeType: APP_MIME }, async (uri) => ({
+    contents: [{ uri: uri.href, mimeType: APP_MIME, text: APP_HTML }],
+  }));
   server.registerTool(
     'set_rule',
     {
       description: 'An adult changes a house rule (or undoes the last change). The adult must then confirm on their own phone.',
       inputSchema: {
-        template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'floor']).optional(),
+        template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'quiet_hours', 'floor']).optional(),
         person: z.string().optional(),
         dollars: z.number().optional(),
         actions: z.array(z.string()).optional(),
         services: z.array(z.string()).optional(),
         bag_included: z.boolean().optional(),
         arrive_by_hour: z.number().nullable().optional(),
+        quiet_from_hour: z.number().nullable().optional().describe('Quiet hours start (0-23); null turns them off'),
+        quiet_to_hour: z.number().optional().describe('Quiet hours end (0-23)'),
         which: z.enum(['childrenNoUnlock', 'guestsNoBuy']).optional(),
         enabled: z.boolean().optional(),
         undo: z.boolean().optional().describe('Undo the newest change (within 24 hours)'),
@@ -155,6 +171,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       else if (a.template === 'adults_only') change = { template: 'adults_only', actions: a.actions ?? [] };
       else if (a.template === 'allowed_apps') change = { template: 'allowed_apps', services: a.services ?? [] };
       else if (a.template === 'must_haves') change = { template: 'must_haves', bagIncluded: a.bag_included, arriveByHour: a.arrive_by_hour };
+      else if (a.template === 'quiet_hours' && a.quiet_from_hour !== undefined) change = { template: 'quiet_hours', fromHour: a.quiet_from_hour, toHour: a.quiet_to_hour };
       else if (a.template === 'floor') change = { template: 'floor', which: a.which as 'childrenNoUnlock', enabled: !!a.enabled };
       const r = !change && !a.undo ? { status: 'invalid', say: "I don't know that rule." } : await proposeRule(deps, hh, { change, undo: a.undo });
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };

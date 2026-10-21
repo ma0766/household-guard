@@ -2,13 +2,14 @@ import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
 import { getSession, loadHousehold } from '../core/household.js';
 import { openChallenge, type Challenge } from '../approvals/challenge.js';
+import { previewChange } from './preview.js';
 import { applyChange, isFloorLoosening, type RuleChange } from './templates.js';
 import type { RulesConfig } from '../policy/rules.js';
 import { emit } from '../audit/emit.js';
 import { spentThisWeek } from '../spend/spend.js';
 import { weekKey } from '../core/time.js';
 import { esc } from '../audit/views.js';
-import { T, money } from '../text.js';
+import { T, hourWord, money } from '../text.js';
 
 export const UNDO_MS = 24 * 60 * 60 * 1000;
 const chgKey = (v: number) => `RULECHG#${String(v).padStart(8, '0')}`;
@@ -20,6 +21,7 @@ export interface RuleReply {
   challenge_id?: string;
   sentence?: string;
   warning?: string;
+  preview?: string; // what the change would let people do, in plain words (S10)
 }
 
 // An adult asks for a change (card or voice). Nothing is saved until THAT adult taps the number on their own phone.
@@ -45,24 +47,27 @@ export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleCh
     let meta2: Record<string, unknown>;
     let sentence: string;
     let warning: string | undefined;
+    let preview: string;
     if (req.undo) {
       const last = await latestChange(deps, hh);
       if (!last || last.at + UNDO_MS < now) return { status: 'invalid', say: last ? 'That is too old to undo.' : 'Nothing to undo.' };
       sentence = `Undo: ${last.sentence}`;
       const loosens = (['childrenNoUnlock', 'guestsNoBuy'] as const).some((k) => rules.floor[k] && !last.before.floor[k]);
       if (loosens) warning = 'This turns off a locked rule.';
-      meta2 = { undoVersion: last.version, text: `Undo the last change. ${last.sentence}`, stage: loosens ? 1 : 'final' };
+      preview = previewChange(rules, last.before, people).join(' ');
+      meta2 = { undoVersion: last.version, text: `Undo the last change. ${last.sentence} ${preview}`, stage: loosens ? 1 : 'final' };
     } else {
       const a = applyChange(rules, req.change!, people);
       if (!a.ok) return { status: 'invalid', say: a.error };
       sentence = a.sentence;
       warning = a.warning;
-      meta2 = { change: req.change, baseVersion: rules.version, text: `${a.sentence}${a.warning ? ' ' + a.warning : ''}`, stage: isFloorLoosening(req.change!) ? 1 : 'final' };
+      preview = previewChange(rules, a.config, people).join(' ');
+      meta2 = { change: req.change, baseVersion: rules.version, text: `${a.sentence}${a.warning ? ' ' + a.warning : ''} ${preview}`, stage: isFloorLoosening(req.change!) ? 1 : 'final' };
     }
     void meta;
     const { challenge, locked } = await openChallenge(deps, hh, me, 'rule', undefined, meta2);
     if (locked || !challenge) return { status: 'locked', say: T.locked };
-    return { status: 'waiting', say: T.confirmOnPhone(challenge.number), number: challenge.number, challenge_id: challenge.id, sentence, warning };
+    return { status: 'waiting', say: T.confirmOnPhone(challenge.number), number: challenge.number, challenge_id: challenge.id, sentence, warning, preview };
   } catch {
     return { status: 'denied', say: T.oops };
   }
@@ -167,6 +172,7 @@ export function rulesHtml(rules: RulesConfig, people: { id: string; name: string
     row('🔒', `Adults only: ${rules.adultsOnlyActions.join(', ') || 'nothing'}.`),
     row('🛒', `Allowed apps: ${rules.allowedServices.join(', ')}.`),
     row('📝', `Best value needs: ${[rules.mustHaves.bagIncluded ? 'a bag' : '', rules.mustHaves.arriveByHour !== undefined ? `arrive by ${rules.mustHaves.arriveByHour}:00` : ''].filter(Boolean).join(' and ') || 'nothing special'}.`),
+    row('🌙', rules.quietHours ? `No buying for kids from ${hourWord(rules.quietHours.fromHour)} to ${hourWord(rules.quietHours.toHour)}.` : 'Quiet hours are off.'),
     row('🔒', rules.floor.childrenNoUnlock ? "Locked: children can't unlock doors." : "Off: children can't unlock doors."),
     row('🔒', rules.floor.guestsNoBuy ? "Locked: guests can't buy." : "Off: guests can't buy."),
   ];

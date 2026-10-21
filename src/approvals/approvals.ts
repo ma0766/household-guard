@@ -10,6 +10,7 @@ import { weekKey } from '../core/time.js';
 import { createJob } from '../jobs/worker.js';
 import { T, money } from '../text.js';
 import { emit } from '../audit/emit.js';
+import { connectorState } from '../connectors/healing.js';
 
 // An approval is bound to ONE exact purchase: a hash of {amount, merchant, item, person}. It dies after 10 minutes.
 // Approved $12 ride, price jumps to $38? Different hash → not approved any more (gap 5).
@@ -43,6 +44,7 @@ export interface Approval {
   expiresAt: number;
   createdAt: number;
   jobId?: string;
+  connectorVersion?: number; // ride service setup in force when this was asked; a yes only counts for that setup (S11)
 }
 
 const key = (id: string) => `APPROVAL#${id}`;
@@ -65,6 +67,7 @@ export async function createApproval(deps: Deps, hh: string, a: { personId: stri
     status: 'open',
     expiresAt: now + APPROVAL_MS,
     createdAt: now,
+    ...(a.service === 'mock-ride' ? { connectorVersion: (await connectorState(deps.store, hh)).activeVersion } : {}),
   };
   await deps.store.put({ pk: Store.hk(hh), sk: key(full.id), ...full, ttl: Math.floor(now / 1000) + 86400 });
   return full;

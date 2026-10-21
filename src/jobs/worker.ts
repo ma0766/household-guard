@@ -3,10 +3,13 @@ import { Store } from '../core/store.js';
 import { commit, getReservation, pinReservation, release } from '../spend/spend.js';
 import { MOCK_RIDE, bookRide, quoteRide, type RideOption } from '../connectors/mock-ride.js';
 import { MOCK_SHOP, bookItem, quoteItem } from '../connectors/mock-shop.js';
-import { approvalHash, createApproval, supersede } from '../approvals/approvals.js';
+import { approvalHash, createApproval, getApproval, supersede } from '../approvals/approvals.js';
 import { loadHousehold } from '../core/household.js';
+import { decide } from '../policy/evaluator.js';
+import { hourOf } from '../core/time.js';
 import { T, money } from '../text.js';
 import { emit } from '../audit/emit.js';
+import { clearApprovalOwed, connectorState } from '../connectors/healing.js';
 
 export interface Job {
   id: string;
@@ -70,10 +73,25 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
     throw e; // a real error: let the queue deliver it again
   }
   let booked = false;
+  let owedVersion: number | undefined; // set when a repaired service's one yes was given for THIS repair
   let total = j.amountCents;
   try {
     const res = await getReservation(deps.store, hh, j.reservationId);
     if (!res || res.state !== 'reserved') throw new Error('money is no longer reserved'); // nothing booked, nothing to release
+    // The rules are asked again at the moment of buying: a tap or a yes that lands after quiet hours began (or after a rule
+    // changed) cannot buy. Only a "deny" stops it here; the spend and approval checks were already made.
+    {
+      const { people, rules, meta } = await loadHousehold(deps.store, hh);
+      const who = people.find((p) => p.id === j.personId);
+      const again = who && decide(rules, { person: { id: who.id, role: who.role }, action: 'purchase', service: j.service, serviceKnown: rules.allowedServices.includes(j.service), amountCents: j.amountCents, weekSpentCents: 0, value: 0, session: 'phone', localHour: hourOf(now, meta.timezone) });
+      if (!who || again!.answer === 'deny') {
+        const why = again?.determining.includes('quiet_hours') && rules.quietHours ? T.quietHours(rules.quietHours.fromHour, rules.quietHours.toHour) : T.cantDo;
+        await release(deps.store, hh, j.reservationId);
+        await finish(deps, hh, jobId, 'failed', why);
+        await emitWho(deps, hh, j, (n, t) => `${n}'s ${money(j.amountCents)} buy was stopped at ${t}. ${why}`, 'failed');
+        return;
+      }
+    }
     let service: { destination?: string; itemKey: string; amount: number; optionId?: string; opt?: RideOption; note?: string } | undefined;
     if (j.service === MOCK_RIDE) {
       const q = await quoteRide(deps.store, hh, j.item);
@@ -95,6 +113,24 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       const a = await createApproval(deps, hh, { personId: j.personId, personName: name, service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.priceChanged });
       await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: name, text: (t) => `The price changed for ${name} at ${t}. Not bought. An adult must say yes again.`, data: { amount_cents: service.amount } });
       return await finish(deps, hh, jobId, 'held', `${T.priceChanged} An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
+    }
+
+    // A freshly repaired service: money does not move without an adult's yes on this exact buy, given AFTER the repair
+    // (a yes stamped with an older version of the connector does not count: that adult never saw "just fixed").
+    if (j.service === MOCK_RIDE) {
+      const cs = await connectorState(deps.store, hh);
+      if (cs.approvalOwed) {
+        const ap = j.approvalId ? await getApproval(deps, hh, j.approvalId) : undefined;
+        if (!ap || ap.connectorVersion !== cs.activeVersion) {
+          await release(deps.store, hh, j.reservationId);
+          const { people } = await loadHousehold(deps.store, hh);
+          const name = people.find((p) => p.id === j.personId)?.name ?? 'Someone';
+          const a = await createApproval(deps, hh, { personId: j.personId, personName: name, service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.afterRepair });
+          await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: name, text: (t) => `${name}'s ${money(service!.amount)} ride was held at ${t}. The ride service was just fixed. An adult must say yes once.`, data: { amount_cents: service!.amount, repaired: true } });
+          return await finish(deps, hh, jobId, 'held', `${T.afterRepair} An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
+        }
+        owedVersion = cs.activeVersion;
+      }
     }
 
     // AI risk check — here in the worker, never in the reply path (gap 3). It may only turn "do it" into "hold":
@@ -137,6 +173,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       /* retry */
     }
   }
+  if (owedVersion !== undefined) await clearApprovalOwed(deps.store, hh, owedVersion).catch(() => undefined); // the one yes was given, for this repair
   if (j.replacesApprovalId) await supersede(deps, hh, j.replacesApprovalId);
   await finish(deps, hh, jobId, 'done', j.service === MOCK_RIDE ? T.rideBooked(total) : T.bought(total)).catch(() => undefined);
   await emitWho(deps, hh, j, (n, t) => (j.service === MOCK_RIDE ? `Ride booked for ${n}: ${money(total)} at ${t}.` : `${n} bought a ${j.item ?? 'thing'}: ${money(total)} at ${t}.`), 'done', { amount_cents: total, service: j.service });

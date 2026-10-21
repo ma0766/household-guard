@@ -194,11 +194,26 @@ async function refreshRules() {
 async function ruleCall(args: Record<string, unknown>) {
   const r = await callTool('set_rule', args);
   says(r.say, r.status === 'waiting' ? 'held' : 'denied');
+  $('rule-preview').textContent = r.preview ?? '';
   if (r.status === 'waiting') void waitJob(r.challenge_id);
 }
 $('rule-save-maya').onclick = () => void ruleCall({ template: 'weekly_limit', person: 'maya', dollars: Number(($('rule-maya-limit') as HTMLInputElement).value) });
+$('rule-quiet-on').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: 21, quiet_to_hour: 6 });
+$('rule-quiet-off').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: null });
 $('rule-undo').onclick = () => void ruleCall({ undo: true });
-async function refresh() { await Promise.all([refreshPhones(), refreshTimeline(), refreshRules()]); }
+async function refreshConn() {
+  if (!connected) return;
+  const c = (await callTool('household_status', {})).connectors?.ride;
+  if (!c) return;
+  $('conn-status').textContent = c.health === 'broken' ? 'The ride service is not working.' : c.approval_owed ? 'Fixed. The next ride needs a yes.' : 'The ride service works.';
+}
+async function demoPost(path: string) {
+  await connect();
+  return (await (await fetch(path, { method: 'POST', headers: { authorization: `Bearer ${token}` } })).json()) as { say?: string };
+}
+$('btn-break-ride').onclick = () => void demoPost('/demo/break-ride').then(() => says('The ride service shipped a new version.', 'held'));
+$('btn-check-rides').onclick = () => void demoPost('/demo/check-rides').then((r) => says(r.say ?? 'Checked.', 'allowed'));
+async function refresh() { await Promise.all([refreshPhones(), refreshTimeline(), refreshRules(), refreshConn()]); }
 setInterval(() => void refresh().catch(() => undefined), 1000);
 ($('tl-person') as HTMLSelectElement).onchange = () => void refreshTimeline();
 ($('tl-day') as HTMLSelectElement).onchange = () => void refreshTimeline();
@@ -208,6 +223,43 @@ $('btn-voice-summary').onclick = async () => {
   el.hidden = false;
   el.textContent = r.say;
 };
+
+
+// ---- MCP Apps host: the house names a screen page (ui://…), we draw it in a sandboxed frame and carry its messages ----
+const appFrame = $('app-frame') as HTMLIFrameElement;
+const APP_TOOLS = new Set(['approve_request', 'show_on_screen']); // the only things a screen may ask for
+let appHtml = '';
+let appView = 'approvals';
+async function openApp(view: string) {
+  await connect();
+  if (!appHtml) {
+    const tools = (await rpc('tools/list')).result.tools as { name: string; _meta?: { ui?: { resourceUri?: string } } }[];
+    const uri = tools.find((t) => t.name === 'show_on_screen')?._meta?.ui?.resourceUri;
+    if (!uri) return says('I cannot show that screen.', 'denied');
+    appHtml = (await rpc('resources/read', { uri })).result.contents[0].text;
+  }
+  appView = view;
+  appFrame.srcdoc = appHtml; // a fresh page; it starts by saying hello and we answer below
+}
+const toApp = (m: Record<string, unknown>) => appFrame.contentWindow?.postMessage({ jsonrpc: '2.0', ...m }, '*');
+async function pushScreen() {
+  const out = await rpc('tools/call', { name: 'show_on_screen', arguments: { view: appView } });
+  toApp({ method: 'ui/notifications/tool-result', params: out.result });
+}
+window.addEventListener('message', (e) => {
+  if (e.source !== appFrame.contentWindow) return;
+  const m = e.data ?? {};
+  if (m.method === 'ui/initialize') toApp({ id: m.id, result: { protocolVersion: '2025-11-21', hostInfo: { name: 'household-web-client', version: '1' }, hostCapabilities: { serverTools: {} }, hostContext: { theme: 'light' } } });
+  else if (m.method === 'ui/notifications/initialized') void pushScreen();
+  else if (m.method === 'tools/call' && APP_TOOLS.has(m.params?.name)) {
+    void rpc('tools/call', m.params).then((out) => {
+      toApp({ id: m.id, result: out.result ?? { isError: true, content: [{ type: 'text', text: 'Something went wrong. Ask an adult.' }] } });
+      if (m.params.name === 'approve_request') setTimeout(() => void pushScreen(), 400);
+    });
+  } else if (m.id !== undefined) toApp({ id: m.id, error: { code: -32601, message: 'Not allowed' } });
+});
+$('btn-app-approvals').onclick = () => void openApp('approvals');
+$('btn-app-orders').onclick = () => void openApp('orders');
 
 // ---- words → one tool call ----
 function parse(text: string): Record<string, unknown> | undefined {

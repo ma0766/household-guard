@@ -1,0 +1,25 @@
+name: rule-proofs
+# Every change to the rules must keep the promises ("no child may unlock", "no guest may buy") for ALL requests,
+# and the pull request says whether the new rules allow more or less than the old ones.
+on:
+  pull_request:
+    paths: ['src/policy/**', 'src/rules/**', 'scripts/prove.ts', 'scripts/install-prover.sh', 'tests/s10/**']
+  push:
+    branches: [main, roadmap]
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run prover:install
+      - name: Promises hold for every request
+        run: npm run prove
+      - name: New rules compared with the base branch
+        if: github.event_name == 'pull_request'
+        run: npm run prove -- --base-ref origin/${{ github.base_ref }}
+      - name: Proof tests
+        run: npx vitest run tests/s10

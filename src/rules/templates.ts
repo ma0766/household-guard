@@ -1,7 +1,7 @@
 import type { Person } from '../core/types.js';
 import { KNOWN_ACTIONS, type RulesConfig } from '../policy/rules.js';
 import { validateRules } from '../policy/evaluator.js';
-import { money } from '../text.js';
+import { hourWord, money } from '../text.js';
 
 // Four rule cards (plus the locked floor). Nobody types Cedar: a card turns into a config, the config turns into
 // Cedar, and the Cedar is checked against the schema BEFORE anything is saved.
@@ -10,6 +10,7 @@ export type RuleChange =
   | { template: 'adults_only'; actions: string[] }
   | { template: 'allowed_apps'; services: string[] }
   | { template: 'must_haves'; bagIncluded?: boolean; arriveByHour?: number | null }
+  | { template: 'quiet_hours'; fromHour: number | null; toHour?: number }
   | { template: 'floor'; which: 'childrenNoUnlock' | 'guestsNoBuy'; enabled: boolean };
 
 export const MAX_CENTS = 1_000_000; // $10,000 — a typo guard, not a policy
@@ -56,6 +57,18 @@ export function applyChange(before: RulesConfig, change: RuleChange, people: Per
       if (h !== undefined && h !== null && (!Number.isInteger(h) || h < 0 || h > 23)) return { ok: false, error: 'That hour does not look right.' };
       next.mustHaves = { ...(change.bagIncluded !== undefined ? { bagIncluded: change.bagIncluded } : before.mustHaves.bagIncluded !== undefined ? { bagIncluded: before.mustHaves.bagIncluded } : {}), ...(h === undefined ? (before.mustHaves.arriveByHour !== undefined ? { arriveByHour: before.mustHaves.arriveByHour } : {}) : h === null ? {} : { arriveByHour: h }) };
       sentence = `Best value must have: ${[next.mustHaves.bagIncluded ? 'a bag' : '', next.mustHaves.arriveByHour !== undefined ? `arrive by ${next.mustHaves.arriveByHour}:00` : ''].filter(Boolean).join(' and ') || 'nothing special'}.`;
+      break;
+    }
+    case 'quiet_hours': {
+      if (change.fromHour === null) {
+        delete next.quietHours;
+        sentence = 'Quiet hours are off.';
+        break;
+      }
+      const { fromHour: f, toHour: t } = change;
+      if (![f, t].every((h) => Number.isInteger(h) && (h as number) >= 0 && (h as number) <= 23) || f === t) return { ok: false, error: 'That hour does not look right.' };
+      next.quietHours = { fromHour: f, toHour: t as number };
+      sentence = `No buying for kids from ${hourWord(f)} to ${hourWord(t as number)}.`;
       break;
     }
     case 'floor': {
