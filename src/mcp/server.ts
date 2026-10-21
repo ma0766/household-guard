@@ -3,6 +3,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
 import { authenticate, originAllowed } from '../auth.js';
+import { allow, LIMITS } from '../ratelimit.js';
 import type { Deps } from '../core/request-action.js';
 import { requestActionOnce } from '../core/idempotent.js';
 import { confirmIdentity } from '../identity/confirm.js';
@@ -47,13 +48,13 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     {
       description: 'Ask the house to do something (lights, doors, rides). The house rules are checked first.',
       inputSchema: {
-        service: z.string().describe('Which service, e.g. sim-home'),
-        action: z.string().describe('What to do, e.g. light, unlock, thermostat, garage, purchase'),
+        service: z.string().max(60).describe('Which service, e.g. sim-home'),
+        action: z.string().max(40).describe('What to do, e.g. light, unlock, thermostat, garage, purchase'),
         item: z.string().max(300).optional().describe('What it is about, e.g. front door'),
-        value: z.union([z.string(), z.number()]).optional().describe('e.g. off, or 72'),
-        option_id: z.string().optional().describe('Which option, e.g. shared'),
-        replaces: z.string().optional().describe('The held request this one replaces (taking the cheaper option)'),
-        request_id: z.string().optional().describe('Same id on a retry = the action happens once'),
+        value: z.union([z.string().max(120), z.number()]).optional().describe('e.g. off, or 72'),
+        option_id: z.string().max(120).optional().describe('Which option, e.g. shared'),
+        replaces: z.string().max(120).optional().describe('The held request this one replaces (taking the cheaper option)'),
+        request_id: z.string().max(120).optional().describe('Same id on a retry = the action happens once'),
       },
     },
     async (args) => {
@@ -65,7 +66,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     'confirm_identity',
     {
       description: 'Say who is talking. People with a phone get a number to match on their own phone. People without one give a PIN.',
-      inputSchema: { name: z.string().describe('The name the speaker gave'), pin: z.string().optional().describe('4-digit PIN, only for people without a phone') },
+      inputSchema: { name: z.string().max(120).describe('The name the speaker gave'), pin: z.string().max(120).optional().describe('4-digit PIN, only for people without a phone') },
     },
     async (args) => {
       const r = await confirmIdentity(deps, hh, args);
@@ -76,7 +77,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     'approve_request',
     {
       description: 'An adult says yes (or no) to a held request by giving the number Alexa said. Needs a phone-confirmed adult.',
-      inputSchema: { approval_id: z.string(), number: z.number().optional(), decision: z.enum(['yes', 'no']).optional() },
+      inputSchema: { approval_id: z.string().max(120), number: z.number().int().min(0).max(1000).optional(), decision: z.enum(['yes', 'no']).optional() },
     },
     async (a) => {
       const s = await getSession(deps.store, hh, (deps.now ?? Date.now)());
@@ -88,7 +89,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     'audit_log',
     {
       description: 'What happened at home? Answers like "What did the kids buy this week?" in a few short sentences, totals first.',
-      inputSchema: { who: z.string().optional().describe('kids, everyone, or a name'), when: z.string().optional().describe('today, this week, or last week') },
+      inputSchema: { who: z.string().max(120).optional().describe('kids, everyone, or a name'), when: z.string().max(120).optional().describe('today, this week, or last week') },
     },
     async (a) => {
       try {
@@ -108,7 +109,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     {
       description: 'Show a screen: the approval card, recent buys, or what happened. Filter by person or day.',
       _meta: APP_META,
-      inputSchema: { view: z.enum(['approvals', 'orders', 'timeline', 'rules', 'my_rules']), person: z.string().optional(), day: z.string().optional().describe('YYYY-MM-DD') },
+      inputSchema: { view: z.enum(['approvals', 'orders', 'timeline', 'rules', 'my_rules']), person: z.string().max(120).optional(), day: z.string().max(120).optional().describe('YYYY-MM-DD') },
     },
     async (a) => {
       try {
@@ -171,10 +172,10 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       description: 'An adult changes a house rule (or undoes the last change). The adult must then confirm on their own phone.',
       inputSchema: {
         template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'quiet_hours', 'floor']).optional(),
-        person: z.string().optional(),
+        person: z.string().max(120).optional(),
         dollars: z.number().optional(),
-        actions: z.array(z.string()).optional(),
-        services: z.array(z.string()).optional(),
+        actions: z.array(z.string().max(40)).max(20).optional(),
+        services: z.array(z.string().max(40)).max(20).optional(),
         bag_included: z.boolean().optional(),
         arrive_by_hour: z.number().nullable().optional(),
         quiet_from_hour: z.number().nullable().optional().describe('Quiet hours start (0-23); null turns them off'),
@@ -198,7 +199,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
   );
   server.registerTool(
     'job_status',
-    { description: 'How is a waiting job going? A finished site comes with a link and a code to scan.', inputSchema: { job_id: z.string() }, _meta: APP_META },
+    { description: 'How is a waiting job going? A finished site comes with a link and a code to scan.', inputSchema: { job_id: z.string().max(120) }, _meta: APP_META },
     async ({ job_id }) => {
       const r = await jobStatus(deps, hh, job_id);
       const { qrOf } = await import('../hub/capability.js');
@@ -228,6 +229,10 @@ export async function handleMcp(req: IncomingMessage, res: ServerResponse, deps:
   if (!claims || claims.aud !== 'alexa') {
     res.setHeader('www-authenticate', 'Bearer');
     return send(res, 401, { error: 'Sign in first' });
+  }
+  if (!(await allow(deps.store, `mcp#${claims.hh}`, LIMITS.mcpPerHouse))) {
+    res.setHeader('retry-after', '30');
+    return send(res, 429, { error: 'Too many requests. Wait a little.' });
   }
   if (req.method !== 'POST') return send(res, 405, { jsonrpc: '2.0', error: { code: -32000, message: 'POST only' }, id: null });
   let body: unknown;

@@ -19,7 +19,7 @@ export async function handleGatewayCall(deps: Deps, hh: string, toolName: string
     const a = input as Record<string, unknown>;
     for (const k of Object.keys(a)) if (!ALLOWED.has(k)) return held(T.cantDo); // a "person" (or anything unknown) is never accepted
     if (typeof a.service !== 'string' || typeof a.action !== 'string' || a.service.length > 60 || a.action.length > 40) return held(T.cantDo);
-    for (const k of ['item', 'option_id', 'request_id', 'replaces']) if (a[k] !== undefined && (typeof a[k] !== 'string' || (a[k] as string).length > 120)) return held(T.cantDo);
+    for (const k of ['item', 'option_id', 'request_id', 'replaces']) if (a[k] !== undefined && (typeof a[k] !== 'string' || (a[k] as string).length > 300)) return held(T.cantDo);
     if (a.value !== undefined && typeof a.value !== 'string' && typeof a.value !== 'number') return held(T.cantDo);
     return await requestActionOnce(deps, hh, a as never);
   } catch {
@@ -34,7 +34,7 @@ export const TOOL_SCHEMA = [
     description: 'Ask the house to do something (lights, doors, a ride, an app). The house decides by its own rules.',
     inputSchema: {
       type: 'object',
-      properties: { service: { type: 'string' }, action: { type: 'string' }, item: { type: 'string' }, value: { type: 'string' }, option_id: { type: 'string' }, request_id: { type: 'string' } },
+      properties: { service: { type: 'string' }, action: { type: 'string' }, item: { type: 'string' }, value: { type: 'string' }, option_id: { type: 'string' }, request_id: { type: 'string' }, replaces: { type: 'string' } },
       required: ['service', 'action'],
     },
   },

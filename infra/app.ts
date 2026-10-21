@@ -15,7 +15,7 @@ const GATEWAY_TOOL_SCHEMA = [
   {
     name: 'request_action',
     description: 'Ask the house to do something (lights, doors, a ride, an app). The house decides by its own rules.',
-    inputSchema: { type: 'object', properties: { service: { type: 'string' }, action: { type: 'string' }, item: { type: 'string' }, value: { type: 'string' }, option_id: { type: 'string' }, request_id: { type: 'string' } }, required: ['service', 'action'] },
+    inputSchema: { type: 'object', properties: { service: { type: 'string' }, action: { type: 'string' }, item: { type: 'string' }, value: { type: 'string' }, option_id: { type: 'string' }, request_id: { type: 'string' }, replaces: { type: 'string' } }, required: ['service', 'action'] },
   },
 ]; // no person field: identity is the house's own (kept equal to src/gateway/handler.ts TOOL_SCHEMA by a test)
 
@@ -151,10 +151,14 @@ class HouseholdGuardStack extends Stack {
         code: Code.fromAsset('dist/gateway'),
         memorySize: 256,
         timeout: Duration.seconds(20),
-        environment: { HG_TABLE: table.tableName, HG_QUEUE_URL: queue.queueUrl, HG_TOKEN_SECRET: secret, HG_GATEWAY_HOUSEHOLD: ctx('gatewayHousehold') ?? 'gateway' },
+        environment: { HG_TABLE: table.tableName, HG_QUEUE_URL: queue.queueUrl, HG_TOKEN_SECRET: secret, HG_GATEWAY_HOUSEHOLD: ctx('gatewayHousehold') ?? 'gateway', ...emailEnv },
       });
       table.grantReadWriteData(target);
       queue.grantSendMessages(target);
+      if (sesPolicy) target.addToRolePolicy(sesPolicy);
+      // its own sign-in client: the gateway is not opened by the same secret as the main door
+      const gatewayClient = pool.addClient('GatewayClient', { generateSecret: true, oAuth: { flows: { clientCredentials: true }, scopes: [OAuthScope.resourceServer(resource, mcpScope)] }, accessTokenValidity: Duration.hours(1) });
+      if (isProd && ctx('demo') !== '0') throw new Error('The gateway on the submitted stage needs the open demo sign-in off: add -c demo=0');
       const gwRole = new Role(this, 'GatewayRole', { assumedBy: new ServicePrincipal('bedrock-agentcore.amazonaws.com') });
       target.grantInvoke(gwRole); // the gateway may call this one function and nothing else
       const engine = new CfnPolicyEngine(this, 'PolicyEngine', { name: `hg_${props.suffix.replace('-', '') || 'prod'}_rules` });
@@ -163,7 +167,7 @@ class HouseholdGuardStack extends Stack {
         name: `hg-${props.suffix.replace('-', '') || 'prod'}-gateway`,
         protocolType: 'MCP',
         authorizerType: 'CUSTOM_JWT',
-        authorizerConfiguration: { customJwtAuthorizer: { discoveryUrl: `https://cognito-idp.us-east-1.amazonaws.com/${pool.userPoolId}/.well-known/openid-configuration`, allowedClients: [serviceClient.userPoolClientId] } },
+        authorizerConfiguration: { customJwtAuthorizer: { discoveryUrl: `https://cognito-idp.us-east-1.amazonaws.com/${pool.userPoolId}/.well-known/openid-configuration`, allowedClients: [gatewayClient.userPoolClientId] } },
         roleArn: gwRole.roleArn,
         policyEngineConfiguration: { arn: engine.attrPolicyEngineArn, mode: enforce ? 'ENFORCE' : 'LOG_ONLY' },
       });
@@ -182,6 +186,7 @@ class HouseholdGuardStack extends Stack {
       });
       policy.addDependency(tool);
       new CfnOutput(this, 'GatewayUrl', { value: gateway.attrGatewayUrl ?? '' });
+      new CfnOutput(this, 'GatewayClientId', { value: gatewayClient.userPoolClientId });
     }
     const url = web.addFunctionUrl({ authType: FunctionUrlAuthType.NONE, invokeMode: InvokeMode.RESPONSE_STREAM });
     new CfnOutput(this, 'Url', { value: url.url });

@@ -4,6 +4,7 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { handleMcp } from './mcp/server.js';
 import { authenticate, mintToken } from './auth.js';
+import { allow, callerOf, LIMITS } from './ratelimit.js';
 import { oidcConfig } from './oidc.js';
 import { APPROVE_PAGE } from './phone/approve-page.js';
 import { Store } from './core/store.js';
@@ -30,7 +31,9 @@ const TYPES: Record<string, string> = {
 
 // demo sign-in: one voice-side token, plus one token per simulated phone (each phone only speaks for its own person)
 function demoTokens(url: URL) {
-  const hh = /^[a-z0-9-]{1,32}$/.test(url.searchParams.get('hh') ?? '') ? url.searchParams.get('hh')! : 'demo';
+  const want = url.searchParams.get('hh') ?? '';
+  // 'service' and 'gateway' belong to the service sign-in and the gateway door: the open demo sign-in can never mint a key for them
+  const hh = /^[a-z0-9-]{1,32}$/.test(want) && !['service', 'gateway'].includes(want) ? want : 'demo';
   return { token: mintToken('demo', 86400, hh), phones: Object.fromEntries(['mom', 'maya'].map((p) => [p, mintToken(p, 86400, hh, 'phone')])) };
 }
 
@@ -84,6 +87,10 @@ export function createApp(given?: Deps) {
     const url = new URL(req.url ?? '/', 'http://x');
     void (async () => {
       try {
+        // routes with no sign-in are limited per caller
+        const open_ = url.pathname.startsWith('/preview/') || url.pathname.startsWith('/standin/') || url.pathname === '/webhooks/composio' || url.pathname === '/approve';
+        if (open_ && !(await allow(getDeps().store, `open#${callerOf(req)}`, LIMITS.publicPerCaller))) return void res.writeHead(429, { 'retry-after': '30' }).end();
+        if (url.pathname === '/demo-token' && !(await allow(getDeps().store, `demo#${callerOf(req)}`, LIMITS.demoTokenPerCaller))) return void res.writeHead(429, { 'retry-after': '30' }).end();
         if (url.pathname === '/healthz') return void res.writeHead(200).end('ok');
         if (url.pathname === '/mcp') return await handleMcp(req, res, getDeps());
         // public metadata (no sign-in needed): what this server is, how it signs people in, and what it keeps

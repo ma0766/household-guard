@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { authenticate, originAllowed } from '../auth.js';
+import { allow, LIMITS } from '../ratelimit.js';
 import type { Deps } from '../core/request-action.js';
 import { phoneConfirm, phoneInbox } from '../identity/confirm.js';
 import { ensureSeeded } from '../core/household.js';
@@ -16,6 +17,7 @@ export async function handlePhone(req: IncomingMessage, res: ServerResponse, dep
   if (!m) return send(404, { error: 'Not found' });
   const [, person, what] = m;
   if (claims.aud !== 'phone' || claims.sub !== person) return send(403, { error: 'That is not your phone' });
+  if (!(await allow(deps.store, `phone#${claims.hh}#${person}`, LIMITS.phonePerPerson))) return send(429, { error: 'Too many requests. Wait a little.' });
   await ensureSeeded(deps.store, claims.hh);
   if (claims.ap && what === 'confirm') return send(403, { error: 'That link is for one yes or no' }); // an email link can answer ONE request, nothing else
   if (what === 'inbox' && req.method === 'GET') {

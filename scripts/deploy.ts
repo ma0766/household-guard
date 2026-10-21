@@ -29,6 +29,7 @@ if (env.HG_URL !== url) {
   save();
   out = cdkDeploy();
 }
+if (out.GatewayUrl) Object.assign(env, { HG_GATEWAY_URL: out.GatewayUrl, HG_GATEWAY_CLIENT_ID: out.GatewayClientId }); // only when the stage was deployed with -c agentcore=1
 Object.assign(env, { HG_POOL_ID: out.UserPoolId, HG_WEB_CLIENT_ID: out.WebClientId, HG_SERVICE_CLIENT_ID: out.ServiceClientId, HG_SIGN_IN_DOMAIN: out.SignInDomain });
 
 // a family account to sign in with (created once; the password stays in the gitignored env file)
