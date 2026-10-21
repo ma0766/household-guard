@@ -8,7 +8,8 @@ import { randomInt } from 'node:crypto';
 import { release, reserve } from '../spend/spend.js';
 import { weekKey } from '../core/time.js';
 import { createJob } from '../jobs/worker.js';
-import { T } from '../text.js';
+import { T, money } from '../text.js';
+import { emit } from '../audit/emit.js';
 
 // An approval is bound to ONE exact purchase: a hash of {amount, merchant, item, person}. It dies after 10 minutes.
 // Approved $12 ride, price jumps to $38? Different hash → not approved any more (gap 5).
@@ -108,8 +109,14 @@ export async function approveRequest(deps: Deps, hh: string, approverId: string,
   try {
     const { people, meta } = await loadHousehold(deps.store, hh);
     const me = people.find((x) => x.id === approverId);
-    if (!me || me.role !== 'adult') return { status: 'not_adult', say: T.onlyAdults };
-    if (p.method !== 'phone') return { status: 'needs_phone', say: T.confirmPhone };
+    if (!me || me.role !== 'adult') {
+      await emit(deps, hh, { kind: 'approval', category: 'cart', person: approverId, personName: me?.name ?? 'Someone', text: (t) => `${me?.name ?? 'Someone'} tried to say yes at ${t}. No. Only adults can.`, data: { approval: approvalId, yes: false, refused: 'not_adult' } });
+      return { status: 'not_adult', say: T.onlyAdults };
+    }
+    if (p.method !== 'phone') {
+      await emit(deps, hh, { kind: 'approval', category: 'cart', person: me.id, personName: me.name, text: (t) => `${me.name} tried to say yes at ${t}. Needs their phone first.`, data: { approval: approvalId, refused: 'needs_phone' } });
+      return { status: 'needs_phone', say: T.confirmPhone };
+    }
     const a = await getApproval(deps, hh, approvalId);
     if (!a) return { status: 'unknown', say: T.cantFind };
     if (a.status !== 'open' || a.expiresAt <= now) return { status: 'expired', say: 'That ran out of time.' };
@@ -119,11 +126,17 @@ export async function approveRequest(deps: Deps, hh: string, approverId: string,
     if (p.voiceConfirmedAt !== undefined && (p.voiceConfirmedAt < a.createdAt || now - p.voiceConfirmedAt > 60_000) && p.decision !== 'no') return { status: 'needs_phone', say: T.confirmPhone };
 
     if (p.decision === 'no') {
-      await setStatus(deps, hh, a.id, 'open', 'rejected').catch(() => undefined);
+      try {
+        await setStatus(deps, hh, a.id, 'open', 'rejected');
+      } catch {
+        return { status: 'expired', say: 'That is already done.' }; // someone else got there first: do not claim a no
+      }
+      await emit(deps, hh, { kind: 'approval', category: 'cart', person: a.personId, personName: a.personName, text: (t) => `${me.name} said no to ${a.personName}'s ${money(a.amountCents)} buy at ${t}.`, data: { approval: a.id, yes: false } });
       return { status: 'rejected', say: 'Okay. I said no.' };
     }
     if ((await beginAttempt(deps.store, hh, me.id, now)) === 'locked') return { status: 'locked', say: T.locked };
     if (Number(p.number) !== a.number) {
+      await emit(deps, hh, { kind: 'approval', category: 'cart', person: me.id, personName: me.name, text: (t) => `${me.name} gave the wrong number at ${t}.`, data: { approval: a.id, refused: 'wrong' } });
       return (await failAttempt(deps.store, hh, me.id, me.name, now)) === 'locked' ? { status: 'locked', say: T.locked } : { status: 'wrong', say: 'Wrong number. Try again.' };
     }
     await clearWrong(deps.store, hh, me.id, now);
@@ -148,6 +161,7 @@ export async function approveRequest(deps: Deps, hh: string, approverId: string,
       await setStatus(deps, hh, a.id, 'approved', 'open').catch(() => undefined);
       return { status: 'expired', say: T.oops };
     }
+    await emit(deps, hh, { kind: 'approval', category: 'cart', person: a.personId, personName: a.personName, text: (t) => `${me.name} said yes at ${t}.`, data: { approval: a.id, yes: true, amount_cents: a.amountCents } });
     return { status: 'approved', say: T.booking, job_id: jobId };
   } catch {
     return { status: 'expired', say: T.oops };

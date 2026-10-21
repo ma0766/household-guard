@@ -43,6 +43,7 @@
     "e2e": "playwright test",
     "verify": "tsx scripts/verify.ts",
     "deploy": "tsx scripts/deploy.ts",
-    "smoke:deployed": "tsx scripts/smoke.ts"
+    "smoke:deployed": "tsx scripts/smoke.ts",
+    "audit:verify": "tsx scripts/verify-audit.ts"
   }
 }

@@ -21,3 +21,7 @@ export function formatLocal(ts: number, tz: string): string {
   const f = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', hour: 'numeric', minute: '2-digit' });
   return f.format(new Date(ts));
 }
+
+export function timeOfDay(ts: number, tz: string): string {
+  return new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(new Date(ts));
+}

@@ -27,7 +27,13 @@
     </section>
     <section id="timeline-panel" aria-label="What happened">
       <h2>What happened</h2>
-      <div id="timeline" data-testid="timeline"></div>
+      <div class="row">
+        <select id="tl-person" data-testid="tl-person" aria-label="Show whose"><option value="">Everyone</option><option value="mom">Mom</option><option value="maya">Maya</option><option value="leo">Leo</option></select>
+        <select id="tl-day" data-testid="tl-day" aria-label="Which day"><option value="">All days</option><option value="today">Today</option></select>
+        <button id="btn-voice-summary" class="secondary" data-testid="btn-kids-week">What did the kids buy this week?</button>
+      </div>
+      <iframe id="timeline" data-testid="timeline" sandbox="" title="What happened" style="width:100%;height:420px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
+      <p id="summary" data-testid="summary" class="says" hidden></p>
     </section>
     <section id="log-panel" aria-label="Message log">
       <h2>Message log</h2>

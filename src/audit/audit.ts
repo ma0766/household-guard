@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHmac } from 'node:crypto';
 import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
 import { localDate } from '../core/time.js';
@@ -30,14 +30,17 @@ function canonical(e: Omit<AuditEntry, 'hash'>): string {
   // fixed field order → the same bytes every time
   return JSON.stringify([e.seq, e.ts, e.day, e.kind, e.category, e.person, e.personName, e.text, e.data ?? null, e.prev]);
 }
-export const hashEntry = (e: Omit<AuditEntry, 'hash'>): string => createHash('sha256').update(canonical(e)).digest('hex');
+// keyed hash (HMAC): someone who can only write to the table cannot recompute a believable chain
+const auditKeyBytes = () => process.env.HG_AUDIT_KEY || process.env.HG_TOKEN_SECRET || 'local-dev-audit-key-not-for-prod';
+export const hashEntry = (e: Omit<AuditEntry, 'hash'>): string => createHmac('sha256', auditKeyBytes()).update(canonical(e)).digest('hex');
 
 // Optimistic concurrency on the HEAD row: two writers can never both take sequence N+1.
 export async function appendAudit(deps: Deps, hh: string, tz: string, i: AuditInput): Promise<AuditEntry> {
   const pk = Store.hk(hh);
-  const ts = (deps.now ?? Date.now)();
-  const day = localDate(ts, tz);
-  for (let attempt = 0; attempt < 25; attempt++) {
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const ts = (deps.now ?? Date.now)(); // fresh each try, so a retry across midnight gets the right day
+    const day = localDate(ts, tz);
+    if (attempt) await new Promise((r) => setTimeout(r, Math.random() * 15 * Math.min(attempt, 8)));
     const head = await deps.store.get(pk, 'AUDITHEAD');
     const seq = (head?.seq ?? 0) + 1;
     const prev = head?.hash ?? GENESIS;
@@ -100,6 +103,9 @@ export async function verifyAudit(store: Store, hh: string): Promise<VerifyResul
     prevHash = hash;
     prevSeq = r.seq;
   }
+  // every checkpoint must match the entry it points at (a chain rewritten from the middle would not)
+  const bySeq = new Map(rows.map((r) => [r.seq, r.hash]));
+  for (const c of checkpoints) if (bySeq.has(c.seq) && bySeq.get(c.seq) !== c.hash) return { ok: false, checked: rows.length, anchored, badSeq: c.seq, reason: 'an entry does not match its daily checkpoint' };
   if (!head || head.seq !== prevSeq || head.hash !== prevHash) return { ok: false, checked: rows.length, anchored, badSeq: prevSeq + 1, reason: 'the end of the log was cut off' };
   return { ok: true, checked: rows.length, anchored };
 }

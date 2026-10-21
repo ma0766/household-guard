@@ -1,4 +1,5 @@
 import { Store } from '../core/store.js';
+import { emit } from '../audit/emit.js';
 
 // Push-flood and PIN-guessing guard (why number matching + limits exist: attackers spam approvals until someone taps yes).
 export const WINDOW_MS = 10 * 60 * 1000;
@@ -41,7 +42,8 @@ export async function isLocked(store: Store, hh: string, person: string, now: nu
   return (await loadItem(store, hh, person)).lockedUntil > now;
 }
 
-export async function notifyAdults(store: Store, hh: string, text: string, now: number): Promise<void> {
+export async function notifyAdults(store: Store, hh: string, text: string, now: number, person = 'guest', personName = 'Someone'): Promise<void> {
+  await emit({ store, now: () => now }, hh, { kind: 'who', category: 'who', person, personName, text: (t) => `${text.replace(/\.$/, '')} at ${t}.` });
   await store.put({ pk: Store.hk(hh), sk: `NOTICE#${String(now).padStart(15, '0')}#${Math.random().toString(36).slice(2, 6)}`, text, at: now, ttl: Math.floor(now / 1000) + 86400 });
 }
 
@@ -59,7 +61,7 @@ export async function recordPush(store: Store, hh: string, person: string, name:
     return 'ok' as const;
   });
   if (r === 'newlock') {
-    await notifyAdults(store, hh, `${name} asked too many times. Locked for 10 minutes.`, now);
+    await notifyAdults(store, hh, `${name} asked too many times. Locked for 10 minutes.`, now, person, name);
     return 'locked';
   }
   return r;
@@ -93,7 +95,7 @@ export async function failAttempt(store: Store, hh: string, person: string, name
     return g.lockedUntil > now ? ('locked' as const) : ('ok' as const);
   });
   if (r === 'newlock') {
-    await notifyAdults(store, hh, `${name} got it wrong 3 times. Locked for 10 minutes.`, now);
+    await notifyAdults(store, hh, `${name} got it wrong 3 times. Locked for 10 minutes.`, now, person, name);
     return 'locked';
   }
   return r === 'locked' ? 'locked' : 'ok';

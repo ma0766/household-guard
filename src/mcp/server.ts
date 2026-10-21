@@ -10,18 +10,32 @@ import { jobStatus } from '../core/jobs.js';
 import { approveRequest } from '../approvals/approvals.js';
 import { getSession } from '../core/household.js';
 import { T } from '../text.js';
+import { householdStatus, voiceSummary, recentOrders } from '../audit/report.js';
+import { readAudit } from '../audit/audit.js';
+import { approvalsHtml, ordersHtml, timelineHtml } from '../audit/views.js';
+import { openApprovals } from '../approvals/approvals.js';
+import { ensureSeeded, loadHousehold } from '../core/household.js';
 
 // Fixed facade: tool names never change, so nothing behind them needs a redeploy to Alexa.
+// Who is asking, from the confirmed session only. No session → undefined (treated as a guest).
+async function viewer(deps: Deps, hh: string): Promise<{ id: string; role: string } | undefined> {
+  const s = await getSession(deps.store, hh, (deps.now ?? Date.now)());
+  if (!s) return undefined;
+  const me = (await loadHousehold(deps.store, hh)).people.find((p) => p.id === s.personId);
+  return me && me.role !== 'guest' ? { id: me.id, role: me.role } : undefined;
+}
+
 export function buildMcpServer(deps: Deps, hh: string): McpServer {
   const server = new McpServer({ name: 'household-guard', version: '0.1.0' });
-  server.registerTool(
-    'household_status',
-    { description: 'Who is in the house and what is waiting.', inputSchema: {} },
-    async () => ({
-      content: [{ type: 'text', text: 'Your house is quiet. Nothing is waiting.' }],
-      structuredContent: { members: [], waiting: 0 },
-    }),
-  );
+  server.registerTool('household_status', { description: 'Who is in the house and what is waiting.', inputSchema: {} }, async () => {
+    try {
+      await ensureSeeded(deps.store, hh);
+      const r = await householdStatus(deps, hh);
+      return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+    } catch {
+      return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
+    }
+  });
   // NOTE: no person / speaker / user argument — who is speaking comes only from a confirmed session.
   server.registerTool(
     'request_action',
@@ -63,6 +77,49 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       const s = await getSession(deps.store, hh, (deps.now ?? Date.now)());
       const r = s ? await approveRequest(deps, hh, s.personId, a.approval_id, { number: a.number, decision: a.decision, method: s.method === 'phone' ? 'phone' : 'pin', voiceConfirmedAt: s.confirmedAt }) : { status: 'not_adult', say: T.whoAreYou };
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+    },
+  );
+  server.registerTool(
+    'audit_log',
+    {
+      description: 'What happened at home? Answers like "What did the kids buy this week?" in a few short sentences, totals first.',
+      inputSchema: { who: z.string().optional().describe('kids, everyone, or a name'), when: z.string().optional().describe('today, this week, or last week') },
+    },
+    async (a) => {
+      try {
+        await ensureSeeded(deps.store, hh);
+        const v = await viewer(deps, hh);
+        if (!v) return { content: [{ type: 'text', text: T.whoAreYou }], structuredContent: { say: T.whoAreYou } };
+        // adults see the whole house; everyone else sees only their own
+        const r = await voiceSummary(deps, hh, { ...a, who: v.role === 'adult' ? a.who : v.id });
+        return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+      } catch {
+        return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
+      }
+    },
+  );
+  server.registerTool(
+    'show_on_screen',
+    {
+      description: 'Show a screen: the approval card, recent buys, or what happened. Filter by person or day.',
+      inputSchema: { view: z.enum(['approvals', 'orders', 'timeline']), person: z.string().optional(), day: z.string().optional().describe('YYYY-MM-DD') },
+    },
+    async (a) => {
+      try {
+        await ensureSeeded(deps.store, hh);
+        const v = await viewer(deps, hh);
+        if (!v) return { content: [{ type: 'text', text: T.whoAreYou }], structuredContent: { say: T.whoAreYou } };
+        const mine = v.role !== 'adult'; // kids see only their own things
+        const html =
+          a.view === 'approvals'
+            ? approvalsHtml((await openApprovals(deps, hh)).filter((x) => !mine || x.personId === v.id))
+            : a.view === 'orders'
+              ? ordersHtml((await recentOrders(deps.store, hh, 50)).filter((e) => !mine || e.person === v.id).slice(0, 10))
+              : timelineHtml(await readAudit(deps.store, hh, { person: mine ? v.id : a.person, day: a.day, limit: 50 }));
+        return { content: [{ type: 'text', text: `Here is the ${a.view} screen.` }], structuredContent: { view: a.view, html } };
+      } catch {
+        return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
+      }
     },
   );
   server.registerTool(

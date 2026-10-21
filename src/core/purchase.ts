@@ -26,7 +26,7 @@ export interface PurchaseCtx {
 // The price is NEVER an argument. The server asks the service for the total (price plus fees) — a caller cannot lie about it.
 export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Promise<ActionResult> {
   const { person, method, rules, tz, now, args } = c;
-  const base = { person: person.id, service: args.service, action: 'purchase' };
+  const base = { person: person.id, person_name: person.name, service: args.service, action: 'purchase' };
   await releaseExpired(deps.store, hh, now); // an untapped yes must not lock the cap
 
   let amount: number;

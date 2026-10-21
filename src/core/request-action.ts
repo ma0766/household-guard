@@ -12,6 +12,7 @@ import type { ActionArgs, ActionResult, Outcome } from './types.js';
 import type { JobQueue } from '../queue/queue.js';
 import type { RiskChecker } from '../risk/risk.js';
 import { handlePurchase } from './purchase.js';
+import { auditAsk } from '../audit/emit.js';
 
 export interface Deps {
   store: Store;
@@ -29,7 +30,7 @@ export function result(base: { outcome: Outcome; reason: string; done: boolean }
 
 // Every path out of this function is allowed (only when the rules say so), held, or denied.
 // Any throw → held. There is no code path where an error becomes "allowed".
-export async function requestAction(deps: Deps, hh: string, args: ActionArgs): Promise<ActionResult> {
+async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<ActionResult> {
   const now = (deps.now ?? Date.now)();
   let tz = 'America/New_York';
   try {
@@ -57,7 +58,7 @@ export async function requestAction(deps: Deps, hh: string, args: ActionArgs): P
       session: method,
     };
     const d = decide(rules, input);
-    const base = { person: person.id, service: args.service, action: args.action };
+    const base = { person: person.id, person_name: person.name, service: args.service, action: args.action };
 
     if (d.answer === 'allow') {
       if (args.service === SIM_HOME) {
@@ -84,4 +85,11 @@ export async function requestAction(deps: Deps, hh: string, args: ActionArgs): P
   } catch {
     return result({ outcome: 'held', reason: T.oops, done: false }, tz, now);
   }
+}
+
+// The public entry: decide and act, then write what happened in the log. The log never changes the answer.
+export async function requestAction(deps: Deps, hh: string, args: ActionArgs): Promise<ActionResult> {
+  const r = await decideAndAct(deps, hh, args);
+  await auditAsk(deps, hh, args, r);
+  return r;
 }

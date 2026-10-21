@@ -5,7 +5,8 @@ import { MOCK_RIDE, bookRide, quoteRide, type RideOption } from '../connectors/m
 import { MOCK_SHOP, bookItem, quoteItem } from '../connectors/mock-shop.js';
 import { approvalHash, createApproval, supersede } from '../approvals/approvals.js';
 import { loadHousehold } from '../core/household.js';
-import { T } from '../text.js';
+import { T, money } from '../text.js';
+import { emit } from '../audit/emit.js';
 
 export interface Job {
   id: string;
@@ -92,6 +93,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       const { people } = await loadHousehold(deps.store, hh);
       const name = people.find((p) => p.id === j.personId)?.name ?? 'Someone';
       const a = await createApproval(deps, hh, { personId: j.personId, personName: name, service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.priceChanged });
+      await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: name, text: (t) => `The price changed for ${name} at ${t}. Not bought. An adult must say yes again.`, data: { amount_cents: service.amount } });
       return await finish(deps, hh, jobId, 'held', `${T.priceChanged} An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
     }
 
@@ -109,6 +111,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       if (verdict === 'hold') {
         await release(deps.store, hh, j.reservationId);
         const a = await createApproval(deps, hh, { personId: j.personId, personName: who?.name ?? 'Someone', service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.riskHeld });
+        await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: who?.name ?? 'Someone', text: (t) => `${who?.name ?? 'Someone'}'s ${money(service!.amount)} buy needed a closer look at ${t}. Not bought. An adult must say yes.`, data: { amount_cents: service!.amount, risk: true } });
         return await finish(deps, hh, jobId, 'held', `That needs a closer look. An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
       }
     }
@@ -121,6 +124,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
     if (!booked) {
       await release(deps.store, hh, j.reservationId).catch(() => undefined);
       await finish(deps, hh, jobId, 'failed', T.bookFailed).catch(() => undefined);
+      await emitWho(deps, hh, j, (n, t) => `${n}'s ${money(j.amountCents)} buy could not be made at ${t}. Nothing was charged.`, 'failed');
       return;
     }
   }
@@ -135,7 +139,19 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
   }
   if (j.replacesApprovalId) await supersede(deps, hh, j.replacesApprovalId);
   await finish(deps, hh, jobId, 'done', j.service === MOCK_RIDE ? T.rideBooked(total) : T.bought(total)).catch(() => undefined);
-  if (j.savedCents && j.savedCents > 0) await recordSaving(deps, hh, j).catch(() => undefined);
+  await emitWho(deps, hh, j, (n, t) => (j.service === MOCK_RIDE ? `Ride booked for ${n}: ${money(total)} at ${t}.` : `${n} bought a ${j.item ?? 'thing'}: ${money(total)} at ${t}.`), 'done', { amount_cents: total, service: j.service });
+  if (j.savedCents && j.savedCents > 0) {
+    await recordSaving(deps, hh, j).catch(() => undefined);
+    await emitWho(deps, hh, j, (n, _t) => `${n} took a ${j.optionId ?? 'standard'} ride for ${money(total)}, not ${money(total + j.savedCents!)}. Saved ${money(j.savedCents!)}.`, 'saving', { saved_cents: j.savedCents });
+  }
+}
+
+async function emitWho(deps: Deps, hh: string, j: Job, text: (name: string, t: string) => string, kind: string, data: Record<string, unknown> = {}) {
+  let name = 'Someone';
+  try {
+    name = (await loadHousehold(deps.store, hh)).people.find((p) => p.id === j.personId)?.name ?? name;
+  } catch { /* keep the generic name */ }
+  await emit(deps, hh, { kind, category: 'cart', person: j.personId, personName: name, text: (t) => text(name, t), data });
 }
 
 // "Saved $24": the difference between the held price and the cheaper option the person took.

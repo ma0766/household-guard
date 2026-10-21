@@ -10,7 +10,7 @@ Update after every slice. One line per check, with the command that proved it.
 | S3 Money: the ride | DONE | `npx vitest run tests/s3 tests/replay`: concurrency (two $15 vs $20 cap → one allowed, one held by the DB reservation, `why: cap_race`), duplicate (same request_id twice → one ride, one spend), worker failure releases money; replay at 20 cases; `npx playwright test e2e/s3-ride.spec.ts` PASS; deployed with SQS + worker Lambda | S3 (in S2/S4 commits) |
 | S4 Approvals + a yes that fits | DONE | `npx vitest run tests/s4` 18 tests (teen $38 held → $14 shared offered → accepted, $24 SAVED row; Mom approves by number → booked; surge → held again + new approval, money released; PIN/non-adult can't approve; voice approval needs a fresh phone confirmation); `npx playwright test e2e/s4-approvals.spec.ts` PASS (test-results/s4-*.png) | S4 |
 | S5 Risk check | DONE (mock) — live Bedrock blocked, see below | `npx vitest run tests/s5` 17 pass + 1 live-Bedrock test skipped until access works; gift card allowed by rules → held by risk check; injection tests; BedrockRisk fail-closed (throw/timeout/garbage/not-low → hold); `npx playwright test e2e/s5-risk.spec.ts` PASS | S5 |
-| S6 Audit and status | not started | | |
+| S6 Audit and status | DONE | `npx vitest run tests/s6` (hash chain: edited row / edited data / removed row / cut-off end / 20 parallel writers / daily checkpoint lets old rows be deleted; `npm run audit:verify -- <household> --local` exits 1 on an edited row, 0 when clean; plain sentences; person/day filters; voice summary totals first; real household_status; screens escape outside text); `npx playwright test e2e/s6-audit.spec.ts` PASS (test-results/s6-timeline-saving.png: the $24 saving in the timeline) | S6 |
 | S7 Editable rules + full replay | not started | | |
 | S8 Hardening + submission pack (code parts) | not started | | |
 
@@ -32,6 +32,9 @@ Update after every slice. One line per check, with the command that proved it.
 - 2026-10-20 Approvals only for purchases (money). An adult's yes on an exact purchase skips the AI risk check (stronger than the check). The risk check is skipped never otherwise (PIN path, cheaper-option path, tap path all get checked).
 - 2026-10-20 Idempotency: with a `request_id` a retry is remembered for an hour; without one only for 5 seconds (so asking the same thing again, later, gets a fresh answer). The web client sends a fresh request_id per utterance.
 - 2026-10-20 By voice, `approve_request` needs the adult's phone confirmation to be newer than the held request and under a minute old; the number is spoken aloud so it proves nothing alone. The phone route is the strong path.
+- 2026-10-20 Audit hash is a keyed HMAC (`HG_AUDIT_KEY`, falls back to the token secret) so someone who can only write to the table cannot recompute a believable chain. Entries expire after 90 days (TTL); daily checkpoints (kept 400 days) let verification still work after old rows are gone. Known limit: deleting ALL rows plus the head record is only detectable against an outside copy.
+- 2026-10-20 Who may read: guests/unconfirmed see nothing in the log or screens; kids see only their own; adults see the house. `household_status` stays open (it only says how many things wait and how much each kid has left).
+- 2026-10-20 The log never changes an answer: building or writing a sentence can fail loudly in logs but never throws to the caller. Words from callers are whitelisted/trimmed before they reach a sentence.
 
 ## Blocked on user
 

@@ -175,8 +175,26 @@ async function refreshPhones() {
     if (!inbox.challenges.length && !inbox.notices.length && !(inbox.approvals ?? []).length) body.textContent = 'Nothing waiting.';
   }
 }
-async function refresh() { await refreshPhones(); }
-setInterval(() => void refreshPhones().catch(() => undefined), 600);
+// ---- "What happened": the screen comes from the house itself (show_on_screen), shown in a sandboxed frame ----
+async function refreshTimeline() {
+  if (!connected) return;
+  const person = ($('tl-person') as HTMLSelectElement).value;
+  const dayPick = ($('tl-day') as HTMLSelectElement).value;
+  const day = dayPick === 'today' ? new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) : undefined;
+  const out = await callTool('show_on_screen', { view: 'timeline', ...(person ? { person } : {}), ...(day ? { day } : {}) });
+  const frame = $('timeline') as HTMLIFrameElement;
+  if (out.html && frame.srcdoc !== out.html) frame.srcdoc = out.html;
+}
+async function refresh() { await Promise.all([refreshPhones(), refreshTimeline()]); }
+setInterval(() => void refresh().catch(() => undefined), 1000);
+($('tl-person') as HTMLSelectElement).onchange = () => void refreshTimeline();
+($('tl-day') as HTMLSelectElement).onchange = () => void refreshTimeline();
+$('btn-voice-summary').onclick = async () => {
+  const r = await callTool('audit_log', { who: 'kids', when: 'this week' });
+  const el = $('summary');
+  el.hidden = false;
+  el.textContent = r.say;
+};
 
 // ---- words → one tool call ----
 function parse(text: string): Record<string, unknown> | undefined {
