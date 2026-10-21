@@ -58,6 +58,7 @@ export class StandInSiteBuilder implements SiteBuilder {
   }
   async publish(id: string) {
     await this.gate('publish');
+    if (process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.HG_PUBLIC_URL) throw new Error('no public address: a link to localhost would be useless');
     const row = await this.store.get(`SITE#${id}`, 'SITE');
     await this.store.put({ ...(row as any), pk: `SITE#${id}`, sk: 'SITE', published: true });
     const s = this.sites.find((x) => x.id === id);

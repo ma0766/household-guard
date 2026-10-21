@@ -56,6 +56,7 @@
     "e2e:live": "playwright test -c playwright.live.config.ts",
     "ha:up": "tsx scripts/ha-up.ts",
     "ha:down": "docker rm -f hg-ha",
-    "ha:test": "vitest run -c vitest.ha.config.ts"
+    "ha:test": "vitest run -c vitest.ha.config.ts",
+    "bench:reply": "tsx scripts/bench-reply.ts"
   }
 }

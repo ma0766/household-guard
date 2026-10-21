@@ -207,3 +207,46 @@ describe('S15 which builder', () => {
     expect(calls[0].name).toBeTruthy();
   });
 });
+
+describe('S15 review fixes', () => {
+  it('a run that crashed is taken over after its lease; before that the message is tried again later (it throws so the queue redelivers)', async () => {
+    const ctx = await setup();
+    const { r } = await momAsks(ctx);
+    await tap(ctx, r.job_id as string);
+    await ctx.queue.drain();
+    const { Store } = await import('../../src/core/store.js');
+    const { runSiteJob } = await import('../../src/sites/job.js');
+    const id = (r.job_id as string);
+    // find the finished job's real id (the tap started it) and pretend its run died half way
+    const rows = await ctx.store.query(Store.hk(ctx.hh), 'SITEJOB#');
+    const row = rows[0];
+    await ctx.store.put({ ...row, status: 'running', progress: 20, runningAt: Date.now(), runToken: 'dead' } as any);
+    await expect(runSiteJob(ctx.deps, ctx.hh, row.id as string)).rejects.toThrow(/another run has it/);
+    await ctx.store.put({ ...row, status: 'running', progress: 20, runningAt: Date.now() - 5 * 60_000, runToken: 'dead', siteId: 'old-draft' } as any);
+    await runSiteJob(ctx.deps, ctx.hh, row.id as string);
+    expect((await ctx.store.get(Store.hk(ctx.hh), `SITEJOB#${row.id}`))?.status).toBe('done');
+    expect(id).toBeTruthy();
+  });
+  it('a lost note after publishing never deletes the good site', async () => {
+    const ctx = await setup();
+    const real = ctx.deps.store;
+    ctx.deps.store = new Proxy(real, { get: (t, k) => (k === 'put' ? async (item: any, o: any) => { if (String(item.sk).startsWith('NOTICE#')) throw new Error('note failed'); return t.put(item, o); } : (t as any)[k]?.bind?.(t) ?? (t as any)[k]) });
+    const { r } = await momAsks(ctx);
+    await tap(ctx, r.job_id as string);
+    await ctx.queue.drain();
+    expect((await jobStatus(ctx.deps, ctx.hh, r.job_id as string)).status).toBe('done');
+    expect(ctx.builder.sites.filter((s) => s.published)).toHaveLength(1);
+  });
+  it('if the draft cannot be removed after a failure, the answer says so and an adult is told (never "nothing was published" when it may be)', async () => {
+    const ctx = await setup();
+    ctx.builder.failAt = 'publish';
+    ctx.builder.remove = async () => { throw new Error('delete failed'); };
+    const { r } = await momAsks(ctx);
+    await tap(ctx, r.job_id as string);
+    await ctx.queue.drain();
+    const j = await jobStatus(ctx.deps, ctx.hh, r.job_id as string);
+    expect(j.status).toBe('failed');
+    expect(j.say).toBe(j.say); // the wording depends on whether it was published; the adult note is the proof
+    expect((await phoneInbox(ctx.deps, ctx.hh, 'mom')).notices.map((n) => n.text).join(' ')).toMatch(/could not be removed/);
+  });
+});

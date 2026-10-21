@@ -19,6 +19,7 @@ const SLICES: Record<string, string> = {
   S13: 'Connect any app, per person (Composio: stand-in)',
   S14: 'Real smart home (Home Assistant MCP; live check: npm run ha:test)',
   S15: 'Long jobs + site building (Wix: stand-in)',
+  S16: 'AgentCore Gateway + Policy (switch OFF by default)',
 };
 mkdirSync('test-results', { recursive: true });
 const run = (label: string, cmd: string, args: string[]) => {

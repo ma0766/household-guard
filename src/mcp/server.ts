@@ -49,7 +49,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       inputSchema: {
         service: z.string().describe('Which service, e.g. sim-home'),
         action: z.string().describe('What to do, e.g. light, unlock, thermostat, garage, purchase'),
-        item: z.string().optional().describe('What it is about, e.g. front door'),
+        item: z.string().max(300).optional().describe('What it is about, e.g. front door'),
         value: z.union([z.string(), z.number()]).optional().describe('e.g. off, or 72'),
         option_id: z.string().optional().describe('Which option, e.g. shared'),
         replaces: z.string().optional().describe('The held request this one replaces (taking the cheaper option)'),

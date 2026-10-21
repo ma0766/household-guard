@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
 import { defaultSiteBuilder, siteNameOf, type SiteBuilder } from './builder.js';
@@ -9,9 +10,9 @@ import { T } from '../text.js';
 // written as it goes. The same job message arriving twice builds one site (a conditional claim, as the ride jobs do).
 export const siteBuilderOf = (deps: Deps): SiteBuilder => (deps.sites ??= defaultSiteBuilder(deps.store));
 const key = (id: string) => `SITEJOB#${id}`;
-const LEASE_MS = 5 * 60 * 1000;
+const LEASE_MS = 90 * 1000; // shorter than the queue's wait before it delivers again, so a crashed run is taken over
 
-export interface SiteJob { id: string; personId: string; name: string; brief: string; status: 'queued' | 'running' | 'done' | 'failed'; progress: number; say?: string; previewUrl?: string; siteId?: string; announced?: boolean; runningAt?: number }
+export interface SiteJob { id: string; personId: string; name: string; brief: string; status: 'queued' | 'running' | 'done' | 'failed'; progress: number; say?: string; previewUrl?: string; siteId?: string; announced?: boolean; runningAt?: number; runToken?: string }
 
 export async function startSiteJob(deps: Deps, hh: string, jobId: string, personId: string, item: string | undefined): Promise<void> {
   const name = siteNameOf(item);
@@ -19,39 +20,60 @@ export async function startSiteJob(deps: Deps, hh: string, jobId: string, person
   await deps.queue!.send({ hh, jobId, kind: 'site' });
 }
 
-async function setProgress(deps: Deps, hh: string, id: string, progress: number, extra: Record<string, unknown> = {}) {
-  const keys = Object.keys(extra);
-  await deps.store.update({ Key: { pk: Store.hk(hh), sk: key(id) }, UpdateExpression: 'SET progress = :p' + keys.map((k) => `, #${k} = :x_${k}`).join(''), ExpressionAttributeNames: Object.fromEntries(keys.map((k) => [`#${k}`, k])), ...(keys.length ? {} : { ExpressionAttributeNames: undefined }), ExpressionAttributeValues: { ':p': progress, ...Object.fromEntries(keys.map((k) => [`:x_${k}`, extra[k]])) } });
-  (siteBuilderOf(deps) as any).observe?.(progress);
-}
-
 export async function runSiteJob(deps: Deps, hh: string, jobId: string): Promise<void> {
   const j = (await deps.store.get(Store.hk(hh), key(jobId))) as unknown as SiteJob | undefined;
   if (!j) return;
   const now = (deps.now ?? Date.now)();
+  const me = randomBytes(8).toString('hex'); // this run's own token: every later write must still carry it (a stale run cannot overwrite a newer one)
   try {
-    await deps.store.update({ Key: { pk: Store.hk(hh), sk: key(jobId) }, UpdateExpression: 'SET #s = :run, runningAt = :now', ConditionExpression: '#s = :q OR (#s = :run AND runningAt < :stale)', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':run': 'running', ':q': 'queued', ':now': now, ':stale': now - LEASE_MS } });
+    await deps.store.update({ Key: { pk: Store.hk(hh), sk: key(jobId) }, UpdateExpression: 'SET #s = :run, runningAt = :now, runToken = :me', ConditionExpression: '#s = :q OR (#s = :run AND runningAt < :stale)', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':run': 'running', ':q': 'queued', ':now': now, ':stale': now - LEASE_MS, ':me': me } });
   } catch (e: any) {
-    if (e?.name === 'ConditionalCheckFailedException') return; // someone has it, or it is finished
+    if (e?.name === 'ConditionalCheckFailedException') {
+      const cur = (await deps.store.get(Store.hk(hh), key(jobId))) as unknown as SiteJob | undefined;
+      if (cur?.status === 'running') throw new Error('another run has it: try again after its lease', { cause: e }); // the queue delivers it again later, so a crashed run is taken over
+      return; // finished
+    }
     throw e;
   }
+  if (j.status === 'running' && j.siteId) await siteBuilderOf(deps).remove(j.siteId).catch(() => undefined); // a crashed run's half-made draft
   const builder = siteBuilderOf(deps);
+  const mine = { ConditionExpression: 'runToken = :me' };
+  const write = async (update: string, names: Record<string, string>, values: Record<string, unknown>) => {
+    await deps.store.update({ Key: { pk: Store.hk(hh), sk: key(jobId) }, UpdateExpression: update, ...mine, ...(Object.keys(names).length ? { ExpressionAttributeNames: names } : {}), ExpressionAttributeValues: { ':me': me, ...values } });
+  };
+  const progress = async (p: number, siteId?: string) => {
+    await write('SET progress = :p' + (siteId ? ', siteId = :sid' : ''), {}, { ':p': p, ...(siteId ? { ':sid': siteId } : {}) });
+    (builder as { observe?: (n: number) => void }).observe?.(p);
+  };
   let siteId: string | undefined;
+  let published = false;
+  let url: string;
   try {
     siteId = (await builder.create(j.name)).id;
-    await setProgress(deps, hh, jobId, 20, { siteId });
+    await progress(20, siteId);
     await builder.write(siteId, j.name, j.brief);
-    await setProgress(deps, hh, jobId, 55);
-    const { url } = await builder.publish(siteId);
-    await setProgress(deps, hh, jobId, 85);
-    await deps.store.update({ Key: { pk: Store.hk(hh), sk: key(jobId) }, UpdateExpression: 'SET #s = :d, progress = :p, say = :say, previewUrl = :u, announced = :f', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':d': 'done', ':p': 100, ':say': T.siteReady(j.name), ':u': url, ':f': false } });
-    (builder as any).observe?.(100);
-    await notifyAdults(deps.store, hh, T.siteReady(j.name), (deps.now ?? Date.now)(), j.personId, 'Someone');
-  } catch {
-    if (siteId) await builder.remove(siteId).catch(() => undefined); // nothing half-made is left
-    await deps.store.update({ Key: { pk: Store.hk(hh), sk: key(jobId) }, UpdateExpression: 'SET #s = :f, say = :say REMOVE previewUrl', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':f': 'failed', ':say': T.siteFailed } }).catch(() => undefined);
-    await emit(deps, hh, { kind: 'site', category: 'home', person: j.personId, personName: 'Someone', text: (t) => `A site could not be finished at ${t}. Nothing was published.` });
+    await progress(55);
+    url = (await builder.publish(siteId)).url;
+    published = true;
+  } catch (e: any) {
+    if (e?.name === 'ConditionalCheckFailedException') return; // a newer run owns this job now: leave it alone
+    const removed = siteId ? await builder.remove(siteId).then(() => true, () => false) : true; // nothing half-made is left
+    const say = published && !removed ? T.siteFailedLeft : T.siteFailed;
+    await write('SET #s = :f, say = :say REMOVE previewUrl', { '#s': 'status' }, { ':f': 'failed', ':say': say }).catch(() => undefined);
+    if (!removed) await notifyAdults(deps.store, hh, `A site could not be removed. Its number is ${siteId}.`, now, j.personId, 'Someone').catch(() => undefined);
+    await emit(deps, hh, { kind: 'site', category: 'home', person: j.personId, personName: 'Someone', text: (t) => `A site could not be finished at ${t}. ${removed ? 'Nothing was published.' : 'An adult was told.'}` }).catch(() => undefined);
+    return;
   }
+  await progress(85).catch(() => undefined); // best effort: a lost progress note never undoes a published site
+  // published: from here on nothing may delete it. A lost note or progress write never undoes a good site.
+  try {
+    await write('SET #s = :d, progress = :p, say = :say, previewUrl = :u, announced = :f', { '#s': 'status' }, { ':d': 'done', ':p': 100, ':say': T.siteReady(j.name), ':u': url, ':f': false });
+    (builder as { observe?: (n: number) => void }).observe?.(100);
+  } catch (e) {
+    console.error('site: could not record the finished job', e);
+    return;
+  }
+  await notifyAdults(deps.store, hh, T.siteReady(j.name), (deps.now ?? Date.now)(), j.personId, 'Someone').catch((e) => console.error('site: note failed', e));
 }
 
 export async function getSiteJob(deps: Deps, hh: string, id: string): Promise<SiteJob | undefined> {

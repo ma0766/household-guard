@@ -1,3 +1,5 @@
+import { CfnGateway, CfnGatewayTarget, CfnPolicy, CfnPolicyEngine } from 'aws-cdk-lib/aws-bedrockagentcore';
+import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { AccountRecovery, Mfa, OAuthScope, ResourceServerScope, UserPool, CfnUserPoolGroup } from 'aws-cdk-lib/aws-cognito';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
@@ -8,6 +10,14 @@ import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import type { Construct } from 'constructs';
+
+const GATEWAY_TOOL_SCHEMA = [
+  {
+    name: 'request_action',
+    description: 'Ask the house to do something (lights, doors, a ride, an app). The house decides by its own rules.',
+    inputSchema: { type: 'object', properties: { service: { type: 'string' }, action: { type: 'string' }, item: { type: 'string' }, value: { type: 'string' }, option_id: { type: 'string' }, request_id: { type: 'string' } }, required: ['service', 'action'] },
+  },
+]; // no person field: identity is the house's own (kept equal to src/gateway/handler.ts TOOL_SCHEMA by a test)
 
 // Lambda Web Adapter layer — version from the adapter's README (checked 2026-10-20)
 const LWA_LAYER = 'arn:aws:lambda:us-east-1:753240598075:layer:LambdaAdapterLayerX86:30';
@@ -26,7 +36,7 @@ class HouseholdGuardStack extends Stack {
     });
     const secret = process.env.HG_TOKEN_SECRET;
     if (!secret) throw new Error('HG_TOKEN_SECRET is required — run npm run deploy');
-    const queue = new Queue(this, 'Jobs', { visibilityTimeout: Duration.seconds(60) });
+    const queue = new Queue(this, 'Jobs', { visibilityTimeout: Duration.seconds(240) }); // longer than the worker's time AND the 90 s lease of a site job
 
     // ---- sign-in (S12): Amazon Cognito as the OAuth 2.1 server (authorization code + PKCE, refresh tokens, client_credentials) ----
     const isProd = props.suffix === '';
@@ -112,7 +122,7 @@ class HouseholdGuardStack extends Stack {
       handler: 'index.handler',
       code: Code.fromAsset('dist/worker'),
       memorySize: 256,
-      timeout: Duration.seconds(30),
+      timeout: Duration.seconds(120), // a site is built in three steps
       environment: { HG_TABLE: table.tableName, HG_RISK: 'bedrock', HG_TOKEN_SECRET: secret, ...emailEnv }, // the worker can hold a request too (price changed): the link in that email needs the same signing key
     });
     if (sesPolicy) worker.addToRolePolicy(sesPolicy);
@@ -132,6 +142,47 @@ class HouseholdGuardStack extends Stack {
     heal.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel', 'bedrock:Converse'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
     table.grantReadWriteData(heal);
     new Rule(this, 'HealEvery5Minutes', { schedule: Schedule.rate(Duration.minutes(5)), targets: [new LambdaFunction(heal, { retryAttempts: 0 })] });
+    // ---- AgentCore Gateway + Policy (S16): a second front door to the SAME decision. OFF unless -c agentcore=1 ----
+    if (ctx('agentcore') === '1') {
+      const enforce = ctx('agentcoreEnforce') === '1'; // log-only first; enforcing needs a second, explicit switch
+      const target = new Fn(this, 'GatewayTarget', {
+        runtime: Runtime.NODEJS_22_X,
+        handler: 'index.handler',
+        code: Code.fromAsset('dist/gateway'),
+        memorySize: 256,
+        timeout: Duration.seconds(20),
+        environment: { HG_TABLE: table.tableName, HG_QUEUE_URL: queue.queueUrl, HG_TOKEN_SECRET: secret, HG_GATEWAY_HOUSEHOLD: ctx('gatewayHousehold') ?? 'gateway' },
+      });
+      table.grantReadWriteData(target);
+      queue.grantSendMessages(target);
+      const gwRole = new Role(this, 'GatewayRole', { assumedBy: new ServicePrincipal('bedrock-agentcore.amazonaws.com') });
+      target.grantInvoke(gwRole); // the gateway may call this one function and nothing else
+      const engine = new CfnPolicyEngine(this, 'PolicyEngine', { name: `hg_${props.suffix.replace('-', '') || 'prod'}_rules` });
+      gwRole.addToPolicy(new PolicyStatement({ actions: ['bedrock-agentcore:GetPolicyEngine', 'bedrock-agentcore:AuthorizeAction', 'bedrock-agentcore:PartiallyAuthorizeActions'], resources: [engine.attrPolicyEngineArn, `arn:aws:bedrock-agentcore:us-east-1:${Stack.of(this).account}:gateway/*`] })); // the gateway may ask THIS policy engine to decide, nothing else
+      const gateway = new CfnGateway(this, 'Gateway', {
+        name: `hg-${props.suffix.replace('-', '') || 'prod'}-gateway`,
+        protocolType: 'MCP',
+        authorizerType: 'CUSTOM_JWT',
+        authorizerConfiguration: { customJwtAuthorizer: { discoveryUrl: `https://cognito-idp.us-east-1.amazonaws.com/${pool.userPoolId}/.well-known/openid-configuration`, allowedClients: [serviceClient.userPoolClientId] } },
+        roleArn: gwRole.roleArn,
+        policyEngineConfiguration: { arn: engine.attrPolicyEngineArn, mode: enforce ? 'ENFORCE' : 'LOG_ONLY' },
+      });
+      gateway.node.addDependency(gwRole); // the gateway is made only after its role and ALL its permissions exist
+      const tool = new CfnGatewayTarget(this, 'GatewayTool', {
+        gatewayIdentifier: gateway.attrGatewayIdentifier,
+        name: 'guard',
+        credentialProviderConfigurations: [{ credentialProviderType: 'GATEWAY_IAM_ROLE' }],
+        targetConfiguration: { mcp: { lambda: { lambdaArn: target.functionArn, toolSchema: { inlinePayload: GATEWAY_TOOL_SCHEMA } } } },
+      });
+      const policy = new CfnPolicy(this, 'GatewayPolicy', {
+        name: 'guard_request_action',
+        policyEngineId: engine.attrPolicyEngineId,
+        enforcementMode: enforce ? 'ENFORCE' : 'LOG_ONLY',
+        definition: { cedar: { statement: `permit(principal, action == AgentCore::Action::"guard___request_action", resource == AgentCore::Gateway::"${gateway.attrGatewayArn}") when { context.input.action != "delete_account" };` } },
+      });
+      policy.addDependency(tool);
+      new CfnOutput(this, 'GatewayUrl', { value: gateway.attrGatewayUrl ?? '' });
+    }
     const url = web.addFunctionUrl({ authType: FunctionUrlAuthType.NONE, invokeMode: InvokeMode.RESPONSE_STREAM });
     new CfnOutput(this, 'Url', { value: url.url });
     new CfnOutput(this, 'UserPoolId', { value: pool.userPoolId });

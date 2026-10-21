@@ -42,6 +42,7 @@ export const T = {
   siteReady: (n: string) => `Your site is ready. ${n}.`,
   siteWorking: (p: number) => `Working on it. ${p} percent.`,
   siteFailed: 'I could not finish the site. Nothing was published.',
+  siteFailedLeft: 'I could not finish the site. An adult was told.',
   siteBuilding: 'Okay. Building it now.',
   serviceDown: 'That service is not working. An adult was told.',
   afterRepair: 'Held: this service was just fixed. An adult must say yes once.',
