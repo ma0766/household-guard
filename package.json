@@ -44,6 +44,8 @@
     "verify": "tsx scripts/verify.ts",
     "deploy": "tsx scripts/deploy.ts",
     "smoke:deployed": "tsx scripts/smoke.ts",
-    "audit:verify": "tsx scripts/verify-audit.ts"
+    "audit:verify": "tsx scripts/verify-audit.ts",
+    "prove": "tsx scripts/prove.ts",
+    "prover:install": "sh scripts/install-prover.sh"
   }
 }

@@ -12,6 +12,7 @@ action light, thermostat, unlock, garage, purchase appliesTo {
     week_spent_cents: Long,
     value: Long,
     session: String,
+    local_hour: Long,
   },
 };
 `;

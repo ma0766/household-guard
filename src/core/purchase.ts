@@ -5,7 +5,7 @@ import type { ActionArgs, ActionResult, Person } from './types.js';
 import type { SessionMethod } from './types.js';
 import type { RulesConfig } from '../policy/rules.js';
 import { decide } from '../policy/evaluator.js';
-import { weekKey } from './time.js';
+import { hourOf, weekKey } from './time.js';
 import { release, releaseExpired, reserve, spentThisWeek, RESERVATION_MS } from '../spend/spend.js';
 import { MOCK_RIDE, quoteRide, type RideOption } from '../connectors/mock-ride.js';
 import { createApproval, getApproval, supersede } from '../approvals/approvals.js';
@@ -53,11 +53,11 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
 
   const week = weekKey(now, tz);
   const spent = await spentThisWeek(deps.store, hh, week, person.id);
-  const d = decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method });
+  const d = decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
   const extra = { ...base, amount_cents: amount, option_id: optionId };
 
   if (d.answer === 'deny') {
-    const reason = d.determining.includes('floor_guests_no_buy') ? T.guestNoBuy : person.role === 'guest' ? T.whoAreYou : T.cantDo;
+    const reason = d.determining.includes('quiet_hours') && rules.quietHours ? T.quietHours(rules.quietHours.fromHour, rules.quietHours.toHour) : d.determining.includes('floor_guests_no_buy') ? T.guestNoBuy : person.role === 'guest' ? T.whoAreYou : T.cantDo;
     return result({ outcome: 'denied', reason, done: false }, tz, now, extra);
   }
   if (d.answer === 'hold') {
@@ -131,7 +131,7 @@ function bestValue(rules: RulesConfig, person: Person, method: SessionMethod, se
       const [h, m] = formatLocal24(now + o.eta_minutes * 60_000, tz);
       if (h * 60 + m > rules.mustHaves.arriveByHour * 60) return false;
     }
-    return decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service, serviceKnown: rules.allowedServices.includes(service), amountCents: o.total_cents, weekSpentCents: spent, value: 0, session: method }).answer === 'allow';
+    return decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service, serviceKnown: rules.allowedServices.includes(service), amountCents: o.total_cents, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) }).answer === 'allow';
   });
   return fits.sort((a, b) => a.total_cents - b.total_cents)[0];
 }

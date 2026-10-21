@@ -11,6 +11,7 @@ export interface RulesConfig {
   needsApproval: { role: Role; action: string }[];
   deny: { role: Role; action: string }[];
   mustHaves: { arriveByHour?: number; bagIncluded?: boolean };
+  quietHours?: { fromHour: number; toHour: number }; // no buying for non-adults, in the house's own time zone (S10)
 }
 
 export const KNOWN_ACTIONS = ['light', 'thermostat', 'unlock', 'garage', 'purchase'] as const;
@@ -66,6 +67,13 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // locked floor
   if (c.floor.guestsNoBuy) both('floor_guests_no_buy', `forbid(principal in Role::"guest", action == Action::"purchase", resource);`);
   if (c.floor.childrenNoUnlock) both('floor_children_no_unlock', `forbid(principal in Role::"child", action == Action::"unlock", resource);`);
+
+  // quiet hours: a forbid in BOTH sets, so no permit and no adult approval can override it. Adults are not held to it.
+  if (c.quietHours) {
+    const { fromHour: f, toHour: t } = c.quietHours;
+    const inside = f > t ? `context.local_hour >= ${f} || context.local_hour < ${t}` : `context.local_hour >= ${f} && context.local_hour < ${t}`;
+    both('quiet_hours', `forbid(principal, action == Action::"purchase", resource) when { ${inside} } unless { principal in Role::"adult" };`);
+  }
 
   // explicit rule types
   c.deny.forEach((r, i) => both(`deny_${i}`, `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));

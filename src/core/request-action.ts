@@ -1,6 +1,6 @@
 import type { Store } from './store.js';
 import { getSession, loadHousehold, ensureSeeded } from './household.js';
-import { formatLocal } from './time.js';
+import { formatLocal, hourOf } from './time.js';
 import { decide, type DecisionInput } from '../policy/evaluator.js';
 import { KNOWN_ACTIONS } from '../policy/rules.js';
 import { SIM_HOME } from '../connectors/sim-home.js';
@@ -56,6 +56,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       weekSpentCents: 0,
       value: Number.isFinite(value) ? Math.trunc(value) : 0,
       session: method,
+      localHour: hourOf(now, tz),
     };
     const d = decide(rules, input);
     const base = { person: person.id, person_name: person.name, service: args.service, action: args.action };

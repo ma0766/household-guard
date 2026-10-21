@@ -5,6 +5,8 @@ import { MOCK_RIDE, bookRide, quoteRide, type RideOption } from '../connectors/m
 import { MOCK_SHOP, bookItem, quoteItem } from '../connectors/mock-shop.js';
 import { approvalHash, createApproval, supersede } from '../approvals/approvals.js';
 import { loadHousehold } from '../core/household.js';
+import { decide } from '../policy/evaluator.js';
+import { hourOf } from '../core/time.js';
 import { T, money } from '../text.js';
 import { emit } from '../audit/emit.js';
 
@@ -74,6 +76,20 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
   try {
     const res = await getReservation(deps.store, hh, j.reservationId);
     if (!res || res.state !== 'reserved') throw new Error('money is no longer reserved'); // nothing booked, nothing to release
+    // The rules are asked again at the moment of buying: a tap or a yes that lands after quiet hours began (or after a rule
+    // changed) cannot buy. Only a "deny" stops it here; the spend and approval checks were already made.
+    {
+      const { people, rules, meta } = await loadHousehold(deps.store, hh);
+      const who = people.find((p) => p.id === j.personId);
+      const again = who && decide(rules, { person: { id: who.id, role: who.role }, action: 'purchase', service: j.service, serviceKnown: rules.allowedServices.includes(j.service), amountCents: j.amountCents, weekSpentCents: 0, value: 0, session: 'phone', localHour: hourOf(now, meta.timezone) });
+      if (!who || again!.answer === 'deny') {
+        const why = again?.determining.includes('quiet_hours') && rules.quietHours ? T.quietHours(rules.quietHours.fromHour, rules.quietHours.toHour) : T.cantDo;
+        await release(deps.store, hh, j.reservationId);
+        await finish(deps, hh, jobId, 'failed', why);
+        await emitWho(deps, hh, j, (n, t) => `${n}'s ${money(j.amountCents)} buy was stopped at ${t}. ${why}`, 'failed');
+        return;
+      }
+    }
     let service: { destination?: string; itemKey: string; amount: number; optionId?: string; opt?: RideOption; note?: string } | undefined;
     if (j.service === MOCK_RIDE) {
       const q = await quoteRide(deps.store, hh, j.item);

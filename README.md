@@ -72,3 +72,9 @@ tests/s0…s8, tests/replay   e2e/   infra/ (CDK)   docs/ (SPEC, SLICES, PROGRES
 ## Honest limits
 
 Real Alexa+ add-on tools are preview-only, so the demo uses a web MCP client (allowed by the hackathon FAQ). Alexa gives add-ons no per-speaker identity, so identity is confirmed by phone tap/PIN; see FRICTION_LOG.md and FEEDBACK.md. No real money, no real devices: mock ride service, simulated home. The rules cover actions routed through this add-on only. Not legal advice (children's data: no audio stored, adults create child profiles, log expires after 90 days).
+
+## Rule proofs (S10)
+
+`npm run prover:install` once, then `npm run prove`. Cedar's solver checks **every possible request**, not a list of examples, that
+no child may unlock a door, no child may open the garage, and no guest may buy. `npm run prove -- --rules house.json --base-rules old.json`
+checks a household's rules and says whether they allow more or less than before. Counterexamples are printed when a promise breaks.

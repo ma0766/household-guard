@@ -194,9 +194,12 @@ async function refreshRules() {
 async function ruleCall(args: Record<string, unknown>) {
   const r = await callTool('set_rule', args);
   says(r.say, r.status === 'waiting' ? 'held' : 'denied');
+  $('rule-preview').textContent = r.preview ?? '';
   if (r.status === 'waiting') void waitJob(r.challenge_id);
 }
 $('rule-save-maya').onclick = () => void ruleCall({ template: 'weekly_limit', person: 'maya', dollars: Number(($('rule-maya-limit') as HTMLInputElement).value) });
+$('rule-quiet-on').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: 21, quiet_to_hour: 6 });
+$('rule-quiet-off').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: null });
 $('rule-undo').onclick = () => void ruleCall({ undo: true });
 async function refresh() { await Promise.all([refreshPhones(), refreshTimeline(), refreshRules()]); }
 setInterval(() => void refresh().catch(() => undefined), 1000);
