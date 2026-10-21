@@ -8,6 +8,9 @@ import { Store } from './core/store.js';
 import { makeDeps } from './core/deps.js';
 import { handlePhone } from './phone/routes.js';
 import type { Deps } from './core/request-action.js';
+import { defaultRepairer, healthCheck } from './connectors/healing.js';
+import { setRideState } from './connectors/mock-ride.js';
+import { getSession, loadHousehold } from './core/household.js';
 
 const WEB_ROOT = process.env.HG_WEB_ROOT ?? join(fileURLToPath(new URL('..', import.meta.url)), 'dist', 'web');
 const TYPES: Record<string, string> = {
@@ -77,6 +80,21 @@ export function createApp(given?: Deps) {
         // local demo only: hands out a signed token so the web client can sign in
         if (url.pathname === '/demo-token' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
           return void res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(demoTokens(url)));
+        }
+        // demo only: the ride service "ships a new version" (price_cents becomes fare_cents), and "check now" runs the health check
+        if ((url.pathname === '/demo/break-ride' || url.pathname === '/demo/check-rides') && req.method === 'POST' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
+          const claims = readToken(bearerOf(req));
+          if (!claims) return void res.writeHead(401).end();
+          const d = getDeps();
+          if (url.pathname === '/demo/break-ride') {
+            // breaking the shared service is for a confirmed adult only (the sign-in alone is open in the demo)
+            const sess = await getSession(d.store, claims.hh, Date.now());
+            const who = sess && (await loadHousehold(d.store, claims.hh)).people.find((p) => p.id === sess.personId);
+            if (!who || who.role !== 'adult') return void res.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"adults only"}');
+            await setRideState(d.store, claims.hh, { renamed: true });
+          }
+          const out = url.pathname === '/demo/check-rides' ? await healthCheck(d, claims.hh, defaultRepairer()) : { ok: true };
+          return void res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(out));
         }
         // demo only: "nobody has confirmed" — so a guest can speak after a family member's turn ended
         if (url.pathname === '/demo/guest' && req.method === 'POST' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {

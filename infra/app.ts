@@ -1,3 +1,5 @@
+import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 import { App, CfnOutput, Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Code, Function as Fn, FunctionUrlAuthType, InvokeMode, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -59,6 +61,18 @@ class HouseholdGuardStack extends Stack {
     worker.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel', 'bedrock:Converse'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
     table.grantReadWriteData(worker);
     worker.addEventSource(new SqsEventSource(queue, { batchSize: 5 }));
+    // self-healing: every 5 minutes a safe read of each service; a model proposes a repair only if the answer stopped fitting
+    const heal = new Fn(this, 'Heal', {
+      runtime: Runtime.NODEJS_22_X,
+      handler: 'index.handler',
+      code: Code.fromAsset('dist/heal'),
+      memorySize: 256,
+      timeout: Duration.minutes(5), // households are checked five at a time; a model repair can take 20 seconds
+      environment: { HG_TABLE: table.tableName },
+    });
+    heal.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel', 'bedrock:Converse'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
+    table.grantReadWriteData(heal);
+    new Rule(this, 'HealEvery5Minutes', { schedule: Schedule.rate(Duration.minutes(5)), targets: [new LambdaFunction(heal, { retryAttempts: 0 })] });
     const url = web.addFunctionUrl({ authType: FunctionUrlAuthType.NONE, invokeMode: InvokeMode.RESPONSE_STREAM });
     new CfnOutput(this, 'Url', { value: url.url });
   }

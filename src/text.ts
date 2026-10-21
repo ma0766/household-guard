@@ -28,6 +28,8 @@ export const T = {
   oops: 'Something went wrong. Ask an adult.',
   confirmOnPhone: (n: number) => `Confirm on your phone: ${n}`,
   locked: 'Too many tries. Wait 10 minutes.',
+  serviceDown: 'That service is not working. An adult was told.',
+  afterRepair: 'Held: this service was just fixed. An adult must say yes once.',
   quietHours: (from: number, to: number) => `Quiet hours: no buying from ${hourWord(from)} to ${hourWord(to)}.`,
   guestNoBuy: "Guests can't buy things.",
   childNoBuy: 'An adult must say yes to buys.',

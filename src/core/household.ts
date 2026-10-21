@@ -26,6 +26,8 @@ export async function ensureSeeded(store: Store, hh: string): Promise<void> {
   await store.put({ pk, sk: 'META', ...meta }, { ifNotExists: true }).catch(ignoreExists);
   for (const p of DEMO_PEOPLE) await store.put({ pk, sk: `PERSON#${p.id}`, ...p, ...(DEMO_PINS[p.id] ? { pinHash: hashPin(DEMO_PINS[p.id]) } : {}) }, { ifNotExists: true }).catch(ignoreExists);
   await store.put({ pk, sk: 'RULES#current', config: defaultRules() }, { ifNotExists: true }).catch(ignoreExists);
+  // every house has a ride-service record, so the scheduled health check (S11) finds it
+  await store.put({ pk, sk: 'CONN#mock-ride', surge: 1, malicious: false, failBooking: false, renamed: false, authExpired: false }, { ifNotExists: true }).catch(ignoreExists);
   seeded.add(key);
 }
 

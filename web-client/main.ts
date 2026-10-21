@@ -201,7 +201,19 @@ $('rule-save-maya').onclick = () => void ruleCall({ template: 'weekly_limit', pe
 $('rule-quiet-on').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: 21, quiet_to_hour: 6 });
 $('rule-quiet-off').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: null });
 $('rule-undo').onclick = () => void ruleCall({ undo: true });
-async function refresh() { await Promise.all([refreshPhones(), refreshTimeline(), refreshRules()]); }
+async function refreshConn() {
+  if (!connected) return;
+  const c = (await callTool('household_status', {})).connectors?.ride;
+  if (!c) return;
+  $('conn-status').textContent = c.health === 'broken' ? 'The ride service is not working.' : c.approval_owed ? 'Fixed. The next ride needs a yes.' : 'The ride service works.';
+}
+async function demoPost(path: string) {
+  await connect();
+  return (await (await fetch(path, { method: 'POST', headers: { authorization: `Bearer ${token}` } })).json()) as { say?: string };
+}
+$('btn-break-ride').onclick = () => void demoPost('/demo/break-ride').then(() => says('The ride service shipped a new version.', 'held'));
+$('btn-check-rides').onclick = () => void demoPost('/demo/check-rides').then((r) => says(r.say ?? 'Checked.', 'allowed'));
+async function refresh() { await Promise.all([refreshPhones(), refreshTimeline(), refreshRules(), refreshConn()]); }
 setInterval(() => void refresh().catch(() => undefined), 1000);
 ($('tl-person') as HTMLSelectElement).onchange = () => void refreshTimeline();
 ($('tl-day') as HTMLSelectElement).onchange = () => void refreshTimeline();
