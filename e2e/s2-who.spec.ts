@@ -13,7 +13,7 @@ test('S2: a name alone does nothing; the number lands on the right phone; PIN wo
   await expect(page.getByTestId('phone-maya').locator('button')).toHaveCount(0);
   await page.screenshot({ path: 'test-results/s2-number-match.png' });
   await confirmOnPhone(page, 'mom');
-  await expect(page.getByTestId('alexa-says')).toContainText('Mom is confirmed');
+  await expect(page.getByTestId('alexa-says')).toContainText('Hi Mom. You are confirmed');
   // Leo uses a PIN
   await page.getByTestId('who-leo').click();
   await page.getByTestId('pin').fill('0000');

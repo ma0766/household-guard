@@ -117,6 +117,8 @@ class HouseholdGuardStack extends Stack {
       },
     });
     if (sesPolicy) web.addToRolePolicy(sesPolicy);
+    // the demo "Check now" button runs the repair from the web function, so it needs the same narrow Claude Haiku permission as the scheduled check
+    if ((ctx('demo') ?? (isProd ? '1' : '0')) === '1') web.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
     grantData(web);
     queue.grantSendMessages(web);
     const worker = new Fn(this, 'Worker', {

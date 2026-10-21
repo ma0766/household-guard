@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, mkdtempSync, appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { freshHouse, signIn, confirmOnPhone, watchConsole } from './common';
+import { freshHouse, signIn, confirmOnPhone, watchConsole } from './common.js';
 
 // ---------- CI proof (CLI evidence; runs the same on both targets, it is repo-local) ----------
 
@@ -102,7 +102,7 @@ test('S10 rule card: quiet hours button shows a plain preview and the card', asy
   // a teen cannot turn it off
   await signIn(page, 'maya');
   await page.getByTestId('rule-quiet-off').click();
-  await expect(page.getByTestId('alexa-says')).not.toHaveText(/is confirmed\.|^Done\.$/, { timeout: 15000 });
+  await expect(page.getByTestId('alexa-says')).not.toHaveText(/are confirmed\.|^Done\.$/, { timeout: 15000 });
   const said = await page.getByTestId('alexa-says').textContent();
   console.log('MAYA TRIES QUIET OFF ->', said);
   expect(said).not.toContain('Confirm on your phone'); // a teen must not be offered a confirm for changing rules
@@ -129,7 +129,7 @@ test('S10 teen purchase inside quiet hours is held (house time zone), adult is e
   console.log('RULES CARD:', (await rules.locator('body').innerText()).slice(0, 600));
   // 2) Mom (adult) is exempt: gets the normal phone check, not a quiet-hours stop
   await page.getByRole('button', { name: 'Book a ride to the mall' }).click();
-  await expect(page.getByTestId('alexa-says')).not.toHaveText(/is confirmed\.|^Done\.$/, { timeout: 15000 });
+  await expect(page.getByTestId('alexa-says')).not.toHaveText(/are confirmed\.|^Done\.$/, { timeout: 15000 });
   await expect(page.getByTestId('alexa-says')).toContainText(/Confirm on your phone|Booking|booked/i, { timeout: 15000 });
   console.log('MOM IN QUIET WINDOW SAYS:', await page.getByTestId('alexa-says').textContent());
   await confirmOnPhone(page, 'mom'); // finish her ride so the next speaker starts clean
@@ -138,7 +138,7 @@ test('S10 teen purchase inside quiet hours is held (house time zone), adult is e
   // Maya asks for a cheap ride (mall) inside the window
   await signIn(page, 'maya');
   await page.getByRole('button', { name: 'Book a ride to the mall' }).click();
-  await expect(page.getByTestId('alexa-says')).not.toHaveText(/is confirmed\.|^Done\.$/, { timeout: 15000 });
+  await expect(page.getByTestId('alexa-says')).not.toHaveText(/are confirmed\.|^Done\.$/, { timeout: 15000 });
   await page.waitForTimeout(1500);
   const said = await page.getByTestId('alexa-says').textContent();
   console.log('MAYA IN QUIET WINDOW SAYS:', said, '| outcome', await page.getByTestId('alexa-says').getAttribute('data-outcome'));
@@ -161,7 +161,7 @@ test('S10 time zone: a window that only matches UTC (not New York) must NOT hold
   await expect(rules.locator('body'), 'rule card must show quiet hours ON').not.toContainText('Quiet hours are off', { timeout: 20000 });
   await signIn(page, 'maya');
   await page.getByRole('button', { name: 'Book a ride to the mall' }).click();
-  await expect(page.getByTestId('alexa-says')).not.toHaveText(/is confirmed\.|^Done\.$/, { timeout: 15000 });
+  await expect(page.getByTestId('alexa-says')).not.toHaveText(/are confirmed\.|^Done\.$/, { timeout: 15000 });
   await expect(page.getByTestId('alexa-says')).toContainText(/Confirm on your phone|Held|Booking/i, { timeout: 15000 });
   const said = await page.getByTestId('alexa-says').textContent();
   console.log('MAYA (window only matches UTC) SAYS:', said);

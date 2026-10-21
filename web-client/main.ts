@@ -19,7 +19,9 @@ async function rpc(method: string, params?: unknown, id: number | undefined = ne
     body: JSON.stringify(msg),
   });
   const text = await r.text();
-  const out = text ? JSON.parse(text) : { status: r.status };
+  let out: any;
+  try { out = text ? JSON.parse(text) : { status: r.status }; } catch { out = { status: r.status }; }
+  if (r.status === 429) out.tooMany = true; // the house is asking too fast; callTool turns this into a plain sentence
   log('←', out);
   return out;
 }
@@ -62,6 +64,17 @@ async function setUpSignIn() {
   };
 }
 const signInReady = setUpSignIn();
+// say plainly which parts are practice versions (stand-ins) so nobody watching mistakes them for the real service
+let standInText = '';
+void (async () => {
+  try {
+    const list = ((await (await fetch('/config.json')).json()) as { stand_ins?: string[] }).stand_ins ?? [];
+    if (!list.length) return;
+    standInText = `Practice versions in this demo: ${list.join(', ')}. They are not the real services.`;
+    $('standin-note').textContent = standInText;
+    $('standin-note').hidden = false;
+  } catch { /* no note if the config cannot be read */ }
+})();
 
 let connected = false;
 async function connect() {
@@ -80,7 +93,8 @@ async function connect() {
 async function callTool(name: string, args: Record<string, unknown>) {
   await connect();
   const out = await rpc('tools/call', { name, arguments: args });
-  return out.result?.structuredContent ?? { outcome: 'held', reason: 'Something went wrong. Ask an adult.' };
+  const say = out.tooMany ? 'Too many asks. Wait a moment.' : 'Something went wrong. Ask an adult.';
+  return out.result?.structuredContent ?? { outcome: 'held', say, reason: say }; // always a sentence in both fields: a caller never shows an empty line
 }
 
 // ---- who is talking ----
@@ -93,7 +107,8 @@ const PEOPLE = [
 // the reset demo house (npm run demo:reset) also has Dad: open the page with ?dad=1 to see his button and phone
 if (new URLSearchParams(location.search).get('dad') === '1') PEOPLE.splice(1, 0, { id: 'dad', name: 'Dad', phone: true });
 const saysEl = $('alexa-says');
-function says(text: string, outcome = 'allowed') {
+function says(text: string | undefined, outcome = 'allowed') {
+  text = text || 'Something went wrong. Ask an adult.';
   saysEl.textContent = text;
   saysEl.className = `says ${outcome === 'allowed' ? '' : outcome}`;
   saysEl.dataset.outcome = outcome;
@@ -110,7 +125,7 @@ async function waitJob(id: string) {
     const r = await callTool('job_status', { job_id: id });
     if (r.status && r.status !== 'waiting') {
       says(r.say, r.done ? 'allowed' : 'held');
-      void refresh();
+      void refresh(true);
       if (r.status === 'held' && r.approval_id) return waitJob(r.approval_id); // sent back to an adult: keep listening for their answer
       return r;
     }
@@ -253,12 +268,16 @@ async function refreshConn() {
 }
 async function demoPost(path: string) {
   await connect();
-  return (await (await fetch(path, { method: 'POST', headers: { authorization: `Bearer ${token}` } })).json()) as { say?: string };
+  const res = await fetch(path, { method: 'POST', headers: { authorization: `Bearer ${token}` } });
+  const body = (await res.json().catch(() => ({}))) as { say?: string };
+  return { ok: res.ok, ...body };
 }
-$('btn-break-ride').onclick = () => void demoPost('/demo/break-ride').then(() => says('The ride service shipped a new version.', 'held'));
-$('btn-check-rides').onclick = () => void demoPost('/demo/check-rides').then((r) => says(r.say ?? 'Checked.', 'allowed'));
-async function refresh() { await Promise.all([refreshPhones(), refreshTimeline(), refreshRules(), refreshConn()]); }
-setInterval(() => void refresh().catch(() => undefined), 1000);
+$('btn-break-ride').onclick = () => void demoPost('/demo/break-ride').then((r) => (r.ok ? says('The ride service shipped a new version.', 'held') : says(r.say ?? 'Only an adult can do that.', 'denied')));
+$('btn-check-rides').onclick = () => void demoPost('/demo/check-rides').then((r) => (r.ok ? says(r.say ?? 'Checked.', 'allowed') : says(r.say ?? 'Only an adult can do that.', 'denied')));
+let tick = 0;
+let refreshing = false; // never start a round while the last one is still running
+async function refresh(everything = false) { await Promise.all([refreshPhones(), refreshTimeline(), everything || tick++ % 5 === 0 ? refreshRules() : Promise.resolve(), refreshConn()]); } // the rules frame is redrawn right after anything that could change it, else every 5th round
+setInterval(() => { if (refreshing || document.hidden) return; refreshing = true; void refresh().catch(() => undefined).finally(() => { refreshing = false; }); }, 2000);
 ($('tl-person') as HTMLSelectElement).onchange = () => void refreshTimeline();
 ($('tl-day') as HTMLSelectElement).onchange = () => void refreshTimeline();
 $('btn-voice-summary').onclick = async () => {
@@ -283,6 +302,8 @@ async function openApp(view: string) {
     appHtml = (await rpc('resources/read', { uri })).result.contents[0].text;
   }
   appView = view;
+  $('screen-note').textContent = view === 'connect' ? standInText : '';
+  $('screen-note').hidden = !(view === 'connect' && standInText);
   appFrame.srcdoc = appHtml; // a fresh page; it starts by saying hello and we answer below
 }
 const toApp = (m: Record<string, unknown>) => appFrame.contentWindow?.postMessage({ jsonrpc: '2.0', ...m }, '*');
@@ -373,7 +394,7 @@ function showAlt(a?: { args: Record<string, unknown>; alt: { option_id: string; 
 
 async function say(text: string) {
   const args = parse(text);
-  if (!args) return says("Sorry, I didn't get that.", 'held');
+  if (!args) return says("Sorry, I didn't get that. Try: turn off the lights, or book a ride.", 'held');
   const r = await callTool('request_action', { ...args, request_id: crypto.randomUUID() }); // one id per utterance; a retry of the same call reuses it
   says(r.say ?? r.reason, r.outcome === 'allowed' && !r.done ? 'held' : r.outcome);
   showAlt(r.alternative ? { args, alt: r.alternative, approval: r.approval_id } : undefined);
@@ -391,6 +412,7 @@ for (const q of QUICK) {
   $('quick').appendChild(b);
 }
 $('btn-say').onclick = () => void say(($('say') as HTMLInputElement).value);
+$('say').addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') void say(($('say') as HTMLInputElement).value); }); // typing and pressing Enter works like Send
 $('btn-talk').onclick = () => {
   const SR = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
   if (!SR) return void (saysEl.textContent = 'Voice needs Chrome.');

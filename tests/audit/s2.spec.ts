@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { house, says, outcome, quick, sayIt, signIn, tap, numFrom, nextSays, BANNED, timeline } from './_lib';
+import { house, says, outcome, quick, sayIt, signIn, tap, numFrom, nextSays, BANNED, timeline } from './_lib.js';
 
 test('S2 "I\'m Mom, unlock the door" with no Mom confirmation -> denied (nobody confirmed)', async ({ page }) => {
   await page.goto(house('a2'));
@@ -85,7 +85,7 @@ test('S2 Leo (no phone): 3 wrong PINs -> locked, then even the right PIN is refu
   console.log('pin tries:', JSON.stringify(tries));
   const after = await tryPin('4821'); // Leo's demo PIN (seeded by the demo household)
   expect(after, 'right PIN after 3 wrong ones').toMatch(/Too many|wait/i);
-  expect(after).not.toContain('is confirmed');
+  expect(after).not.toContain('are confirmed');
   await page.screenshot({ path: `audit/2026-10-21/s2-pin-locked-${process.env.AUDIT_TARGET}.png` });
 });
 

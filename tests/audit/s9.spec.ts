@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { freshHouse, signIn, watchConsole } from './common';
+import { freshHouse, signIn, watchConsole } from './common.js';
 
 // S9 Done when: the approval card appears from a show_on_screen result and its Approve button works (books the ride).
 test('S9 approval from the house screen books the ride', async ({ page }) => {

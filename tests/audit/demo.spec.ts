@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync, writeFileSync, renameSync } from 'node:fs';
 import { confirmOnPhone, signIn } from '../../e2e/helpers.js';
-const signInAs = async (page: Page, who: string) => { if (who === 'dad') { await page.getByTestId('who-dad').click(); await confirmOnPhone(page, 'dad' as any); await expect(page.getByTestId('alexa-says')).toContainText('is confirmed'); } else await signIn(page, who as any); };
+const signInAs = async (page: Page, who: string) => { if (who === 'dad') { await page.getByTestId('who-dad').click(); await confirmOnPhone(page, 'dad' as any); await expect(page.getByTestId('alexa-says')).toContainText('are confirmed'); } else await signIn(page, who as any); };
 
 // Audit Part B: the 2:45 demo script from docs/SPEC.md, in ONE recorded Chromium session at 1920x1080,
 // on npm run demo:reset data (household "demo": Mom, Dad, Maya 15, Leo 8, a guest). Run once per target.

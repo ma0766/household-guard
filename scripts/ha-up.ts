@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 
 // Starts the official Home Assistant image in Docker (port 8020, claimed in ~/.claude/ports.md), does its first-run setup, and
@@ -11,6 +11,7 @@ const ok = async (token: string) => { try { return (await fetch(`${URL_}/api/`, 
 const post = async (path: string, body: unknown, token?: string, form = false) => {
   const r = await fetch(`${URL_}${path}`, { method: 'POST', headers: { 'content-type': form ? 'application/x-www-form-urlencoded' : 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) }, body: form ? new URLSearchParams(body as Record<string, string>).toString() : JSON.stringify(body) });
   return { status: r.status, json: (await r.json().catch(() => ({}))) as any };
+};
 let haveKey = false;
 if (existsSync(FILE)) {
   const t = /HG_HA_TOKEN=(.+)/.exec(readFileSync(FILE, 'utf8'))?.[1];
@@ -21,6 +22,9 @@ if (!haveKey) await setUp();
 async function setUp() {
 const running = execFileSync('docker', ['ps', '-a', '--filter', 'name=^hg-ha$', '--format', '{{.Status}}'], { encoding: 'utf8' }).trim();
 if (!running) {
+  // a first start needs Home Assistant's own demo devices (the front door lock, garage door, lights, heat pump): switch them on in its config, in Fahrenheit like the house rules
+  mkdirSync('tools/ha/config', { recursive: true });
+  if (!existsSync('tools/ha/config/configuration.yaml')) writeFileSync('tools/ha/config/configuration.yaml', 'default_config:\n\nhomeassistant:\n  unit_system: us_customary\n  temperature_unit: F\n\ndemo:\n');
   execFileSync('docker', ['run', '-d', '--name', 'hg-ha', '--restart', 'unless-stopped', '-p', '127.0.0.1:8020:8123', '-v', `${process.cwd()}/tools/ha/config:/config`, `ghcr.io/home-assistant/home-assistant:${process.env.HA_VERSION ?? 'stable'}`], { stdio: 'inherit' });
 } else if (!running.startsWith('Up')) execFileSync('docker', ['start', 'hg-ha'], { stdio: 'inherit' });
 
@@ -28,7 +32,6 @@ for (let i = 0; i < 60; i++) {
   try { if ((await fetch(`${URL_}/api/onboarding`)).ok) break; } catch { /* still starting */ }
   await new Promise((r) => setTimeout(r, 4000));
 }
-};
 const steps = (await (await fetch(`${URL_}/api/onboarding`)).json()) as { step: string; done: boolean }[];
 if (steps.some((s) => s.step === 'user' && !s.done)) {
   const client_id = `${URL_}/`;
@@ -44,7 +47,7 @@ const boot = existsSync('.ha-bootstrap') ? readFileSync('.ha-bootstrap', 'utf8')
 if (!boot) throw new Error('Home Assistant was already set up by hand and there is no key. Create a long-lived key in its profile page and put HG_HA_URL and HG_HA_TOKEN in .env.ha.');
 const long = await new Promise<string>((resolve, reject) => {
   const ws = new WebSocket(`ws://127.0.0.1:8020/api/websocket`);
-  const t = setTimeout(() => reject(new Error('timeout')), 30000);
+  const t = setTimeout(() => reject(new Error('Home Assistant did not hand out a key in 60 seconds')), 60000);
   ws.onmessage = (m) => {
     const j = JSON.parse(String(m.data));
     if (j.type === 'auth_required') ws.send(JSON.stringify({ type: 'auth', access_token: boot }));
@@ -60,9 +63,15 @@ console.log('Home Assistant is set up. Key saved in .env.ha');
 
 // The owner chooses which devices Home Assistant's assistants may touch. Locks are hidden by default; the demo exposes the front door.
 const exposeKey = /HG_HA_TOKEN=(.+)/.exec(readFileSync(FILE, 'utf8'))![1];
+// From a cold start the demo devices appear a little after the first-run setup ends: wait until the front door lock exists
+for (let i = 0; i < 45; i++) {
+  try { if ((await fetch(`${URL_}/api/states/lock.front_door`, { headers: { authorization: `Bearer ${exposeKey}` } })).ok) break; } catch { /* still loading */ }
+  if (i === 44) throw new Error('Home Assistant started, but the demo devices never appeared (waited 3 minutes). Run npm run ha:down, then npm run ha:up again.');
+  await new Promise((r) => setTimeout(r, 4000));
+}
 await new Promise<void>((resolve, reject) => {
   const ws = new WebSocket('ws://127.0.0.1:8020/api/websocket');
-  const t = setTimeout(() => reject(new Error('timeout')), 30000);
+  const t = setTimeout(() => reject(new Error('Home Assistant did not answer the device-sharing request in 60 seconds')), 60000);
   ws.onmessage = (m) => {
     const j = JSON.parse(String(m.data));
     if (j.type === 'auth_required') ws.send(JSON.stringify({ type: 'auth', access_token: exposeKey }));

@@ -29,7 +29,7 @@ export async function signIn(page: Page, who: 'mom' | 'maya') {
   await page.getByTestId(`who-${who}`).click();
   await expect(says(page)).toContainText('Confirm on your phone:');
   await tap(page, who, await numFrom(page));
-  await expect(says(page)).toHaveText(/is confirmed|^Done\.$/, { timeout: 10000 });
+  await expect(says(page)).toHaveText(/are confirmed|^Done\.$/, { timeout: 10000 });
 }
 export const timeline = (page: Page) => page.frameLocator('[data-testid=timeline]').locator('body');
 export const BANNED = /\b(policy|cedar|token|mcp|schema|json|error code)\b/i;

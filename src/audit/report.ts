@@ -47,7 +47,7 @@ export async function voiceSummary(deps: Deps, hh: string, q: { who?: string; wh
 
   if (!buys.length) return { say: `${subject} bought nothing ${when}.`, spent_cents: 0, buys: 0, saved_cents: 0, entries };
   const last = buys[0];
-  const parts = [`${subject} spent ${money(spent)} ${when}.`, `That is ${buys.length} ${buys.length === 1 ? 'buy' : 'buys'}. The last was ${last.personName}'s, ${money(Number((last.data as any)?.amount_cents))}.`];
+  const parts = [`${subject} spent ${money(spent)} ${when}, in ${buys.length} ${buys.length === 1 ? 'buy' : 'buys'}.`, `The last was ${last.personName}'s, ${money(Number((last.data as any)?.amount_cents))}.`]; // totals first, then two more short sentences at most
   if (saved > 0) parts.push(`You saved ${money(saved)}.`);
   return { say: parts.join(' '), spent_cents: spent, buys: buys.length, saved_cents: saved, entries };
 }

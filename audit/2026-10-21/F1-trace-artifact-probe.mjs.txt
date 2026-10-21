@@ -1,0 +1,12 @@
+import { chromium } from '/home/madman/household-guard/node_modules/playwright/index.mjs';
+const run = async (label, opts, trace) => {
+  const b = await chromium.launch(); const c = await b.newContext(opts);
+  if (trace) await c.tracing.start({ screenshots: true, snapshots: true });
+  const p = await c.newPage(); const errs=[]; p.on('console', m=>{ if(m.type()==='error') errs.push(m.text().slice(0,60)); });
+  await p.goto('http://127.0.0.1:8016/?hh=probe'+Date.now()); await p.waitForTimeout(3000);
+  await p.getByTestId('who-guest').click(); await p.getByTestId('say').fill('turn off the lights'); await p.getByTestId('btn-say').click(); await p.waitForTimeout(2500);
+  console.log(label, errs.length, errs[0]??''); await b.close();
+};
+await run('plain', {}, false);
+await run('tracing snapshots', {}, true);
+await run('video', { recordVideo: { dir: '/tmp/probevid' } }, false);

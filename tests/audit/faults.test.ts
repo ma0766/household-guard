@@ -39,7 +39,7 @@ describe('Part E: one failing dependency at a time', () => {
     expect(doneAllowed(r)).toBe(false);
     if (r.next === 'confirm_on_phone') {
       const c = (await getChallenge(ctx.deps, ctx.hh, r.job_id))!;
-      let tap: any; try { tap = await phoneConfirm(ctx.deps, ctx.hh, 'maya', { challenge_id: c.id, number: c.number }); } catch { tap = { status: 'threw' }; }
+      try { await phoneConfirm(ctx.deps, ctx.hh, 'maya', { challenge_id: c.id, number: c.number }); } catch { /* a throw here is also not a booking */ }
       const job: any = await jobStatus(ctx.deps, ctx.hh, r.job_id);
       expect(job.status).not.toBe('done');
     }

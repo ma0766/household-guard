@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { fresh, signIn, tapNumber, visibleText, STANDIN_WORDS, watchConsole } from './helpers';
+import { fresh, signIn, tapNumber, STANDIN_WORDS, watchConsole } from './helpers.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 
 // S13 "Done when": a teen connects a music app; her token is separate from Mom's. Driven like a person.
@@ -65,7 +65,7 @@ test.describe('S13 connect any app, per person', () => {
     expect.soft(errs, 'console errors').toEqual([]);
   });
 
-  test('stand-in hub is CLEARLY LABELLED to a judge in the UI', async ({ page, context }) => {
+  test('stand-in hub is CLEARLY LABELLED to a judge in the UI', async ({ page }) => {
     await page.goto(fresh());
     await signIn(page, 'maya');
     // the Apps panel is what a judge sees before clicking anything

@@ -129,7 +129,7 @@ Legend: PASS / FAIL / MANUAL. "Fix" = commit on `audit-fixes` (filled in as fixe
 
 ## 4. Findings (numbered; fixed items are marked in section 7)
 
-- F-1 Console errors on every page load: "Blocked script execution in about:srcdoc … sandboxed", from the `sandbox=""` timeline and rules frames.
+- F-1 Console errors: "Blocked script execution in about:srcdoc … sandboxed". **Not a product defect.** Playwright's trace recorder injects its snapshot script into the sandboxed frames and Chrome logs the block. A plain page load plus real use gives 0 errors; with tracing on it gives 2+ (probe: `F1-trace-artifact-probe.mjs.txt`: plain 0, tracing 2, video 0). The console checks (S0, S8, C2) were re-run with trace off, on both targets, and pass (`AUDIT_TRACE=off`). Every other check keeps trace on.
 - F-2 S3: a held ride can be approved by nobody. Alexa says "An adult can tap NN" but Mom's phone shows "Nothing waiting". Flaky locally, 3 of 3 on prod.
 - F-3 S11 prod: "Check now" cannot repair (web function lacks Bedrock permission) and the reply shows an AWS role name.
 - F-4 A teen's click on "Break it" says it worked though the server refused.

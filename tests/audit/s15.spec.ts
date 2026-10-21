@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { fresh, signIn, tapNumber, STANDIN_WORDS, watchConsole } from './helpers';
+import { fresh, signIn, tapNumber, STANDIN_WORDS, watchConsole } from './helpers.js';
 import { readFileSync, writeFileSync } from 'node:fs';
 
 // S15 "Done when": "Build a one-page site for my bakery" returns a published preview within the job.
@@ -31,7 +31,7 @@ test.describe('S15 long jobs + site building', () => {
     await tapNumber(page, 'mom');
     const frame = page.frameLocator('[data-testid=app-frame]');
     const seen: string[] = [];
-    const watcher = setInterval(async () => { try { const s = await says.textContent(); if (s && seen[seen.length - 1] !== s) seen.push(s); } catch {} }, 300);
+    const watcher = setInterval(async () => { try { const s = await says.textContent(); if (s && seen[seen.length - 1] !== s) seen.push(s); } catch { /* the page may be mid-navigation */ } }, 300);
     await expect(frame.getByTestId('app-link')).toBeVisible({ timeout: 45000 });
     clearInterval(watcher);
     await expect(frame.getByTestId('app-qr')).toBeVisible();

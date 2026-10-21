@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { existsSync, readFileSync } from 'node:fs';
-import { freshHouse, signIn, watchConsole } from './common';
+import { freshHouse, watchConsole } from './common.js';
 
 // S8 "Done when": token checked on every call; /privacy + /.well-known load; README, FEEDBACK, FRICTION_LOG, LICENSE exist.
 const rpc = { jsonrpc: '2.0', id: 1, method: 'tools/list' };

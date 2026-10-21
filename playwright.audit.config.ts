@@ -16,5 +16,5 @@ export default defineConfig({
   timeout: 90000,
   workers: 1,
   reporter: [['list'], ['json', { outputFile: `audit/${date}/results-${target}-${process.env.AUDIT_GROUP ?? 'all'}.json` }]],
-  use: { baseURL, video: 'on', trace: 'on', screenshot: 'on', viewport: { width: 1400, height: 1000 }, browserName: 'chromium' },
+  use: { baseURL, video: 'on', trace: (process.env.AUDIT_TRACE as 'on' | 'off') ?? 'on', screenshot: 'on', viewport: { width: 1400, height: 1000 }, browserName: 'chromium' },
 });

@@ -57,7 +57,7 @@ for (const c of CASES) {
     const s = await run(hh);
     if (c.rules) {
       await s.speak('mom', 'phone');
-      let r: any = await s.tool('set_rule', RULE[c.id]);
+      const r: any = await s.tool('set_rule', RULE[c.id]);
       if (r.status !== 'waiting') throw new Error(`set_rule ${JSON.stringify(r)}`);
       let t = await s.tap('mom', r.challenge_id, r.number);
       if (t.result && !t.result.done && t.result.jobId) t = await s.tap('mom', t.result.jobId, Number(String(t.say).match(/(\d\d)\s*$/)![1]));

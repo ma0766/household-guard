@@ -11,7 +11,6 @@ const BANNED = ['policy', 'cedar', 'token', 'mcp', 'schema', 'json', 'error code
 const syllables = (w: string) => Math.max(1, (w.toLowerCase().replace(/[^a-z]/g, '').replace(/e$/, '').match(/[aeiouy]+/g) ?? []).length);
 const grade = (text: string) => { const s = text.split(/(?<=[.!?])\s+/).filter(Boolean); const w = text.split(/\s+/).filter((x) => /[a-z]/i.test(x)); if (!w.length) return 0; return 0.39 * (w.length / s.length) + 11.8 * (w.reduce((n, x) => n + syllables(x), 0) / w.length) - 15.59; };
 
-const spoken: string[] = [];
 const consoleErrors: string[] = [];
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => { (window as any).__spoken = []; const orig = window.speechSynthesis?.speak?.bind(window.speechSynthesis); if (window.speechSynthesis) window.speechSynthesis.speak = (u: SpeechSynthesisUtterance) => { (window as any).__spoken.push(u.text); try { orig?.(u); } catch { /* headless: no voices */ } }; window.addEventListener('unhandledrejection', (e) => console.error('UNHANDLED_REJECTION ' + String(e.reason))); });
@@ -49,7 +48,7 @@ test('C1 axe: no serious or critical issues on any screen state', async ({ page 
   const scan = async (label: string) => {
     record(label, await new AxeBuilder({ page }).exclude('iframe').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze());
     for (const f of page.frames().slice(1)) {
-      let html = ''; try { html = await f.content(); } catch { continue; }
+      let html: string; try { html = await f.content(); } catch { continue; }
       if (!/<body[^>]*>\s*\S/.test(html) && html.length < 200) continue;
       const p2 = await page.context().newPage(); await p2.setContent(html);
       record(`${label}/frame:${await f.name() || 'frame'}`, await new AxeBuilder({ page: p2 }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze());

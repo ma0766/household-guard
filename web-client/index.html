@@ -40,6 +40,7 @@
     </section>
     <section id="apps-panel" aria-label="Apps">
       <h2>Apps</h2>
+      <p id="standin-note" class="hint" data-testid="standin-note" hidden></p>
       <div class="row">
         <button id="btn-connect-spotify" data-testid="btn-connect-spotify" class="secondary">Connect Spotify</button>
         <button id="btn-allow-spotify" data-testid="btn-allow-spotify" class="secondary">Allow Spotify (adult)</button>
@@ -53,6 +54,7 @@
         <button id="btn-app-approvals" data-testid="btn-app-approvals">Show what is waiting</button>
         <button id="btn-app-orders" class="secondary" data-testid="btn-app-orders">Show recent buys</button>
       </div>
+      <p id="screen-note" class="hint" data-testid="screen-note" hidden></p>
       <iframe id="app-frame" data-testid="app-frame" sandbox="allow-scripts" title="Screen from the house" style="width:100%;height:260px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
     </section>
     <section id="timeline-panel" aria-label="What happened">
@@ -86,7 +88,7 @@
         <button id="btn-tools" class="secondary">List tools</button>
         <button id="btn-status" class="secondary">Ask: house status</button>
       </div>
-      <pre id="log" data-testid="log"></pre>
+      <pre id="log" data-testid="log" tabindex="0" role="log" aria-label="Message log"></pre>
     </section>
   </main>
   <script type="module" src="./main.ts"></script>

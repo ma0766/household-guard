@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { house, says, outcome, quick, signIn, tap, timeline } from './_lib';
+import { house, says, outcome, quick, signIn, tap, timeline } from './_lib.js';
 
 // Click the same quick button twice in one browser task = two ride asks at the same moment.
 async function fireTwice(page: Page, label: string) {

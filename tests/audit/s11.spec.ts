@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { freshHouse, signIn, watchConsole } from './common';
+import { freshHouse, signIn, watchConsole } from './common.js';
 
 // S11 Done when: the ride service changes its field names -> health check fails -> repair passes tests -> next ride asks for approval.
 const says = (page: Page) => page.getByTestId('alexa-says');
@@ -31,7 +31,7 @@ test('S11 break -> check -> repair -> next ride needs one yes -> yes -> normal a
   // NEXT RIDE by Maya: not booked until an adult says yes
   await signIn(page, 'maya');
   await page.getByRole('button', { name: 'Book a ride to the mall' }).click();
-  await expect(says(page)).not.toHaveText(/is confirmed\.|^Done\.$/, { timeout: 20000 });
+  await expect(says(page)).not.toHaveText(/are confirmed\.|^Done\.$/, { timeout: 20000 });
   await page.waitForTimeout(1500);
   const heldSays = (await says(page).textContent())!;
   console.log('MAYA RIDE AFTER REPAIR SAYS:', heldSays, '| outcome', await says(page).getAttribute('data-outcome'));
@@ -67,7 +67,7 @@ test('S11 a ride asked after the break but before the check is never booked on a
   await expect(says(page)).toContainText('shipped a new version', { timeout: 15000 });
   await signIn(page, 'maya');
   await page.getByRole('button', { name: 'Book a ride to the mall' }).click();
-  await expect(says(page)).not.toHaveText(/is confirmed\.|^Done\.$/, { timeout: 20000 });
+  await expect(says(page)).not.toHaveText(/are confirmed\.|^Done\.$/, { timeout: 20000 });
   await page.waitForTimeout(2500);
   const t = (await says(page).textContent())!;
   console.log('RIDE BETWEEN BREAK AND CHECK:', t, '| outcome', await says(page).getAttribute('data-outcome'));

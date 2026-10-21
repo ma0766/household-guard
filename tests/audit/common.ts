@@ -20,7 +20,7 @@ export async function confirmOnPhone(page: Page, who: string) {
 export async function signIn(page: Page, who: string) {
   await page.getByTestId(`who-${who}`).click();
   await confirmOnPhone(page, who);
-  await expect(page.getByTestId('alexa-says')).toContainText(/is confirmed|^Done\.$/, { timeout: 15000 });
+  await expect(page.getByTestId('alexa-says')).toContainText(/are confirmed|^Done\.$/, { timeout: 15000 });
   await page.waitForTimeout(1500); // the page's own job poll may replace the line with "Done." a moment later
 }
 // collect console errors / page errors so UX problems are reported
@@ -31,4 +31,4 @@ export function watchConsole(page: Page) {
   return errs;
 }
 
-export const STALE = /is confirmed\.|^Done\.$/; // lines that are left over from signing in
+export const STALE = /are confirmed\.|^Done\.$/; // lines that are left over from signing in

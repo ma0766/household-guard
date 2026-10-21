@@ -58,7 +58,7 @@ export const PRIVACY = [
   'We do not store audio. Alexa turns speech into text; we only see the text.',
   'Profiles for children are created only by an adult.',
   'The log of what happened is kept for 90 days, then it is deleted.',
-  'PINs are stored scrambled (scrypt). We never store a PIN as typed.',
+  'PINs are stored scrambled. We never store a PIN as typed.',
   'We keep what we need to apply your house rules: names, roles, limits, and the log.',
   'We never sell or share it. This note is not legal advice.',
 ].join('\n');
@@ -66,7 +66,7 @@ export const PRIVACY = [
 // The stand-in for the app's own sign-in page: "Allow" finishes the connection for the person the link was made for.
 const STANDIN_PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect an app</title>
 <style>body{font:18px/1.4 system-ui,sans-serif;padding:16px;color:#1d2433;background:#f5f3ec}button{font:inherit;padding:12px 20px;border-radius:10px;border:1px solid #1d2433;background:#1d2433;color:#fff}</style></head>
-<body><h1>Connect an app</h1><p>Say yes to let the house use this app for you.</p><button id="go" data-testid="standin-allow">Allow</button><p id="out" data-testid="standin-out"></p>
+<body><h1>Connect an app</h1><p data-testid="standin-label"><b>Practice page.</b> A real app would show its own sign-in here.</p><p>Say yes to let the house use this app for you.</p><button id="go" data-testid="standin-allow">Allow</button><p id="out" data-testid="standin-out"></p>
 <script>document.getElementById('go').onclick=function(){fetch(location.pathname,{method:'POST'}).then(function(r){document.getElementById('out').textContent=r.ok?'Connected. You can close this page.':'This link is old.';});};</script></body></html>`;
 
 function sendJson(res: ServerResponse, body: unknown) {
@@ -99,7 +99,9 @@ export function createApp(given?: Deps) {
         // how a browser client signs in (no secrets; null when only the demo sign-in exists)
         if (url.pathname === '/config.json') {
           const e = process.env;
-          return sendJson(res, { sign_in: e.HG_OIDC_AUTHORIZE_URL && e.HG_OIDC_TOKEN_URL && e.HG_OIDC_WEB_CLIENT_ID ? { authorize_url: e.HG_OIDC_AUTHORIZE_URL, token_url: e.HG_OIDC_TOKEN_URL, client_id: e.HG_OIDC_WEB_CLIENT_ID, scope: 'openid hg/mcp' } : null });
+          // which parts are practice versions (stand-ins), so the page can say so to anyone watching
+          const standIns = [!e.COMPOSIO_API_KEY && 'apps like Spotify', !(e.WIX_API_KEY && e.WIX_ACCOUNT_ID) && 'the site builder', !e.HG_EMAIL_FROM && 'approval emails'].filter(Boolean);
+          return sendJson(res, { stand_ins: standIns, sign_in: e.HG_OIDC_AUTHORIZE_URL && e.HG_OIDC_TOKEN_URL && e.HG_OIDC_WEB_CLIENT_ID ? { authorize_url: e.HG_OIDC_AUTHORIZE_URL, token_url: e.HG_OIDC_TOKEN_URL, client_id: e.HG_OIDC_WEB_CLIENT_ID, scope: 'openid hg/mcp' } : null });
         }
         // apps (S13): the hub tells us a sign-in ran out; and, with no Composio key, the stand-in's own "Allow" page
         if (url.pathname === '/webhooks/composio' && req.method === 'POST') {
@@ -153,7 +155,9 @@ export function createApp(given?: Deps) {
             if (!who || who.role !== 'adult') return void res.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"adults only"}');
             await setRideState(d.store, claims.hh, { renamed: true });
           }
-          const out = url.pathname === '/demo/check-rides' ? await healthCheck(d, claims.hh, defaultRepairer()) : { ok: true };
+          const full = url.pathname === '/demo/check-rides' ? await healthCheck(d, claims.hh, defaultRepairer()) : { ok: true };
+          if ('detail' in full && full.detail) console.error('health check detail:', full.detail); // the cause stays in our logs; the page gets only a plain sentence (it once showed a cloud role name)
+          const { detail: _detail, ...out } = full as Record<string, unknown>;
           return void res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(out));
         }
         // demo only: "nobody has confirmed" — so a guest can speak after a family member's turn ended

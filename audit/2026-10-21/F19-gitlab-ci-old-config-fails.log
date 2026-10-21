@@ -1,0 +1,4 @@
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: spawnSync docker ENOENT
+      8|   return execFileSync('docker', args, { encoding: 'utf8', stdio: ['ign…
+Serialized Error: { errno: -2, code: 'ENOENT', syscall: 'spawnSync docker', path: 'docker', spawnargs: [ 'ps', '--filter', 'name=^hg-ddb$', '--format', '{{.Status}}' ], error: [Error: spawnSync docker ENOENT], status: null, signal: null, output: null, pid: 0, stdout: undefined, stderr: undefined }

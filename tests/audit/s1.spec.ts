@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { house, says, outcome, quick, sayIt, signIn, BANNED, timeline } from './_lib';
+import { house, says, outcome, quick, sayIt, signIn, BANNED, timeline } from './_lib.js';
 
 test('S1 teen: lights -> done; unlock -> denied in plain words; delete account -> denied', async ({ page }) => {
   await page.goto(house('a1'));

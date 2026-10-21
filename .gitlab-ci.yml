@@ -1,8 +1,16 @@
 # The same rule proofs as .github/workflows/rule-proofs.yml, for the GitLab copy of the repo.
 rule-proofs:
   image: node:22
+  # DynamoDB Local runs next to the job: this image has no Docker, and some of the proof tests (tests/s10) read and write a table
+  services:
+    - name: amazon/dynamodb-local:latest
+      alias: ddb
+      command: ['-jar', 'DynamoDBLocal.jar', '-inMemory', '-sharedDb']
+  variables:
+    HG_DDB_EXTERNAL: '1'
+    DDB_ENDPOINT: 'http://ddb:8000'
   before_script:
-    - apt-get update -qq && apt-get install -y -qq xz-utils python3 curl >/dev/null
+    - apt-get update -qq && apt-get install -y -qq xz-utils python3 curl unzip >/dev/null
     - npm ci
     - npm run prover:install
   script:

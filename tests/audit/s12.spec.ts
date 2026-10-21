@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, existsSync } from 'node:fs';
-import { freshHouse, signIn, watchConsole, target, roadmapUrl } from './common';
+import { freshHouse, signIn, watchConsole, target, roadmapUrl } from './common.js';
 
 // S12 Done when: the web client signs in through Cognito and an approval reaches a real phone (email = STAND-IN: no verified SES sender).
 const H = { 'content-type': 'application/json', accept: 'application/json, text/event-stream' };
@@ -57,7 +57,7 @@ test('S12 hosted sign-in page loads (PKCE authorization-code request) or, with n
   await page.screenshot({ path: `audit/2026-10-21/s12-hosted-signin-${target}.png` });
 });
 
-test('S12 real Cognito sign-in in a browser (roadmap stage; password login is ON only on sandbox stages)', async ({ page, request }) => {
+test('S12 real Cognito sign-in in a browser (roadmap stage; password login is ON only on sandbox stages)', async ({ page }) => {
   test.setTimeout(120000);
   const rm = roadmapUrl();
   const cr = roadmapCreds();

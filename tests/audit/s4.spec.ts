@@ -38,7 +38,7 @@ test('S4b Mom matches the number on her phone and a $38 ride is booked', async (
   const options = await card.locator('button[data-testid^="approve-mom-num-"]').evaluateAll((bs) => bs.map((b) => b.getAttribute('data-testid')!.split('-').pop()!));
   expect(options.length).toBeGreaterThan(1);
   // a wrong number must not approve
-  const wrong = options.find((o) => !(n ?? []).includes(o)) ?? options[0];
+  const wrong = options.find((o: string) => !(n ?? ([] as string[])).includes(o)) ?? options[0];
   test.info().annotations.push({ type: 'numbers', description: `spoken="${said}" options=${options}` });
   // find the right one: the number Alexa said
   const right = options.find((o) => said.includes(o));

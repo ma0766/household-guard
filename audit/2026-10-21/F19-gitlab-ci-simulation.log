@@ -1,0 +1,66 @@
+
+> household-guard@0.1.0 prover:install
+> sh scripts/install-prover.sh
+
+cvc5 1.4.2 [git 282d5e0 on branch HEAD]
+Cedar language version: 4.6
+
+> household-guard@0.1.0 prove
+> tsx scripts/prove.ts
+
+PROVEN  no child may unlock a door (done at once)
+PROVEN  no child may unlock a door (or held for an adult)
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+Every promise is proven for all requests.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90m/app[39m
+
+ [32m✓[39m tests/s10/preview-flow.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1547[2mms[22m[39m
+   [32m✓[39m S10 the preview reaches the adult before the tap [2m(3)[22m
+     [33m[2m✓[22m[39m a higher limit: the reply and Mom's phone both say what it lets Maya do[33m 747[2mms[22m[39m
+     [33m[2m✓[22m[39m opening the front door to kids: the preview asks "are you sure?" and nothing is saved yet[33m 306[2mms[22m[39m
+     [33m[2m✓[22m[39m quiet hours by card: preview, tap, then the next late buy by a teen is refused[33m 490[2mms[22m[39m
+ [32m✓[39m tests/s10/preview.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2691[2mms[22m[39m
+   [32m✓[39m S10 plain-language preview of a rule change [2m(12)[22m
+     [33m[2m✓[22m[39m allowed apps: adding a store lets a teen buy there without asking; removing the ride app puts rides on hold[33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m best-value must-haves are said out loud[33m 393[2mms[22m[39m
+     [33m[2m✓[22m[39m every preview line is short and has no tech words[33m 453[2mms[22m[39m
+ [32m✓[39m tests/s10/quiet-hours.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2660[2mms[22m[39m
+   [32m✓[39m S10 quiet hours (no buying after 9 PM, in the house time zone) [2m(6)[22m
+     [33m[2m✓[22m[39m a teen is refused at 9:30 PM with the reason, and allowed at 8 PM[33m 793[2mms[22m[39m
+     [33m[2m✓[22m[39m the edges: 8:59 PM is fine, 9:00 PM is not; 5:59 AM is not, 6:00 AM is fine[33m 685[2mms[22m[39m
+ [32m✓[39m tests/s10/proofs.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 11464[2mms[22m[39m
+   [32m✓[39m S10 proofs: the rules that ship keep the promises [2m(2)[22m
+     [33m[2m✓[22m[39m no child may unlock, no child may open the garage, no guest may use an app or buy — for every possible request[33m 601[2mms[22m[39m
+     [33m[2m✓[22m[39m the default rule card config proves too (the cards generate the same rules)[33m 811[2mms[22m[39m
+   [32m✓[39m S10 proofs: a rule that breaks a promise fails with a counterexample [2m(4)[22m
+     [33m[2m✓[22m[39m a household whose rules let a child unlock fails[33m 674[2mms[22m[39m
+     [33m[2m✓[22m[39m a pull request that adds a rule letting children unlock fails[33m 1106[2mms[22m[39m
+     [33m[2m✓[22m[39m a guest given a buying limit with the guest rule off fails[33m 499[2mms[22m[39m
+     [33m[2m✓[22m[39m a missing proof tool is a failure, never a pass[33m 407[2mms[22m[39m
+   [32m✓[39m S10 proofs: new rules compared with old rules [2m(4)[22m
+     [33m[2m✓[22m[39m same rules → equivalent[33m 691[2mms[22m[39m
+     [33m[2m✓[22m[39m a higher limit → more permissive for buying[33m 724[2mms[22m[39m
+     [33m[2m✓[22m[39m a lower limit → less permissive[33m 738[2mms[22m[39m
+     [33m[2m✓[22m[39m quiet hours on → less permissive, in both the do-it and the hold sets[33m 733[2mms[22m[39m
+   [32m✓[39m S10 the plain-language preview and the proof agree [2m(5)[22m
+     [33m[2m✓[22m[39m turning off the child-unlock rule alone (adults-only still blocks): the preview does not warn and the proof does not[33m 885[2mms[22m[39m
+     [33m[2m✓[22m[39m opening unlock to everyone and turning the rule off: the preview warns and the proof finds it more permissive[33m 810[2mms[22m[39m
+     [33m[2m✓[22m[39m opening the garage to everyone: the preview warns and the proof finds it more permissive[33m 895[2mms[22m[39m
+     [33m[2m✓[22m[39m a higher limit: the preview warns and the proof finds it more permissive[33m 946[2mms[22m[39m
+     [33m[2m✓[22m[39m quiet hours: the preview does not warn and the proof does not[33m 931[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m39 passed[39m[22m[90m (39)[39m
+[2m   Start at [22m 21:07:43
+[2m   Duration [22m 12.29s[2m (tests 91%, import 5%, transform 4%)[22m
+
+
+real	0m41.398s
+user	0m0.023s
+sys	0m0.023s

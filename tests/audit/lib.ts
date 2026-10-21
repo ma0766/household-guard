@@ -39,7 +39,7 @@ export async function confirmOnPhone(page: Page, who: string) {
 export async function signIn(page: Page, who: 'mom' | 'maya') {
   await page.getByTestId(`who-${who}`).click();
   await confirmOnPhone(page, who);
-  await expect(alexa(page)).toContainText(/is confirmed|^Done\./, { timeout: 15000 }) // prod sometimes shows a bare "Done." here (UX finding);
+  await expect(alexa(page)).toContainText(/are confirmed|^Done\./, { timeout: 15000 }) // prod sometimes shows a bare "Done." here (UX finding);
 }
 export const ask = async (page: Page, text: string) => { await page.getByTestId('say').fill(text); await page.getByTestId('btn-say').click(); };
 export const frameText = (page: Page, testid: string) => page.frameLocator(`[data-testid="${testid}"]`).locator('body');

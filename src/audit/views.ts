@@ -12,17 +12,17 @@ export function timelineHtml(entries: AuditEntry[], title = 'What happened'): st
   const rows = entries.length
     ? entries.map((e) => `<div class="row" data-kind="${esc(e.kind)}" data-category="${esc(e.category)}"><span class="ic" title="${esc(e.category)}">${ICON[e.category] ?? '•'}</span><span class="t">${esc(e.text)}</span><span class="m">${esc(e.day)}</span></div>`).join('')
     : '<p>Nothing yet.</p>';
-  return `<!doctype html><meta charset="utf-8">${STYLE}<h2>${esc(title)}</h2>${rows}`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><title>${esc(title)}</title>${STYLE}<h2>${esc(title)}</h2>${rows}`;
 }
 
 export function approvalsHtml(list: Approval[]): string {
   const cards = list.length
     ? list.map((a) => `<div class="card"><b>${esc(a.personName)}</b> wants: ${esc(a.itemText ?? a.itemKey)}<br>${esc(money(a.amountCents))}<br><span class="m">${esc(a.reason)}</span></div>`).join('')
     : '<p>Nothing is waiting.</p>';
-  return `<!doctype html><meta charset="utf-8">${STYLE}<h2>Waiting for an adult</h2>${cards}`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><title>Waiting for an adult</title>${STYLE}<h2>Waiting for an adult</h2>${cards}`;
 }
 
 export function ordersHtml(entries: AuditEntry[]): string {
   const rows = entries.length ? entries.map((e) => `<div class="row"><span class="ic">🛒</span><span class="t">${esc(e.text)}</span><span class="m">${esc(e.day)}</span></div>`).join('') : '<p>No buys yet.</p>';
-  return `<!doctype html><meta charset="utf-8">${STYLE}<h2>Recent buys</h2>${rows}`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><title>Recent buys</title>${STYLE}<h2>Recent buys</h2>${rows}`;
 }

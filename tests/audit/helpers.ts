@@ -10,7 +10,7 @@ export async function tapNumber(page: Page, who: 'mom' | 'maya') {
 export async function signIn(page: Page, who: 'mom' | 'maya') {
   await page.getByTestId(`who-${who}`).click();
   await tapNumber(page, who);
-  await expect(page.getByTestId('alexa-says')).toHaveText(/is confirmed|^Done\.?$/); // prod sometimes shows a bare "Done." (recorded as a UX finding)
+  await expect(page.getByTestId('alexa-says')).toHaveText(/are confirmed|^Done\.?$/); // prod sometimes shows a bare "Done." (recorded as a UX finding)
 }
 // Write what a person sees on screen (page text + text inside every frame) so a judge's view is on record.
 export async function visibleText(page: Page): Promise<string> {

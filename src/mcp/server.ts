@@ -115,15 +115,15 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       try {
         await ensureSeeded(deps.store, hh);
         const v = await viewer(deps, hh);
-        if (!v) return { content: [{ type: 'text', text: T.whoAreYou }], structuredContent: { say: T.whoAreYou } };
+        if (!v) return { _meta: APP_META, content: [{ type: 'text', text: T.whoAreYou }], structuredContent: { say: T.whoAreYou } };
         const mine = v.role !== 'adult'; // kids see only their own things
         if (a.view === 'my_rules') {
           const r = await myRules(deps, hh);
-          return { content: [{ type: 'text', text: r.say }], structuredContent: { view: a.view, say: r.say, html: `<!doctype html><meta charset="utf-8"><p style="font:16px system-ui">${r.say}</p>` } };
+          return { _meta: APP_META, content: [{ type: 'text', text: r.say }], structuredContent: { view: a.view, say: r.say, html: `<!doctype html><html lang="en"><meta charset="utf-8"><title>My rules</title><p style="font:16px system-ui">${r.say}</p>` } };
         }
         if (a.view === 'rules') {
           const h = await loadHousehold(deps.store, hh);
-          return { content: [{ type: 'text', text: 'Here are the house rules.' }], structuredContent: { view: a.view, html: rulesHtml(h.rules, h.people) } };
+          return { _meta: APP_META, content: [{ type: 'text', text: 'Here are the house rules.' }], structuredContent: { view: a.view, html: rulesHtml(h.rules, h.people) } };
         }
         let html: string;
         let data: ScreenData;
@@ -140,9 +140,9 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
           html = timelineHtml(list);
           data = { view: 'timeline', rows: rowsOf(list) };
         }
-        return { content: [{ type: 'text', text: `Here is the ${a.view} screen.` }], structuredContent: { view: a.view, html, data } };
+        return { _meta: APP_META, content: [{ type: 'text', text: `Here is the ${a.view} screen.` }], structuredContent: { view: a.view, html, data } };
       } catch {
-        return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
+        return { _meta: APP_META, content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
       }
     },
   );

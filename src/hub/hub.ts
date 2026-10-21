@@ -35,7 +35,7 @@ export class StandInHub implements ConnectorHub {
   calls: { userId: string; toolkit: string; action: string }[] = []; // tests only
   hostileReply?: string; // tests only: what a hostile app would say back
   failNext = false; // tests only
-  constructor(private store: Store, private base = process.env.HG_PUBLIC_URL ?? 'https://connect.stand-in.example') {}
+  constructor(private store: Store, private base = process.env.HG_PUBLIC_URL ?? (process.env.HG_LOCAL === '1' ? `http://127.0.0.1:${process.env.PORT ?? 8016}` : 'https://connect.stand-in.example')) {}
 
   async toolkits(): Promise<Toolkit[]> {
     return CATALOG;

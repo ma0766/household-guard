@@ -1,0 +1,11 @@
+
+> household-guard@0.1.0 ha:up
+> tsx scripts/ha-up.ts
+
+a3840ca79ee58411f85b4a0a2cea4cea055da7236783e9d83c37e58f81f1240a
+Home Assistant is set up. Key saved in .env.ha
+Devices exposed and the MCP server is on.
+
+real	0m10.487s
+user	0m0.493s
+sys	0m0.091s
