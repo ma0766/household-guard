@@ -48,7 +48,7 @@ export async function confirmIdentity(deps: Deps, hh: string, args: { name: stri
 }
 
 // What a person's own phone shows: things to confirm (3 numbers, no hint which is right) and notices for adults.
-export async function phoneInbox(deps: Deps, hh: string, personId: string) {
+export async function phoneInbox(deps: Deps, hh: string, personId: string, opts: { link?: boolean } = {}) {
   const now = (deps.now ?? Date.now)();
   const { people } = await loadHousehold(deps.store, hh);
   const me = people.find((p) => p.id === personId);
@@ -59,7 +59,7 @@ export async function phoneInbox(deps: Deps, hh: string, personId: string) {
   });
   const notices = me?.role === 'adult' ? (await deps.store.query(Store.hk(hh), 'NOTICE#', { reverse: true, limit: 5 })).filter((n) => now - n.at < 3600_000).map((n) => ({ text: n.text as string, at: n.at as number })) : [];
   // an adult's phone also shows held requests: who, what, how much, why — plus the number Alexa said (among 3)
-  const approvals = me?.role === 'adult' && me.hasPhone ? (await openApprovals(deps, hh)).map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, amount: money(a.amountCents), why: a.reason, options: a.options, text: `${a.personName} wants: ${a.itemText ?? a.itemKey}. ${money(a.amountCents)}. ${a.reason}` })) : [];
+  const approvals = me?.role === 'adult' && (me.hasPhone || opts.link) ? (await openApprovals(deps, hh)).map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, amount: money(a.amountCents), why: a.reason, options: a.options, text: `${a.personName} wants: ${a.itemText ?? a.itemKey}. ${money(a.amountCents)}. ${a.reason}` })) : [];
   return { person: personId, has_phone: !!me?.hasPhone, challenges, notices, approvals };
 }
 

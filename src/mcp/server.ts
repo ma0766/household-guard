@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
-import { bearerOf, originAllowed, readToken } from '../auth.js';
+import { authenticate, originAllowed } from '../auth.js';
 import type { Deps } from '../core/request-action.js';
 import { requestActionOnce } from '../core/idempotent.js';
 import { confirmIdentity } from '../identity/confirm.js';
@@ -203,7 +203,7 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
 // Stateless Streamable HTTP: a fresh server + transport per request (sessionIdGenerator: undefined)
 export async function handleMcp(req: IncomingMessage, res: ServerResponse, deps: Deps): Promise<void> {
   if (!originAllowed(req)) return send(res, 403, { error: 'Origin not allowed' });
-  const claims = readToken(bearerOf(req));
+  const claims = await authenticate(req);
   if (!claims || claims.aud !== 'alexa') {
     res.setHeader('www-authenticate', 'Bearer');
     return send(res, 401, { error: 'Sign in first' });

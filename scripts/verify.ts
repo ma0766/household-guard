@@ -15,6 +15,7 @@ const SLICES: Record<string, string> = {
   S9: 'Real screens with MCP Apps',
   S10: 'Rule proofs in CI + quiet hours',
   S11: 'Self-healing demo',
+  S12: 'Sign-in + approvals by email (email send: stand-in)',
 };
 mkdirSync('test-results', { recursive: true });
 const run = (label: string, cmd: string, args: string[]) => {

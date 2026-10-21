@@ -52,7 +52,7 @@ export class Store {
     return out;
   }
   // every row with exactly this sort key, across households (the scheduled health check; small tables only)
-  async scanSk(sk: string, limit = 500): Promise<Item[]> {
+  async scanSk(sk: string, limit = 100_000): Promise<Item[]> {
     const out: Item[] = [];
     let key: Record<string, any> | undefined;
     do {

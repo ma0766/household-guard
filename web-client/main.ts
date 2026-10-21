@@ -24,11 +24,53 @@ async function rpc(method: string, params?: unknown, id: number | undefined = ne
   return out;
 }
 
+// ---- sign in with a family account: OAuth authorization code + PKCE (S256), the same way Alexa links an account ----
+let familyToken = '';
+const rand = (n: number) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('');
+const sha256b64url = async (s: string) => btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const houseName = () => new URLSearchParams(location.search).get('hh') ?? 'demo';
+async function setUpSignIn() {
+  let cfg: { sign_in: { authorize_url: string; token_url: string; client_id: string; scope: string } | null } = { sign_in: null };
+  try { cfg = await (await fetch('/config.json')).json(); } catch { /* no sign-in server: the demo sign-in is all there is */ }
+  const si = cfg.sign_in;
+  if (!si) return;
+  $('account-panel').hidden = false;
+  const redirect = `${location.origin}/`;
+  const q = new URLSearchParams(location.search);
+  if (q.get('code') && sessionStorage.getItem('hg_state') === q.get('state')) {
+    const body = new URLSearchParams({ grant_type: 'authorization_code', client_id: si.client_id, code: q.get('code')!, redirect_uri: redirect, code_verifier: sessionStorage.getItem('hg_verifier') ?? '' });
+    const r = await fetch(si.token_url, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
+    const j = await r.json();
+    sessionStorage.removeItem('hg_verifier');
+    sessionStorage.removeItem('hg_state');
+    history.replaceState(null, '', `/?hh=${encodeURIComponent(sessionStorage.getItem('hg_house') ?? 'demo')}`);
+    if (j.access_token) {
+      familyToken = j.access_token;
+      document.body.dataset.auth = 'family-account';
+      $('account-status').textContent = 'Signed in with your family account.';
+    } else $('account-status').textContent = 'Sign-in did not work. Try again.';
+  }
+  $('btn-signin').onclick = async () => {
+    const verifier = rand(64);
+    const state = rand(16);
+    sessionStorage.setItem('hg_verifier', verifier);
+    sessionStorage.setItem('hg_state', state);
+    sessionStorage.setItem('hg_house', houseName());
+    const u = new URL(si.authorize_url);
+    u.search = new URLSearchParams({ response_type: 'code', client_id: si.client_id, redirect_uri: redirect, scope: si.scope, state, code_challenge: await sha256b64url(verifier), code_challenge_method: 'S256', login_hint: houseName() }).toString();
+    location.href = u.toString();
+  };
+}
+const signInReady = setUpSignIn();
+
 let connected = false;
 async function connect() {
   if (connected) return;
-  const t = await (await fetch(`/demo-token?hh=${encodeURIComponent(new URLSearchParams(location.search).get('hh') ?? 'demo')}`)).json();
-  token = t.token;
+  await signInReady;
+  const r = await fetch(`/demo-token?hh=${encodeURIComponent(houseName())}`);
+  const t = r.ok ? await r.json() : { token: '', phones: {} };
+  token = familyToken || t.token;
+  document.body.dataset.tokenKind = familyToken ? 'family-account' : 'demo';
   phoneTokens = t.phones; // each simulated phone holds only its own person's key
   await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'web-client', version: '0.1.0' } });
   await rpc('notifications/initialized', undefined, undefined);

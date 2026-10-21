@@ -3,12 +3,15 @@ import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { handleMcp } from './mcp/server.js';
-import { bearerOf, mintToken, readToken } from './auth.js';
+import { authenticate, mintToken } from './auth.js';
+import { oidcConfig } from './oidc.js';
+import { APPROVE_PAGE } from './phone/approve-page.js';
 import { Store } from './core/store.js';
 import { makeDeps } from './core/deps.js';
 import { handlePhone } from './phone/routes.js';
 import type { Deps } from './core/request-action.js';
 import { defaultRepairer, healthCheck } from './connectors/healing.js';
+import { localOutbox } from './notify/notify.js';
 import { setRideState } from './connectors/mock-ride.js';
 import { getSession, loadHousehold } from './core/household.js';
 
@@ -61,7 +64,7 @@ function sendJson(res: ServerResponse, body: unknown) {
 function protectedResource(req: IncomingMessage) {
   const host = req.headers.host ?? 'localhost';
   const proto = (req.headers['x-forwarded-proto'] as string) ?? (host.startsWith('127.') || host.startsWith('localhost') ? 'http' : 'https');
-  return { resource: `${proto}://${host}/mcp`, bearer_methods_supported: ['header'], resource_documentation: `${proto}://${host}/privacy`, authorization_servers: [] };
+  return { resource: `${proto}://${host}/mcp`, bearer_methods_supported: ['header'], resource_documentation: `${proto}://${host}/privacy`, authorization_servers: oidcConfig() ? [oidcConfig()!.issuer] : [] };
 }
 
 export function createApp(given?: Deps) {
@@ -76,6 +79,14 @@ export function createApp(given?: Deps) {
         // public metadata (no sign-in needed): what this server is, how it signs people in, and what it keeps
         if (url.pathname === '/.well-known/oauth-protected-resource') return sendJson(res, protectedResource(req));
         if (url.pathname === '/.well-known/household-guard.json') return sendJson(res, { name: 'Household Guard', mcp: '/mcp', protocol_versions: ['2025-11-25', '2025-03-26'], tools: 'tools/list', privacy: '/privacy', source: 'MIT licensed, see LICENSE' });
+        // how a browser client signs in (no secrets; null when only the demo sign-in exists)
+        if (url.pathname === '/config.json') {
+          const e = process.env;
+          return sendJson(res, { sign_in: e.HG_OIDC_AUTHORIZE_URL && e.HG_OIDC_TOKEN_URL && e.HG_OIDC_WEB_CLIENT_ID ? { authorize_url: e.HG_OIDC_AUTHORIZE_URL, token_url: e.HG_OIDC_TOKEN_URL, client_id: e.HG_OIDC_WEB_CLIENT_ID, scope: 'openid hg/mcp' } : null });
+        }
+        // the page an adult opens from the email: it carries its own short-lived key in the link
+        if (url.pathname === '/approve') return void res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'", 'referrer-policy': 'no-referrer', 'cache-control': 'no-store' }).end(APPROVE_PAGE);
+        if (url.pathname === '/demo/outbox' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) return sendJson(res, { sent: localOutbox.sent });
         if (url.pathname === '/privacy') return void res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' }).end(PRIVACY);
         // local demo only: hands out a signed token so the web client can sign in
         if (url.pathname === '/demo-token' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
@@ -83,8 +94,9 @@ export function createApp(given?: Deps) {
         }
         // demo only: the ride service "ships a new version" (price_cents becomes fare_cents), and "check now" runs the health check
         if ((url.pathname === '/demo/break-ride' || url.pathname === '/demo/check-rides') && req.method === 'POST' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
-          const claims = readToken(bearerOf(req));
+          const claims = await authenticate(req);
           if (!claims) return void res.writeHead(401).end();
+          if (claims.aud !== 'alexa' || claims.ap || claims.kind === 'service') return void res.writeHead(403).end(); // the demo buttons are for the voice side of a house only
           const d = getDeps();
           if (url.pathname === '/demo/break-ride') {
             // breaking the shared service is for a confirmed adult only (the sign-in alone is open in the demo)
@@ -98,8 +110,9 @@ export function createApp(given?: Deps) {
         }
         // demo only: "nobody has confirmed" — so a guest can speak after a family member's turn ended
         if (url.pathname === '/demo/guest' && req.method === 'POST' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
-          const claims = readToken(bearerOf(req));
+          const claims = await authenticate(req);
           if (!claims) return void res.writeHead(401).end();
+          if (claims.aud !== 'alexa' || claims.ap || claims.kind === 'service') return void res.writeHead(403).end(); // the demo buttons are for the voice side of a house only
           await getDeps().store.delete(Store.hk(claims.hh), 'SESSION#current');
           return void res.writeHead(200, { 'content-type': 'application/json' }).end('{"ok":true}');
         }

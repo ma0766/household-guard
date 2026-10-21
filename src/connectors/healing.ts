@@ -262,8 +262,8 @@ export function defaultRepairer(): Repairer {
 export { ConnectorError };
 
 // The scheduled run: every household gets a safe read. Five at a time; one failure never stops the rest.
-export async function healAll(deps: Deps, repairer: Repairer): Promise<{ checked: number; results: Record<string, HealthResult['status']> }> {
-  const rows = await deps.store.scanSk(`CONN#${MOCK_RIDE}`);
+export async function healAll(deps: Deps, repairer: Repairer, only?: (hh: string) => boolean): Promise<{ checked: number; results: Record<string, HealthResult['status']> }> {
+  const rows = (await deps.store.scanSk(`CONN#${MOCK_RIDE}`)).filter((r) => !only || only(r.pk.replace(/^H#/, '')));
   const results: Record<string, HealthResult['status']> = {};
   for (let i = 0; i < rows.length; i += 5) {
     await Promise.all(

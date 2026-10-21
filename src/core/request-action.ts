@@ -1,3 +1,4 @@
+import type { Notifier } from '../notify/notify.js';
 import type { Store } from './store.js';
 import { getSession, loadHousehold, ensureSeeded } from './household.js';
 import { formatLocal, hourOf } from './time.js';
@@ -19,6 +20,7 @@ export interface Deps {
   now?: () => number;
   queue?: JobQueue;
   risk?: RiskChecker; // AI risk check, run by the worker; can only make a decision stricter
+  notifier?: Notifier; // how adults hear about held requests (email)
   hooks?: { beforeReserve?: () => Promise<void> }; // tests only: line two requests up at the same instant
 }
 
