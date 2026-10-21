@@ -2,6 +2,7 @@ import { Store } from './store.js';
 import type { HouseholdMeta, Person, SessionMethod } from './types.js';
 import { defaultRules, type RulesConfig } from '../policy/rules.js';
 import { hashPin } from '../identity/pin.js';
+import { seedOrders } from '../orders/orders.js';
 
 export const SESSION_SECONDS = 5 * 60;
 
@@ -26,6 +27,7 @@ export async function ensureSeeded(store: Store, hh: string): Promise<void> {
   await store.put({ pk, sk: 'META', ...meta }, { ifNotExists: true }).catch(ignoreExists);
   for (const p of DEMO_PEOPLE) await store.put({ pk, sk: `PERSON#${p.id}`, ...p, ...(DEMO_PINS[p.id] ? { pinHash: hashPin(DEMO_PINS[p.id]) } : {}) }, { ifNotExists: true }).catch(ignoreExists);
   await store.put({ pk, sk: 'RULES#current', config: defaultRules() }, { ifNotExists: true }).catch(ignoreExists);
+  await seedOrders(store, hh);
   // every house has a ride-service record, so the scheduled health check (S11) finds it
   await store.put({ pk, sk: 'CONN#mock-ride', surge: 1, malicious: false, failBooking: false, renamed: false, authExpired: false }, { ifNotExists: true }).catch(ignoreExists);
   seeded.add(key);
@@ -52,6 +54,7 @@ export async function resetDemoHousehold(store: Store, hh = 'demo'): Promise<{ r
   rules.perRequestCapCents.dad = 20000;
   await store.put({ pk, sk: 'RULES#current', config: rules });
   await store.put({ pk, sk: 'CONN#mock-ride', surge: 1, malicious: false, failBooking: false, renamed: false, authExpired: false });
+  await seedOrders(store, hh); // Mom has a gift on the way for Leo
   return { removed, people: DEMO_FAMILY.map((p) => p.name) };
 }
 

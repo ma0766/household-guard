@@ -10,6 +10,7 @@ export type RuleChange =
   | { template: 'adults_only'; actions: string[] }
   | { template: 'allowed_apps'; services: string[] }
   | { template: 'must_haves'; bagIncluded?: boolean; arriveByHour?: number | null }
+  | { template: 'private_orders'; roles: ('teen' | 'child')[] }
   | { template: 'quiet_hours'; fromHour: number | null; toHour?: number }
   | { template: 'floor'; which: 'childrenNoUnlock' | 'guestsNoBuy'; enabled: boolean };
 
@@ -69,6 +70,15 @@ export function applyChange(before: RulesConfig, change: RuleChange, people: Per
       if (![f, t].every((h) => Number.isInteger(h) && (h as number) >= 0 && (h as number) <= 23) || f === t) return { ok: false, error: 'That hour does not look right.' };
       next.quietHours = { fromHour: f, toHour: t as number };
       sentence = `No buying for kids from ${hourWord(f)} to ${hourWord(t as number)}.`;
+      break;
+    }
+    case 'private_orders': {
+      if (!Array.isArray(change.roles) || change.roles.some((r) => r !== 'teen' && r !== 'child')) return { ok: false, error: 'Only teens and children can be added.' };
+      next.orderRoles = [...new Set(change.roles)].sort();
+      const names = next.orderRoles.map((r) => (r === 'teen' ? 'teens' : 'children'));
+      sentence = names.length ? `Adults and ${names.join(' and ')} hear orders. Gifts stay private.` : 'Only adults hear orders.';
+      const added = names.filter((n) => !(before.orderRoles ?? []).map((r) => (r === 'teen' ? 'teens' : 'children')).includes(n));
+      if (added.length) warning = `This lets ${added.join(' and ')} hear what the house ordered. Gifts stay private.`;
       break;
     }
     case 'floor': {

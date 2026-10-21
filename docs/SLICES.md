@@ -133,6 +133,12 @@ In this order — each one is visible in the video and strengthens the "provably
 
 * **Also builds:** approvals signed with a **passkey** that requires Face ID or a fingerprint (WebAuthn `userVerification: "required"`, checked on the server via the UV flag), so a teen holding Mom's unlocked phone still can't approve.
 
+## S19 · Private things stay private
+
+- **Builds:** order history, delivery status and the cart as `request_action` actions (`order_history`, `order_status`, `cart`) decided by Cedar; adults only by default; a `forbid` on `order_gift` for everyone but adults, in both rule sets; the reply "That's private. Ask a grown-up."; a rule card (`private_orders`) so an adult can open orders to teens or children (gifts stay private); Mom's gift for Leo seeded in the demo house; 4 more replay cases (34).
+- **Why:** the Tom's Guide birthday story, cited in docs/SPEC.md.
+- **Done when:** Leo's ask gets the private reply with no item names in the response or the timeline; Mom hears the list; a guest is denied; replay shows 34 of 34.
+
 ## After-Friday slices (S13–S18)
 
 Every "later" item from the Build spec lands in one of these.

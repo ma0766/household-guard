@@ -18,6 +18,10 @@ export const T = {
     }
   },
   notReady: "That isn't set up yet.",
+  private: "That's private. Ask a grown-up.",
+  someHidden: 'Some are private.',
+  noOrders: 'No orders yet.',
+  emptyCart: 'The cart is empty.',
   onlyAdults: 'Only adults can do that.',
   whoAreYou: 'Tell me who you are first.',
   cantDo: "I can't do that.",

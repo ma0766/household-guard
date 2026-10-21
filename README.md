@@ -35,7 +35,7 @@ npm install
 npx playwright install chromium
 npm run dev            # DynamoDB Local + server (8016) + Vite client (8017)
 npm run demo:reset     # (optional) put the demo house back to its start: Mom, Dad, Maya 15, Leo 8, a guest
-npm test               # unit + replay (30 cases) + concurrency/duplicate/surge/injection/audit-tamper tests
+npm test               # unit + replay (34 cases) + concurrency/duplicate/surge/injection/audit-tamper tests
 npm run e2e            # Playwright against the local stack, screenshots in test-results/
 npm run verify         # lint, typecheck, test, e2e; prints a per-slice PASS/FAIL table
 # audit report: docs/AUDIT-REPORT.md · demo order that fits the safety limits: docs/DEMO-RUNSHEET.md

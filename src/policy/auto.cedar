@@ -28,6 +28,15 @@ permit(principal == Person::"mom", action == Action::"purchase", resource) when 
 @id("cap_maya")
 permit(principal == Person::"maya", action == Action::"purchase", resource) when { context.service_known && context.amount_cents <= 2000 && context.week_spent_cents + context.amount_cents <= 2000 };
 
+@id("orders_adult")
+permit(principal in Role::"adult", action in [Action::"order_history", Action::"order_status", Action::"cart"], resource) when { context.service_known };
+
+@id("gifts_adults")
+permit(principal in Role::"adult", action == Action::"order_gift", resource) when { context.service_known };
+
+@id("gifts_private")
+forbid(principal, action == Action::"order_gift", resource) unless { principal in Role::"adult" };
+
 @id("floor_guests_no_buy")
 forbid(principal in Role::"guest", action == Action::"purchase", resource);
 

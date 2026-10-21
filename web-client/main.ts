@@ -258,6 +258,8 @@ async function ruleCall(args: Record<string, unknown>) {
 $('rule-save-maya').onclick = () => void ruleCall({ template: 'weekly_limit', person: 'maya', dollars: Number(($('rule-maya-limit') as HTMLInputElement).value) });
 $('rule-quiet-on').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: 21, quiet_to_hour: 6 });
 $('rule-quiet-off').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: null });
+$('rule-orders-teens').onclick = () => void ruleCall({ template: 'private_orders', roles: ['teen'] });
+$('rule-orders-adults').onclick = () => void ruleCall({ template: 'private_orders', roles: [] });
 $('rule-undo').onclick = () => void ruleCall({ undo: true });
 async function refreshConn() {
   if (!connected) return;
@@ -366,6 +368,9 @@ function parse(text: string): Record<string, unknown> | undefined {
   if (/unlock/.test(t)) return { service: 'sim-home', action: 'unlock', item: 'front door' };
   if (/garage/.test(t)) return { service: 'sim-home', action: 'garage', item: 'garage', value: 'open' };
   if (/thermostat|degrees|temperature/.test(t)) return { service: 'sim-home', action: 'thermostat', item: 'thermostat', value: Number(num ?? 72) };
+  if (/\bcart\b/.test(t)) return { service: 'mock-shop', action: 'cart' };
+  if (/deliver|arriv|package|shipped/.test(t)) return { service: 'mock-shop', action: 'order_status' };
+  if (/\border(ed|s)?\b/.test(t) && !/\bride\b|gift card/.test(t)) return { service: 'mock-shop', action: 'order_history' };
   if (/ride|taxi|cab/.test(t)) return { service: 'mock-ride', action: 'purchase', item: `ride to the ${(t.match(/airport|mall|library|school/) ?? ['mall'])[0]}`, ...(/shared/.test(t) ? { option_id: 'shared' } : {}) };
   if (/gift card/.test(t)) return { service: 'mock-shop', action: 'purchase', item: 'gift card' };
   if (/light/.test(t)) return { service: 'sim-home', action: 'light', item: 'lights', value: /\boff\b/.test(t) ? 'off' : 'on' };
@@ -401,7 +406,7 @@ async function say(text: string) {
   return r;
 }
 
-const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card'];
+const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card', 'What did Mom order?'];
 for (const q of QUICK) {
   const b = document.createElement('button');
   b.className = 'secondary';

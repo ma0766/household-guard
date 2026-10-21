@@ -6,7 +6,7 @@ import type { Store } from './store.js';
 import { getSession, loadHousehold, ensureSeeded } from './household.js';
 import { formatLocal, hourOf } from './time.js';
 import { decide, type DecisionInput } from '../policy/evaluator.js';
-import { KNOWN_ACTIONS } from '../policy/rules.js';
+import { KNOWN_ACTIONS, ORDER_ACTIONS } from '../policy/rules.js';
 import { SIM_HOME } from '../connectors/sim-home.js';
 import { handleAppAction, tellAdultsAboutApp } from './app-action.js';
 import { tierOf } from './tiers.js';
@@ -18,6 +18,7 @@ import type { JobQueue } from '../queue/queue.js';
 import type { RiskChecker } from '../risk/risk.js';
 import { handlePurchase } from './purchase.js';
 import { auditAsk } from '../audit/emit.js';
+import { handleOrders } from '../orders/orders.js';
 
 export interface Deps {
   store: Store;
@@ -53,6 +54,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
     const isGuest = person.id === GUEST_ID;
     const method = isGuest || !session ? 'none' : session.method;
 
+    if ((ORDER_ACTIONS as readonly string[]).includes(args.action)) return await handleOrders(deps, hh, { person, method, rules, tz, now, args });
     if (args.action === 'purchase') return await handlePurchase(deps, hh, { person, method, rules, tz, now, args });
 
     const value = Number(args.value);

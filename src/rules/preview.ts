@@ -7,7 +7,7 @@ import { hourWord, money } from '../text.js';
 // questions per kind of person. (The CI proofs in scripts/prove.ts settle the same thing for ALL requests, with a solver.)
 const RANK: Record<Answer, number> = { deny: 0, hold: 1, allow: 2 };
 const AMOUNTS = [1500, 2500, 3000, 5000, 25000, 60000];
-const WHAT: Record<string, string> = { unlock: 'unlock the front door', garage: 'open the garage', purchase: 'buy things', thermostat: 'change the heat', light: 'turn lights on or off', use_app: 'use apps', build_site: 'publish a site' };
+const WHAT: Record<string, string> = { unlock: 'unlock the front door', garage: 'open the garage', purchase: 'buy things', thermostat: 'change the heat', light: 'turn lights on or off', use_app: 'use apps', build_site: 'publish a site', order_history: 'hear what the house ordered', order_status: 'hear about deliveries', cart: 'hear what is in the cart' };
 const WHO: Record<Role, string> = { adult: 'an adult', teen: 'a teen', child: 'a child', guest: 'a guest' };
 
 function questions(p: Person, services: string[], known: (s: string) => boolean): DecisionInput[] {
@@ -16,6 +16,7 @@ function questions(p: Person, services: string[], known: (s: string) => boolean)
     { ...base, action: 'light' },
     ...[60, 72, 95].map((value) => ({ ...base, action: 'thermostat', value })),
     ...['unlock', 'garage'].flatMap((action) => (['phone', 'pin'] as const).map((session) => ({ ...base, action, session }))),
+    ...['order_history', 'order_status', 'cart'].map((action) => ({ ...base, action, service: 'mock-shop' })),
     ...services.map((service) => ({ ...base, action: 'use_app', service, serviceKnown: known(service) })),
     ...services.flatMap((service) => AMOUNTS.map((amountCents) => ({ ...base, action: 'purchase', service, serviceKnown: known(service), amountCents }))),
   ];
