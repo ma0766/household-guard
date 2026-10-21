@@ -1,0 +1,328 @@
+
+> household-guard@0.1.0 verify
+> tsx scripts/verify.ts
+
+
+▶ lint
+
+▶ typecheck
+
+▶ unit + replay tests
+
+ RUN  v5.0.5 /home/madman/household-guard
+
+ ✓ tests/s4/status-race.test.ts (2 tests) 422ms
+stderr | tests/s11/healing.test.ts > S11 review fixes: a repair cannot weaken the rules > a failing note or alert after a promoted repair does not turn the repair into "broken"
+heal: note failed Error: could not write the note
+    at Proxy.<anonymous> (/home/madman/household-guard/tests/s11/healing.test.ts:313:152)
+    at notifyAdults (/home/madman/household-guard/src/identity/guard.ts:47:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at bestEffort (/home/madman/household-guard/src/connectors/healing.ts:132:5)
+    at healthCheck (/home/madman/household-guard/src/connectors/healing.ts:202:3)
+    at /home/madman/household-guard/tests/s11/healing.test.ts:314:17
+    at async file:///home/madman/household-guard/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:2801:20
+
+ ✓ tests/s13/apps.test.ts (25 tests) 6108ms
+   ✓ S13 her sign-in is hers, not Mom's (2)
+     ✓ a teen connects a music app; her key is separate from Mom's and Mom is not connected 692ms
+     ✓ Mom connecting does not connect Maya 447ms
+   ✓ S13 a new app is held until an adult allows it (6)
+     ✓ after an adult allows it, the same ask goes through 497ms
+     ✓ a guest can never use an app, even an allowed one 455ms
+     ✓ the app's reply is data: a hostile reply changes nothing and is not repeated as a command 521ms
+     ✓ any error from the hub is a hold, never a quiet success 408ms
+   ✓ S13 an expired sign-in is noticed and asked for again (5)
+     ✓ the "expired" message marks it broken, tells the person and an adult, and the next use asks to connect again 466ms
+ ✓ tests/s14/home-assistant.test.ts (13 tests) 7885ms
+   ✓ S14 the same rules, a real home (10)
+     ✓ only what names the wired device is sent; any other words are held and nothing is called 306ms
+     ✓ a home that is down, says no, or does not say it did it is a HOLD: never "done", nothing marked changed 305ms
+     ✓ if we stop waiting, the home may still have done it: the answer says "not sure", an adult is told, it is not called plain failed 713ms
+     ✓ the decisions are identical with a real home: every lights/door/thermostat replay case gives the same answer 1697ms
+stderr | tests/s11/healing.test.ts > S11 the demo buttons > only a confirmed adult can break the shared ride service; anyone signed in can ask for a check
+health check detail: missing: price_cents; new: fare_cents
+
+ ✓ tests/s11/healing.test.ts (35 tests) 8139ms
+   ✓ S11 the first buy after a repair needs one approval (5)
+     ✓ Mom says yes by matching the number: it books; then the next ride goes the normal way 381ms
+   ✓ S11 the model that writes the mapping (Bedrock Claude Haiku) (4)
+     ✓ LIVE: the real model reads the new field name and the repair passes the tests 1035ms
+   ✓ S11 review fixes: a repair cannot weaken the rules (11)
+     ✓ the scheduled run visits every household, even one that never touched the demo 2686ms
+   ✓ S11 the demo buttons (1)
+     ✓ only a confirmed adult can break the shared ride service; anyone signed in can ask for a check 309ms
+ ✓ tests/s10/proofs.test.ts (15 tests) 13014ms
+   ✓ S10 proofs: the rules that ship keep the promises (2)
+     ✓ no child may unlock, no child may open the garage, no guest may use an app or buy — for every possible request 654ms
+     ✓ the default rule card config proves too (the cards generate the same rules) 582ms
+   ✓ S10 proofs: a rule that breaks a promise fails with a counterexample (4)
+     ✓ a household whose rules let a child unlock fails 575ms
+     ✓ a pull request that adds a rule letting children unlock fails 1110ms
+     ✓ a guest given a buying limit with the guest rule off fails 603ms
+     ✓ a missing proof tool is a failure, never a pass 471ms
+   ✓ S10 proofs: new rules compared with old rules (4)
+     ✓ same rules → equivalent 720ms
+     ✓ a higher limit → more permissive for buying 759ms
+     ✓ a lower limit → less permissive 768ms
+     ✓ quiet hours on → less permissive, in both the do-it and the hold sets 954ms
+   ✓ S10 the plain-language preview and the proof agree (5)
+     ✓ turning off the child-unlock rule alone (adults-only still blocks): the preview does not warn and the proof does not 1167ms
+     ✓ opening unlock to everyone and turning the rule off: the preview warns and the proof finds it more permissive 1199ms
+     ✓ opening the garage to everyone: the preview warns and the proof finds it more permissive 1406ms
+     ✓ a higher limit: the preview warns and the proof finds it more permissive 995ms
+     ✓ quiet hours: the preview does not warn and the proof does not 1028ms
+ ✓ tests/s7/rules.test.ts (14 tests) 4941ms
+   ✓ S7 editable rules (9)
+     ✓ Mom changes Maya's limit; her phone shows the change; the NEXT decision follows it 974ms
+     ✓ undo restores the old rule (one more tap), only the newest change, only for 24 hours 1298ms
+     ✓ the two locked rules need a warning and a second tap 329ms
+     ✓ two edits at the same moment: one wins, the other is told to try again 412ms
+   ✓ S7 review fixes (3)
+     ✓ undoing a change that had turned a locked rule back ON needs the warning and a second tap 586ms
+     ✓ the change record is saved with the rule, so it can always be undone 387ms
+stderr | tests/s6/audit.test.ts > S6 review fixes > a log failure never changes an answer
+AUDIT WRITE FAILED ask Error: audit table down
+    at Store.ctx.deps.store.transact (/home/madman/household-guard/tests/s6/audit.test.ts:298:75)
+    at appendAudit (/home/madman/household-guard/src/audit/audit.ts:64:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at tryAudit (/home/madman/household-guard/src/audit/audit.ts:76:5)
+    at emit (/home/madman/household-guard/src/audit/emit.ts:24:5)
+    at auditAskInner (/home/madman/household-guard/src/audit/emit.ts:59:3)
+    at auditAsk (/home/madman/household-guard/src/audit/emit.ts:48:5)
+    at requestAction (/home/madman/household-guard/src/core/request-action.ts:111:3)
+    at /home/madman/household-guard/tests/s6/audit.test.ts:301:15
+    at async file:///home/madman/household-guard/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:2801:20
+
+ ✓ tests/s6/audit.test.ts (27 tests) 6449ms
+   ✓ S6 audit: plain sentences, stored once (6)
+     ✓ tells the story of a held ride, the cheaper one, and the saving 794ms
+     ✓ home actions, sign-ins and lock-outs are logged too 339ms
+     ✓ every sentence is short and has no tech words 399ms
+   ✓ S6 hash chain: tampering shows (9)
+     ✓ 20 writers at once still make one clean chain 309ms
+     ✓ the verify script catches an edited row (exit code 1) and passes a clean log (exit code 0) 1274ms
+   ✓ S6 review fixes (5)
+     ✓ who may read the log: guests nothing, kids only their own, adults everything 604ms
+ ✓ tests/s5/risk.test.ts (20 tests) 8606ms
+   ✓ S5 risk check (stricter only) (6)
+     ✓ gift card: the rules say yes, the risk check says hold → nothing bought, money released, an adult is asked 2157ms
+     ✓ after an adult says yes to that exact gift card it goes through (the adult is stronger than the check) 482ms
+   ✓ S5 prompt injection (gap 8): service replies are data (3)
+     ✓ injected text inside an allowed ride makes the check hold it (and a naive check still changes nothing: same price, same spend) 463ms
+   ✓ S5 live Bedrock (Claude Haiku on Amazon Bedrock, us-east-1) (3)
+     ✓ holds a gift card with hidden instructions, and returns a clear verdict for a plain ride 1775ms
+     ✓ the whole flow with the real model: teen gift card passes the rules, the live check holds it, nothing is bought 1132ms
+     ✓ the whole flow with the real model: a plain ride to the mall is booked 1247ms
+ ✓ tests/s12/approval-email.test.ts (17 tests) 4098ms
+   ✓ S12 the email (7)
+     ✓ a slow mail service does not slow the reply by more than a second 963ms
+   ✓ S12 email review fixes (4)
+     ✓ two adults are emailed at the same time, with one shared wait (not one after another) 545ms
+     ✓ no more than 3 emails per adult in 10 minutes, however often a teen asks again 394ms
+stderr | tests/s15/site.test.ts > S15 review fixes > a lost note after publishing never deletes the good site
+site: note failed Error: note failed
+    at Proxy.<anonymous> (/home/madman/household-guard/tests/s15/site.test.ts:233:150)
+    at notifyAdults (/home/madman/household-guard/src/identity/guard.ts:47:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at runSiteJob (/home/madman/household-guard/src/sites/job.ts:76:3)
+    at async Promise.all (index 0)
+    at LocalQueue.drain (/home/madman/household-guard/src/queue/queue.ts:26:31)
+    at /home/madman/household-guard/tests/s15/site.test.ts:236:5
+    at async file:///home/madman/household-guard/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:2801:20
+
+ ✓ tests/audit/dead-end.test.ts (25 tests) 4034ms
+ ✓ tests/s15/site.test.ts (18 tests) 4281ms
+   ✓ S15 a long job answers at once and finishes in the worker (5)
+     ✓ Mom asks: an answer with a job id comes back fast; nothing is built until she taps; then it is built and published 387ms
+     ✓ while it runs, job_status says how far along it is 429ms
+   ✓ S15 telling the person, and showing it (2)
+     ✓ when it is done, the next status question says so, once 355ms
+   ✓ S15 review fixes (3)
+     ✓ a run that crashed is taken over after its lease; before that the message is tried again later (it throws so the queue redelivers) 418ms
+     ✓ a lost note after publishing never deletes the good site 340ms
+     ✓ if the draft cannot be removed after a failure, the answer says so and an adult is told (never "nothing was published" when it may be) 306ms
+ ✓ tests/s4/approvals.test.ts (18 tests) 3968ms
+   ✓ S4 approvals + a yes that fits (12)
+     ✓ accept the $14 ride: her own tap only, no adult needed, $24 saving logged 316ms
+   ✓ S4 review fixes (6)
+     ✓ by voice, a teen cannot approve in Mom's older session — Mom must confirm on her phone AFTER the hold 309ms
+     ✓ one held approval is claimed once: a second claim logs no second saving, and the expensive ride cannot also be approved 444ms
+ ✓ tests/s16/gateway.test.ts (39 tests) 19655ms
+   ✓ S16 the same 30 replay cases give the same answers through the gateway (30)
+     ✓ teen-lights-off 338ms
+   ✓ S16 the switch is off by default (4)
+     ✓ a normal build has no gateway at all 5075ms
+     ✓ with the switch: a gateway, one tool target, a policy engine and a policy in LOG-ONLY mode 4274ms
+     ✓ and ENFORCE only when asked for twice 4441ms
+stdout | tests/replay/replay.test.ts > replay: scripted requests, fixed answers
+REPLAY: 30 of 30 cases passing
+
+ ✓ tests/replay/replay.test.ts (30 tests) 3707ms
+ ✓ tests/s3/bundle.test.ts (1 test) 2062ms
+   ✓ S3 the worker bundle starts (1)
+     ✓ web and worker bundles both load and export what Lambda calls 2058ms
+ ✓ tests/s3/money.test.ts (14 tests) 2273ms
+   ✓ S3 money: the ride (13)
+     ✓ teen $15 ride within her $20 cap → number on HER phone → worker books it → spend committed 374ms
+ ✓ tests/s2/identity.test.ts (10 tests) 2051ms
+   ✓ S2 who is speaking (10)
+     ✓ the number lands on the right phone, and nobody else can tap it 303ms
+     ✓ 3 wrong PINs lock for 10 minutes 305ms
+ ✓ tests/s10/preview.test.ts (12 tests) 2849ms
+   ✓ S10 plain-language preview of a rule change (12)
+     ✓ allowed apps: adding a store lets a teen buy there without asking; removing the ride app puts rides on hold 447ms
+     ✓ best-value must-haves are said out loud 391ms
+     ✓ every preview line is short and has no tech words 495ms
+stderr | tests/s1/decision.test.ts > S1 fail closed (gap 7) > a DynamoDB error gives hold, never allowed
+AUDIT WRITE FAILED ask Error: connect ECONNREFUSED 127.0.0.1:1
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1638:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 1,
+  '$metadata': { attempts: 1, totalRetryDelay: 0 }
+}
+
+ ✓ tests/s10/preview-flow.test.ts (3 tests) 1091ms
+   ✓ S10 the preview reaches the adult before the tap (3)
+     ✓ a higher limit: the reply and Mom's phone both say what it lets Maya do 457ms
+     ✓ quiet hours by card: preview, tap, then the next late buy by a teen is refused 357ms
+ ✓ tests/s10/quiet-hours.test.ts (9 tests) 2073ms
+   ✓ S10 quiet hours (no buying after 9 PM, in the house time zone) (6)
+     ✓ a teen is refused at 9:30 PM with the reason, and allowed at 8 PM 301ms
+     ✓ the edges: 8:59 PM is fine, 9:00 PM is not; 5:59 AM is not, 6:00 AM is fine 468ms
+ ✓ tests/s2/security.test.ts (7 tests) 1827ms
+   ✓ S2 guessing guard holds under parallel guesses (3)
+     ✓ 30 parallel wrong PINs: at most 3 are ever checked, the rest are locked 1024ms
+     ✓ tapping the wrong number is counted before it is checked too 337ms
+ ✓ tests/s1/decision.test.ts (18 tests) 1624ms
+ ✓ tests/s9/apps.test.ts (10 tests) 1843ms
+   ✓ S9 the Yes button on the screen is a real approval (2)
+     ✓ a card’s Yes (approve_request with its id and number) books the ride; the old card is gone 335ms
+stderr | tests/audit/faults.test.ts > Part E: one failing dependency at a time > DynamoDB fails on every call → no request is allowed-and-done
+AUDIT WRITE FAILED ask Error: ddb down
+    at Store.ctx.store.<computed> [as get] (/home/madman/household-guard/tests/audit/faults.test.ts:24:61)
+    at appendAudit (/home/madman/household-guard/src/audit/audit.ts:49:35)
+    at tryAudit (/home/madman/household-guard/src/audit/audit.ts:76:11)
+    at emit (/home/madman/household-guard/src/audit/emit.ts:24:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at auditAskInner (/home/madman/household-guard/src/audit/emit.ts:59:3)
+    at auditAsk (/home/madman/household-guard/src/audit/emit.ts:48:5)
+    at requestAction (/home/madman/household-guard/src/core/request-action.ts:111:3)
+    at /home/madman/household-guard/tests/audit/faults.test.ts:28:17
+    at async file:///home/madman/household-guard/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:2801:20
+
+stderr | tests/audit/faults.test.ts > Part E: one failing dependency at a time > DynamoDB fails on every call → no request is allowed-and-done
+AUDIT WRITE FAILED ask Error: ddb down
+    at Store.ctx.store.<computed> [as get] (/home/madman/household-guard/tests/audit/faults.test.ts:24:61)
+    at appendAudit (/home/madman/household-guard/src/audit/audit.ts:49:35)
+    at tryAudit (/home/madman/household-guard/src/audit/audit.ts:76:11)
+    at emit (/home/madman/household-guard/src/audit/emit.ts:24:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at auditAskInner (/home/madman/household-guard/src/audit/emit.ts:59:3)
+    at auditAsk (/home/madman/household-guard/src/audit/emit.ts:48:5)
+    at requestAction (/home/madman/household-guard/src/core/request-action.ts:111:3)
+    at /home/madman/household-guard/tests/audit/faults.test.ts:28:17
+    at async file:///home/madman/household-guard/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:2801:20
+
+stderr | tests/audit/faults.test.ts > Part E: one failing dependency at a time > DynamoDB fails on every call → no request is allowed-and-done
+AUDIT WRITE FAILED ask Error: ddb down
+    at Store.ctx.store.<computed> [as get] (/home/madman/household-guard/tests/audit/faults.test.ts:24:61)
+    at appendAudit (/home/madman/household-guard/src/audit/audit.ts:49:35)
+    at tryAudit (/home/madman/household-guard/src/audit/audit.ts:76:11)
+    at emit (/home/madman/household-guard/src/audit/emit.ts:24:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at auditAskInner (/home/madman/household-guard/src/audit/emit.ts:59:3)
+    at auditAsk (/home/madman/household-guard/src/audit/emit.ts:48:5)
+    at requestAction (/home/madman/household-guard/src/core/request-action.ts:111:3)
+    at /home/madman/household-guard/tests/audit/faults.test.ts:28:17
+    at async file:///home/madman/household-guard/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:2801:20
+
+stderr | tests/audit/faults.test.ts > Part E: one failing dependency at a time > DynamoDB fails on every call → no request is allowed-and-done
+AUDIT WRITE FAILED ask Error: ddb down
+    at Store.ctx.store.<computed> [as get] (/home/madman/household-guard/tests/audit/faults.test.ts:24:61)
+    at appendAudit (/home/madman/household-guard/src/audit/audit.ts:49:35)
+    at tryAudit (/home/madman/household-guard/src/audit/audit.ts:76:11)
+    at emit (/home/madman/household-guard/src/audit/emit.ts:24:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at auditAskInner (/home/madman/household-guard/src/audit/emit.ts:59:3)
+    at auditAsk (/home/madman/household-guard/src/audit/emit.ts:48:5)
+    at requestAction (/home/madman/household-guard/src/core/request-action.ts:111:3)
+    at /home/madman/household-guard/tests/audit/faults.test.ts:28:17
+    at async file:///home/madman/household-guard/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:2801:20
+
+ ✓ tests/security/routes-and-limits.test.ts (24 tests) 603ms
+   ✓ input bounds on every tool (1)
+     ✓ huge or odd arguments are refused by the tool, not run 316ms
+ ✓ tests/s12/oidc.test.ts (22 tests) 706ms
+ ✓ tests/audit/faults.test.ts (5 tests) 883ms
+ ✓ tests/s2/garage.test.ts (3 tests) 547ms
+ ✓ tests/s4/value-honesty.test.ts (2 tests) 495ms
+   ✓ S4 must-haves: "arrives by 6 PM" (1)
+     ✓ the cheapest option that arrives late is skipped; the next cheapest that arrives in time is offered 388ms
+ ✓ tests/s3/replay-size.test.ts (1 test) 3ms
+ ✓ tests/demo/reset.test.ts (1 test) 347ms
+   ✓ demo reset (1)
+     ✓ seeds Mom, Dad, Maya 15, Leo 8 and a guest, and wipes old rows 345ms
+ ✓ tests/s3/redelivery.test.ts (1 test) 316ms
+   ✓ S3 queue redelivery (gap 6, back door) (1)
+     ✓ the same job message delivered three times books one ride and spends once 315ms
+ ✓ tests/s0/mcp.test.ts (6 tests) 239ms
+ ✓ tests/s8/hardening.test.ts (12 tests) 196ms
+
+ Test Files  33 passed (33)
+      Tests  459 passed (459)
+   Start at  17:43:04
+   Duration  26.81s (tests 91%, import 8%)
+
+JSON report written to /home/madman/household-guard/test-results/unit.json
+
+▶ e2e
+
+Running 18 tests using 1 worker
+
+  ✓   1 e2e/s0-client.spec.ts:3:1 › S0: web client lists the tool and gets an answer (568ms)
+  ✓   2 e2e/s1-lights.spec.ts:4:1 › S1: teen lights → done; teen unlock → denied; delete account → denied (6.8s)
+  ✓   3 e2e/s10-proofs.spec.ts:8:1 › S10: the rule card says what the change would do BEFORE the tap, and quiet hours switch on (6.8s)
+  ✓   4 e2e/s10-proofs.spec.ts:27:1 › S10: the proof passes on the shipped rules and FAILS when a rule lets a child unlock (741ms)
+[WebServer] health check detail: missing: price_cents; new: fare_cents
+  ✓   5 e2e/s11-healing.spec.ts:4:1 › S11: a broken ride service is repaired, and the next ride needs one approval (13.2s)
+  ✓   6 e2e/s12-signin-email.spec.ts:4:1 › S12: the page signs in with a family account (code + PKCE) and the house answers it (486ms)
+  ✓   7 e2e/s12-signin-email.spec.ts:15:1 › S12: a held ride sends Mom an email; its link opens a page; Mom says yes there and the ride is booked (3.1s)
+  ✓   8 e2e/s13-apps.spec.ts:4:1 › S13: a teen connects a music app with her own sign-in; Mom is not connected; a new app waits for an adult first (11.0s)
+  ✓   9 e2e/s15-site.spec.ts:4:1 › S15: "Build a site for my bakery" is a job: Mom taps, it is built and published, and the preview shows with a code to scan (6.6s)
+  ✓  10 e2e/s2-who.spec.ts:4:1 › S2: a name alone does nothing; the number lands on the right phone; PIN works; 4th push locks (3.0s)
+  ✓  11 e2e/s3-ride.spec.ts:4:1 › S3: teen books a $15 ride after her own phone tap; the $38 ride is held (4.8s)
+  ✓  12 e2e/s4-approvals.spec.ts:4:1 › S4: teen $38 ride is held → $14 shared ride offered and accepted; Mom approves a $38 ride by number (6.7s)
+  ✓  13 e2e/s5-risk.spec.ts:4:1 › S5: a gift card the rules allow is held by the risk check; Mom says yes by number (5.5s)
+  ✓  14 e2e/s6-audit.spec.ts:4:1 › S6: $38 ride held → $14 shared ride offered and accepted → the $24 saving is in the timeline, in plain words (6.8s)
+  ✓  15 e2e/s7-rules.spec.ts:4:1 › S7: Mom changes Maya's limit from the card; the next ride follows it; a teen cannot (6.7s)
+  ✓  16 e2e/s7-rules.spec.ts:29:1 › S7: undo restores the old limit (6.7s)
+  ✓  17 e2e/s8-hardening.spec.ts:3:1 › S8: public notes are reachable without signing in; the app itself refuses a missing sign-in (101ms)
+  ✓  18 e2e/s9-apps.spec.ts:4:1 › S9: an approval made from the house screen (a sandboxed page) books the ride (6.0s)
+
+  18 passed (1.7m)
+
+| Slice | Name | Result | Passed | Failed |
+|---|---|---|---|---|
+| S0 | Walking skeleton | PASS | 7 | 0 |
+| S1 | First decision: lights | PASS | 49 | 0 |
+| S2 | Who is speaking | PASS | 21 | 0 |
+| S3 | Money: the ride | PASS | 18 | 0 |
+| S4 | Approvals + a yes that fits | PASS | 23 | 0 |
+| S5 | Risk check | PASS | 21 | 0 |
+| S6 | Audit and status | PASS | 28 | 0 |
+| S7 | Editable rules + full replay | PASS | 16 | 0 |
+| S8 | Hardening + submission pack | PASS | 13 | 0 |
+| S9 | Real screens with MCP Apps | PASS | 11 | 0 |
+| S10 | Rule proofs in CI + quiet hours | PASS | 41 | 0 |
+| S11 | Self-healing demo | PASS | 36 | 0 |
+| S12 | Sign-in + approvals by email (email send: stand-in) | PASS | 41 | 0 |
+| S13 | Connect any app, per person (Composio: stand-in) | PASS | 26 | 0 |
+| S14 | Real smart home (Home Assistant MCP; live check: npm run ha:test) | PASS | 13 | 0 |
+| S15 | Long jobs + site building (Wix: stand-in) | PASS | 19 | 0 |
+| S16 | AgentCore Gateway + Policy (switch OFF by default) | PASS | 39 | 0 |
+
+lint:ok typecheck:ok unit:ok e2e:ok
+exit=0

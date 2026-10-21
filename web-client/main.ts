@@ -36,7 +36,7 @@ async function setUpSignIn() {
   try { cfg = await (await fetch('/config.json')).json(); } catch { /* no sign-in server: the demo sign-in is all there is */ }
   const si = cfg.sign_in;
   if (!si) return;
-  $('account-panel').hidden = false;
+  document.body.classList.add('has-sign-in'); // normally the server already set this, so the panel was there from the first paint
   const redirect = `${location.origin}/`;
   const q = new URLSearchParams(location.search);
   if (q.get('code') && sessionStorage.getItem('hg_state') === q.get('state')) {

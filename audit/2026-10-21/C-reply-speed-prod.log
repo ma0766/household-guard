@@ -1,4 +1,4 @@
-first call (maybe cold) ms 2449
-household_status n=50 bad= 0 p50 180 p95 255 max 369
-request_action n=50 bad= 0 p50 191 p95 400 max 660
-audit_log n=50 bad= 0 p50 94 p95 124 max 147
+first call (maybe cold) ms 538
+household_status n=50 bad= 0 p50 154 p95 267 max 808
+request_action n=50 bad= 0 p50 180 p95 339 max 416
+audit_log n=50 bad= 0 p50 88 p95 170 max 408

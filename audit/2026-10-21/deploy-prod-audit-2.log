@@ -1,0 +1,48 @@
+
+> household-guard@0.1.0 deploy
+> tsx scripts/deploy.ts
+
+stage: prod (stack HouseholdGuard)
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 5 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/web/index.html                  6.21 kB │ gzip: 1.79 kB
+dist/web/assets/index-Cz5Nt-b9.css   1.87 kB │ gzip: 0.78 kB
+dist/web/assets/index-DfYOwtKo.js   15.78 kB │ gzip: 5.74 kB
+
+✓ built in 60ms
+lambda bundle ready
+AI agent detected
+
+✨  Synthesis time: 2.43s
+
+HouseholdGuard: start: Building Web/Code
+HouseholdGuard: success: Built Web/Code
+HouseholdGuard: start: Building HouseholdGuard Template
+HouseholdGuard: success: Built HouseholdGuard Template
+HouseholdGuard: start: Publishing Web/Code (679241558430-us-east-1-2b38f35d)
+HouseholdGuard: start: Publishing HouseholdGuard Template (679241558430-us-east-1-58c23174)
+HouseholdGuard: success: Published HouseholdGuard Template (679241558430-us-east-1-58c23174)
+HouseholdGuard: success: Published Web/Code (679241558430-us-east-1-2b38f35d)
+HouseholdGuard: creating CloudFormation changeset...
+HouseholdGuard: deploying... [1/1]
+
+✅  HouseholdGuard
+
+✨  Deployment time: 16.48s
+
+Outputs:
+HouseholdGuard.ServiceClientId = 5jk87rirt9poomdn339ed06l30
+HouseholdGuard.SignInDomain = https://hg-prod-679241558430.auth.us-east-1.amazoncognito.com
+HouseholdGuard.Url = https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/
+HouseholdGuard.UserPoolId = us-east-1_pHMvPUdWp
+HouseholdGuard.WebClientId = 1vdsrs5gojvk2ft4k5g6mj9ob8
+Stack ARN:
+arn:aws:cloudformation:us-east-1:679241558430:stack/HouseholdGuard/41171820-ccdc-11f1-8139-12ffd64cd633
+
+✨  Total time: 33.39s
+
+deployed: https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws
+exit=0
