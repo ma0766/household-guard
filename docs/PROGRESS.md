@@ -112,3 +112,9 @@ Independent review (a subagent with no prior context compared each S0–S8 "Done
 - Hallway test with two people (docs/SLICES.md, "Usability standard")
 - Fill the friction log "what happened" column from real build notes
 - Submit on Devpost before Fri Oct 23, 12:00 PM PT
+
+## Phase 4/5 notes (2026-10-21)
+- AWS sign-in expired overnight; not re-attempted. The 3 live Bedrock tests (S5 x2, S11 x1) fail on credentials; they are not skipped. Roadmap NOT merged to main (verify not fully green).
+- Tests now always use DynamoDB Local (`vitest.config.ts` env); before, s0/s2 reached the cloud table when signed in. Quiet-hours worker tests use their own clock.
+- `npm run demo:reset` (scripts/demo-reset.ts, `Store.wipe`, `Person.age`). The web client still lists four speakers; Dad has no button (decision: keep default tests stable).
+- Clean-clone check: `npm ci` + `npm test` in a fresh clone found the hermetic-test bug above.
