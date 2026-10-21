@@ -57,7 +57,7 @@ describe('S8 hardening', () => {
     const c = new Client({ name: 't', version: '1' });
     await c.connect(b);
     const tools = (await c.listTools()).tools;
-    expect(tools.map((t) => t.name).sort()).toEqual(['approve_request', 'audit_log', 'confirm_identity', 'household_status', 'job_status', 'request_action', 'set_rule', 'show_on_screen']);
+    expect(tools.map((t) => t.name).sort()).toEqual(['approve_request', 'audit_log', 'confirm_identity', 'connect_service', 'find_capability', 'household_status', 'job_status', 'request_action', 'set_rule', 'show_on_screen']); // the ten tools of the spec (S13 added find_capability and connect_service)
     const ra: any = tools.find((t) => t.name === 'request_action')!.inputSchema;
     for (const bad of ['person', 'speaker', 'user', 'who', 'principal', 'amount', 'price', 'amount_cents']) expect(Object.keys(ra.properties)).not.toContain(bad);
   });
@@ -86,10 +86,13 @@ function grade(text: string): number {
 describe('S8 words (usability standard, checked in CI)', () => {
   const lines = (): string[] => {
     const out: string[] = [];
-    for (const v of Object.values(T)) {
+    const byApp = new Set(['appConnected', 'appNotConnected', 'appPending', 'signInRanOut', 'connectFirst', 'openLink', 'appDown']); // these take an app name, tried with real ones below
+    for (const [k, v] of Object.entries(T)) {
       if (typeof v === 'string') out.push(v);
-      else if (v.length === 1) out.push((v as any)(47), (v as any)('Maya'));
+      else if (v.length === 1 && !byApp.has(k)) out.push((v as any)(47), (v as any)('Maya'));
     }
+    // app names are brand names we do not choose, so the reading level is checked with a short name; real names are checked for words and length below
+    for (const app of ['Maya']) out.push(T.appConnected(app), T.appNotConnected(app), T.appPending(app), T.signInRanOut(app), T.connectFirst(app), T.openLink(app), T.appDown(app), T.appDone(app, 'play jazz'));
     out.push(T.done('light', 'lights', 'off'), T.done('unlock', 'front door'), T.done('garage'), T.done('thermostat', undefined, 72), T.overWeekly('Maya', 2000), T.overOneBuy('Maya', 1500), T.rideBooked(1400), T.bought(1500), T.altOffer('shared ride', 1400));
     return out.filter(Boolean);
   };
@@ -123,6 +126,14 @@ describe('S8 words (usability standard, checked in CI)', () => {
       if (grade(line) > 5) bad.push(`grade ${grade(line).toFixed(1)}: ${line}`);
     }
     expect(bad).toEqual([]);
+  });
+  it('lines with real app names: no tech words, short sentences', () => {
+    for (const app of ['Spotify', 'Todoist', 'Google Calendar']) {
+      for (const line of [T.appConnected(app), T.appNotConnected(app), T.appPending(app), T.signInRanOut(app), T.connectFirst(app), T.openLink(app), T.appDown(app), T.appDone(app, 'play jazz')]) {
+        for (const sentence of line.split(/(?<=[.!?])\s+/)) expect(sentence.split(/\s+/).length, sentence).toBeLessThan(12);
+        for (const w of BANNED_WORDS) expect(line.toLowerCase(), line).not.toMatch(new RegExp(`\\b${w}\\b`));
+      }
+    }
   });
   it('the web client has no tech words in its buttons and labels', () => {
     const html = readFileSync('web-client/index.html', 'utf8').replace(/<script[\s\S]*?<\/script>/g, '');

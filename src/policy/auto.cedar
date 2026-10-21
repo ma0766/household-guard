@@ -4,6 +4,12 @@ permit(principal, action == Action::"light", resource) when { context.service_kn
 @id("thermostat")
 permit(principal, action == Action::"thermostat", resource) when { context.service_known && context.value >= 60 && context.value <= 78 };
 
+@id("use_app")
+permit(principal, action == Action::"use_app", resource) when { context.service_known } unless { principal in Role::"guest" };
+
+@id("build_site")
+permit(principal in Role::"adult", action == Action::"build_site", resource) when { context.session == "phone" };
+
 @id("adults_only_unlock")
 forbid(principal, action == Action::"unlock", resource) unless { principal in Role::"adult" };
 

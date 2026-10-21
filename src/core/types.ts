@@ -6,6 +6,7 @@ export interface Person {
   name: string;
   role: Role;
   hasPhone: boolean;
+  age?: number;
   pinHash?: string; // scrypt, S2
 }
 

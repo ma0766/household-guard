@@ -24,11 +24,53 @@ async function rpc(method: string, params?: unknown, id: number | undefined = ne
   return out;
 }
 
+// ---- sign in with a family account: OAuth authorization code + PKCE (S256), the same way Alexa links an account ----
+let familyToken = '';
+const rand = (n: number) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('');
+const sha256b64url = async (s: string) => btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const houseName = () => new URLSearchParams(location.search).get('hh') ?? 'demo';
+async function setUpSignIn() {
+  let cfg: { sign_in: { authorize_url: string; token_url: string; client_id: string; scope: string } | null } = { sign_in: null };
+  try { cfg = await (await fetch('/config.json')).json(); } catch { /* no sign-in server: the demo sign-in is all there is */ }
+  const si = cfg.sign_in;
+  if (!si) return;
+  $('account-panel').hidden = false;
+  const redirect = `${location.origin}/`;
+  const q = new URLSearchParams(location.search);
+  if (q.get('code') && sessionStorage.getItem('hg_state') === q.get('state')) {
+    const body = new URLSearchParams({ grant_type: 'authorization_code', client_id: si.client_id, code: q.get('code')!, redirect_uri: redirect, code_verifier: sessionStorage.getItem('hg_verifier') ?? '' });
+    const r = await fetch(si.token_url, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
+    const j = await r.json();
+    sessionStorage.removeItem('hg_verifier');
+    sessionStorage.removeItem('hg_state');
+    history.replaceState(null, '', `/?hh=${encodeURIComponent(sessionStorage.getItem('hg_house') ?? 'demo')}`);
+    if (j.access_token) {
+      familyToken = j.access_token;
+      document.body.dataset.auth = 'family-account';
+      $('account-status').textContent = 'Signed in with your family account.';
+    } else $('account-status').textContent = 'Sign-in did not work. Try again.';
+  }
+  $('btn-signin').onclick = async () => {
+    const verifier = rand(64);
+    const state = rand(16);
+    sessionStorage.setItem('hg_verifier', verifier);
+    sessionStorage.setItem('hg_state', state);
+    sessionStorage.setItem('hg_house', houseName());
+    const u = new URL(si.authorize_url);
+    u.search = new URLSearchParams({ response_type: 'code', client_id: si.client_id, redirect_uri: redirect, scope: si.scope, state, code_challenge: await sha256b64url(verifier), code_challenge_method: 'S256', login_hint: houseName() }).toString();
+    location.href = u.toString();
+  };
+}
+const signInReady = setUpSignIn();
+
 let connected = false;
 async function connect() {
   if (connected) return;
-  const t = await (await fetch(`/demo-token?hh=${encodeURIComponent(new URLSearchParams(location.search).get('hh') ?? 'demo')}`)).json();
-  token = t.token;
+  await signInReady;
+  const r = await fetch(`/demo-token?hh=${encodeURIComponent(houseName())}`);
+  const t = r.ok ? await r.json() : { token: '', phones: {} };
+  token = familyToken || t.token;
+  document.body.dataset.tokenKind = familyToken ? 'family-account' : 'demo';
   phoneTokens = t.phones; // each simulated phone holds only its own person's key
   await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'web-client', version: '0.1.0' } });
   await rpc('notifications/initialized', undefined, undefined);
@@ -48,6 +90,8 @@ const PEOPLE = [
   { id: 'leo', name: 'Leo', phone: false },
   { id: 'guest', name: 'Guest', phone: false },
 ];
+// the reset demo house (npm run demo:reset) also has Dad: open the page with ?dad=1 to see his button and phone
+if (new URLSearchParams(location.search).get('dad') === '1') PEOPLE.splice(1, 0, { id: 'dad', name: 'Dad', phone: true });
 const saysEl = $('alexa-says');
 function says(text: string, outcome = 'allowed') {
   saysEl.textContent = text;
@@ -242,7 +286,9 @@ async function openApp(view: string) {
   appFrame.srcdoc = appHtml; // a fresh page; it starts by saying hello and we answer below
 }
 const toApp = (m: Record<string, unknown>) => appFrame.contentWindow?.postMessage({ jsonrpc: '2.0', ...m }, '*');
+let connectResult: unknown;
 async function pushScreen() {
+  if (appView === 'connect') return void toApp({ method: 'ui/notifications/tool-result', params: connectResult });
   const out = await rpc('tools/call', { name: 'show_on_screen', arguments: { view: appView } });
   toApp({ method: 'ui/notifications/tool-result', params: out.result });
 }
@@ -258,6 +304,38 @@ window.addEventListener('message', (e) => {
     });
   } else if (m.id !== undefined) toApp({ id: m.id, error: { code: -32601, message: 'Not allowed' } });
 });
+$('btn-connect-spotify').onclick = async () => {
+  await connect();
+  const out = await rpc('tools/call', { name: 'connect_service', arguments: { toolkit: 'spotify' } });
+  says(out.result?.structuredContent?.say ?? 'Something went wrong. Ask an adult.', out.result?.structuredContent?.link ? 'allowed' : 'held');
+  if (!out.result?.structuredContent?.data) return;
+  connectResult = out.result;
+  void openApp('connect');
+};
+$('btn-allow-spotify').onclick = () => void ruleCall({ template: 'allowed_apps', services: ['sim-home', 'mock-ride', 'mock-shop', 'spotify'] });
+// a long job: the answer is a job id at once; we ask again while it works and show the finished site as a screen with a code to scan
+$('btn-build-site').onclick = async () => {
+  const r = await callTool('request_action', { service: 'wix', action: 'build_site', item: 'a one-page site for my bakery, Sunny Bakery', request_id: `s${Date.now()}${Math.random()}` });
+  says(r.say ?? r.reason, r.outcome);
+  if (!r.job_id) return;
+  for (let i = 0; i < 120; i++) {
+    await new Promise((res) => setTimeout(res, 700));
+    const out = await rpc('tools/call', { name: 'job_status', arguments: { job_id: r.job_id } });
+    const j = out.result?.structuredContent;
+    if (!j) continue;
+    if (j.status === 'running') says(j.say, 'allowed');
+    if (j.status === 'done') {
+      says(j.say, 'allowed');
+      if (j.data) { connectResult = out.result; void openApp('connect'); }
+      return;
+    }
+    if (j.status === 'failed' || j.status === 'unknown') return says(j.say, 'denied');
+  }
+};
+$('btn-play-jazz').onclick = async () => {
+  const r = await callTool('request_action', { service: 'spotify', action: 'use_app', item: 'play jazz', request_id: `u${Date.now()}${Math.random()}` });
+  says(r.say ?? r.reason, r.outcome);
+};
 $('btn-app-approvals').onclick = () => void openApp('approvals');
 $('btn-app-orders').onclick = () => void openApp('orders');
 

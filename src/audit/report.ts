@@ -1,3 +1,4 @@
+import { announceSites } from '../sites/job.js';
 import { connectorState } from '../connectors/healing.js';
 import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
@@ -51,7 +52,7 @@ export async function voiceSummary(deps: Deps, hh: string, q: { who?: string; wh
   return { say: parts.join(' '), spent_cents: spent, buys: buys.length, saved_cents: saved, entries };
 }
 
-export async function householdStatus(deps: Deps, hh: string) {
+export async function householdStatus(deps: Deps, hh: string, personId?: string) {
   const { meta, people, rules } = await loadHousehold(deps.store, hh);
   const now = (deps.now ?? Date.now)();
   const week = weekKey(now, meta.timezone);
@@ -67,6 +68,7 @@ export async function householdStatus(deps: Deps, hh: string) {
   const ride = await connectorState(deps.store, hh);
   if (ride.health === 'broken') sentences.push('The ride service is not working. An adult was told.');
   else if (ride.approvalOwed) sentences.push('The ride service was just fixed. The next ride needs a yes.');
+  if (personId) sentences.unshift(...(await announceSites(deps, hh, personId))); // a finished site is said once, to the person who asked for it
   return { say: sentences.join(' '), members, waiting_approvals: waiting, connectors: { ride: { health: ride.health, approval_owed: ride.approvalOwed, version: ride.activeVersion } }, devices: await readHome(deps.store, hh), timezone: meta.timezone };
 }
 

@@ -31,6 +31,30 @@ export async function ensureSeeded(store: Store, hh: string): Promise<void> {
   seeded.add(key);
 }
 
+// The demo family: Mom, Dad, Maya (15), Leo (8, PIN), and a guest. Wipes the house first, so it is the same every time.
+export const DEMO_FAMILY: Person[] = [
+  { id: 'mom', name: 'Mom', role: 'adult', hasPhone: true },
+  { id: 'dad', name: 'Dad', role: 'adult', hasPhone: true },
+  { id: 'maya', name: 'Maya', role: 'teen', hasPhone: true, age: 15 },
+  { id: 'leo', name: 'Leo', role: 'child', hasPhone: false, age: 8 },
+  { id: 'guest', name: 'Guest', role: 'guest', hasPhone: false },
+];
+
+export async function resetDemoHousehold(store: Store, hh = 'demo'): Promise<{ removed: number; people: string[] }> {
+  const pk = Store.hk(hh);
+  const removed = await store.wipe(pk);
+  seeded.delete(`${store.table}/${hh}`);
+  const meta: HouseholdMeta = { id: hh, name: 'The Rivera house', timezone: 'America/New_York' };
+  await store.put({ pk, sk: 'META', ...meta });
+  for (const p of DEMO_FAMILY) await store.put({ pk, sk: `PERSON#${p.id}`, ...p, ...(DEMO_PINS[p.id] ? { pinHash: hashPin(DEMO_PINS[p.id]) } : {}) });
+  const rules = defaultRules();
+  rules.weeklyCapCents.dad = 50000;
+  rules.perRequestCapCents.dad = 20000;
+  await store.put({ pk, sk: 'RULES#current', config: rules });
+  await store.put({ pk, sk: 'CONN#mock-ride', surge: 1, malicious: false, failBooking: false, renamed: false, authExpired: false });
+  return { removed, people: DEMO_FAMILY.map((p) => p.name) };
+}
+
 function ignoreExists(e: any) {
   if (e?.name !== 'ConditionalCheckFailedException') throw e;
 }

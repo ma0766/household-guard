@@ -9,6 +9,11 @@
 <body>
   <header><h1>Household Guard</h1><p class="sub">One set of house rules for everyone at home.</p></header>
   <main>
+    <section id="account-panel" aria-label="Family account" hidden>
+      <h2>Family account</h2>
+      <p id="account-status" data-testid="account-status">Sign in once. Alexa uses the same account.</p>
+      <button id="btn-signin" data-testid="btn-signin">Sign in with your family account</button>
+    </section>
     <section id="speaker-panel" aria-label="Alexa">
       <h2>Alexa</h2>
       <p class="hint">Who is talking?</p>
@@ -31,6 +36,15 @@
       <div class="row">
         <button id="btn-break-ride" class="secondary" data-testid="btn-break-ride" title="Demo: the service ships a new version">Break it (demo)</button>
         <button id="btn-check-rides" data-testid="btn-check-rides">Check now</button>
+      </div>
+    </section>
+    <section id="apps-panel" aria-label="Apps">
+      <h2>Apps</h2>
+      <div class="row">
+        <button id="btn-connect-spotify" data-testid="btn-connect-spotify" class="secondary">Connect Spotify</button>
+        <button id="btn-allow-spotify" data-testid="btn-allow-spotify" class="secondary">Allow Spotify (adult)</button>
+        <button id="btn-build-site" data-testid="btn-build-site" class="secondary">Build a site for my bakery</button>
+        <button id="btn-play-jazz" data-testid="btn-play-jazz">Play jazz on Spotify</button>
       </div>
     </section>
     <section id="app-panel" aria-label="Screen from the house">

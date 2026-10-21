@@ -320,7 +320,7 @@ describe('S11 review fixes: a repair cannot weaken the rules', () => {
     const a = await newHousehold();
     await setRideState(a.store, a.hh, { renamed: true }); // broken
     const b = await newHousehold(); // fresh, never changed
-    const out = await healAll(a.deps, repairer);
+    const out = await healAll(a.deps, repairer, (hh) => hh === a.hh || hh === b.hh); // this local table holds every house the other tests made
     expect(out.results[a.hh]).toBe('repaired');
     expect(out.results[b.hh]).toBe('healthy');
   });

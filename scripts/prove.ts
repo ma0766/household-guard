@@ -63,6 +63,7 @@ function ask(action: string, kind: 'disjoint' | 'implies', one: string, two: str
 const PROMISES = [
   { name: 'no child may unlock a door', action: 'unlock', bad: 'permit(principal in Role::"child", action == Action::"unlock", resource);' },
   { name: 'no child may open the garage', action: 'garage', bad: 'permit(principal in Role::"child", action == Action::"garage", resource);' },
+  { name: 'no guest may use an app', action: 'use_app', bad: 'permit(principal in Role::"guest", action == Action::"use_app", resource);' },
   { name: 'no guest may buy', action: 'purchase', bad: 'permit(principal in Role::"guest", action == Action::"purchase", resource);' },
 ];
 const lines: string[] = [];
@@ -85,7 +86,7 @@ if (base) {
   for (const set of ['auto', 'approvable'] as const) {
     const looser = new Set<string>();
     const stricter = new Set<string>();
-    for (const action of ['light', 'thermostat', 'unlock', 'garage', 'purchase']) {
+    for (const action of ['light', 'thermostat', 'unlock', 'garage', 'purchase', 'use_app', 'build_site']) {
       const noMore = ask(action, 'implies', candidate[set], base[set]).holds; // everything the new rules allow, the old allowed
       const noLess = ask(action, 'implies', base[set], candidate[set]).holds; // everything the old rules allowed, the new allow
       if (!noMore) looser.add(action);

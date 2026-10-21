@@ -14,7 +14,7 @@ export interface RulesConfig {
   quietHours?: { fromHour: number; toHour: number }; // no buying for non-adults, in the house's own time zone (S10)
 }
 
-export const KNOWN_ACTIONS = ['light', 'thermostat', 'unlock', 'garage', 'purchase'] as const;
+export const KNOWN_ACTIONS = ['light', 'thermostat', 'unlock', 'garage', 'purchase', 'use_app', 'build_site'] as const;
 export const ROLES: Role[] = ['adult', 'teen', 'child', 'guest'];
 
 export function defaultRules(): RulesConfig {
@@ -52,6 +52,12 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   auto.light = `permit(principal, action == Action::"light", resource) when { context.service_known };`;
   auto.thermostat = `permit(principal, action == Action::"thermostat", resource) when { context.service_known && context.value >= 60 && context.value <= 78 };`;
 
+  // a connected app (S13): anyone signed in may use an app the house has allowed; guests never
+  auto.use_app = `permit(principal, action == Action::"use_app", resource) when { context.service_known } unless { principal in Role::"guest" };`;
+
+  // building and publishing a site: an adult with her own phone tap. Everyone else is held for an adult.
+  auto.build_site = `permit(principal in Role::"adult", action == Action::"build_site", resource) when { context.session == "phone" };`; // the site builder is the house's own tool: no allowed-app list applies
+
   // device class: adults only
   for (const a of c.adultsOnlyActions) {
     both(`adults_only_${a}`, `forbid(principal, action == Action::${q(a)}, resource) unless { principal in Role::"adult" };`);
@@ -80,6 +86,6 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   c.needsApproval.forEach((r, i) => (auto[`needs_approval_${i}`] = `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));
 
   // anything a known person may ask for, but wasn't automatic, can be held for an adult. Unknown action → no permit → deny.
-  approvable.hold_known = `permit(principal, action, resource) when { !(principal in Role::"guest") && [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase"].contains(action) };`;
+  approvable.hold_known = `permit(principal, action, resource) when { !(principal in Role::"guest") && [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
   return { auto, approvable };
 }

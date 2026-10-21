@@ -44,11 +44,11 @@ async function heldAirport(h: House) {
 }
 
 describe('S9 the screen is a linked page, not loose HTML', () => {
-  it('show_on_screen points at a ui:// page; no other tool does', async () => {
+  it('show_on_screen, connect_service and job_status point at a ui:// page; no other tool does', async () => {
     const h = await house();
     const tools = (await h.rpc('tools/list')).result.tools as any[];
     expect(tools.find((t) => t.name === 'show_on_screen')._meta.ui.resourceUri).toBe(URI);
-    expect(tools.filter((t) => t._meta?.ui).map((t) => t.name)).toEqual(['show_on_screen']);
+    expect(tools.filter((t) => t._meta?.ui).map((t) => t.name).sort()).toEqual(['connect_service', 'job_status', 'show_on_screen']); // the connect screen (S13) and the finished-site screen (S15) are the others
   });
   it('the page can be listed and read, with the app mime type', async () => {
     const h = await house();

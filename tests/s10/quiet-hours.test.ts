@@ -13,7 +13,8 @@ const quiet = { ...defaultRules(), quietHours: { fromHour: 21, toHour: 6 } };
 const ny = (hhmm: string) => Date.parse(`2026-10-21T${hhmm}:00-04:00`);
 
 async function house(rules: RulesConfig = quiet, tz?: string) {
-  const ctx = await newHousehold();
+  const clock = { t: Date.now() }; // the worker reads this clock too, so the test does not depend on the real time of day
+  const ctx = { ...(await newHousehold({ now: () => clock.t })), clock };
   await ctx.store.put({ pk: Store.hk(ctx.hh), sk: 'RULES#current', config: rules });
   if (tz) await ctx.store.update({ Key: { pk: Store.hk(ctx.hh), sk: 'META' }, UpdateExpression: 'SET #tz = :z', ExpressionAttributeNames: { '#tz': 'timezone' }, ExpressionAttributeValues: { ':z': tz } });
   return ctx;
@@ -85,6 +86,7 @@ describe('S10 quiet hours are checked again when the buy happens', () => {
     const r = await requestAction({ ...ctx.deps, now: () => early }, ctx.hh, mall);
     expect(r).toMatchObject({ outcome: 'allowed', next: 'confirm_on_phone' });
     const late = ny('21:01');
+    ctx.clock.t = late;
     const lateDeps = { ...ctx.deps, now: () => late };
     const c = (await (await import('../../src/approvals/challenge.js')).getChallenge(lateDeps, ctx.hh, r.job_id as string))!;
     await (await import('../../src/identity/confirm.js')).phoneConfirm(lateDeps, ctx.hh, 'maya', { challenge_id: c.id, number: c.number });
@@ -104,6 +106,7 @@ describe('S10 quiet hours are checked again when the buy happens', () => {
     const held = await requestAction({ ...ctx.deps, now: () => early }, ctx.hh, { service: 'mock-ride', action: 'purchase', item: 'ride to the airport' });
     expect(held.outcome).toBe('held');
     const late = ny('21:05');
+    ctx.clock.t = late;
     const lateDeps = { ...ctx.deps, now: () => late };
     await speakAs(ctx.store, ctx.hh, 'mom', 'phone', late);
     const { approveRequest, getApproval } = await import('../../src/approvals/approvals.js');

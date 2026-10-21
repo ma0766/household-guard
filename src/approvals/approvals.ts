@@ -10,6 +10,7 @@ import { weekKey } from '../core/time.js';
 import { createJob } from '../jobs/worker.js';
 import { T, money } from '../text.js';
 import { emit } from '../audit/emit.js';
+import { notifyApproval } from '../notify/approval-email.js';
 import { connectorState } from '../connectors/healing.js';
 
 // An approval is bound to ONE exact purchase: a hash of {amount, merchant, item, person}. It dies after 10 minutes.
@@ -70,6 +71,7 @@ export async function createApproval(deps: Deps, hh: string, a: { personId: stri
     ...(a.service === 'mock-ride' ? { connectorVersion: (await connectorState(deps.store, hh)).activeVersion } : {}),
   };
   await deps.store.put({ pk: Store.hk(hh), sk: key(full.id), ...full, ttl: Math.floor(now / 1000) + 86400 });
+  await notifyApproval(deps, hh, full); // an email to the adults, best effort
   return full;
 }
 
