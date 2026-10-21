@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { randomUUID } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -15,7 +16,7 @@ import { CASES } from '../replay/cases.js';
 
 // S14: a real smart home. The rules decide first, exactly as before; Home Assistant only ever hears about what the rules allowed.
 // A stand-in Home Assistant (a tiny web server) checks what is asked of it. The real container is tested by `npm run ha:test`.
-const SECRET = 'ha-secret-key-123';
+const SECRET = `test-${randomUUID()}`; // made up for each run: nothing key-like sits in the file
 let server: Server;
 let url: string;
 let calls: { tool: string; auth?: string; args: any }[] = [];

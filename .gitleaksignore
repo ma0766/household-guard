@@ -1,0 +1,2 @@
+# Reviewed false positive: a made-up constant in a test (a fake home key), in an older commit. The file no longer contains it.
+26d296b8ce2d2c65a1c193cdab141d155b637ab6:tests/s14/home-assistant.test.ts:generic-api-key:18
