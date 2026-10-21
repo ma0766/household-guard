@@ -7,3 +7,4 @@ playwright-report
 .claude/session.md
 .claude/log.md
 tools/
+.ha-bootstrap

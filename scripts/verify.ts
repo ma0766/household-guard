@@ -17,6 +17,7 @@ const SLICES: Record<string, string> = {
   S11: 'Self-healing demo',
   S12: 'Sign-in + approvals by email (email send: stand-in)',
   S13: 'Connect any app, per person (Composio: stand-in)',
+  S14: 'Real smart home (Home Assistant MCP; live check: npm run ha:test)',
 };
 mkdirSync('test-results', { recursive: true });
 const run = (label: string, cmd: string, args: string[]) => {

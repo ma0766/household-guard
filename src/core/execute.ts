@@ -28,6 +28,8 @@ export async function executeAction(deps: Deps, hh: string, personId: string, ar
     return { done: false, reason: T.booking, jobId: p.jobId };
   }
   if (args.service === SIM_HOME) {
+    // a real home (Home Assistant) if one is set up; an error throws, so the answer becomes a hold and nothing is called "done"
+    if (deps.home) await deps.home.run(args.action, args.item, args.value);
     await execSimHome(deps.store, hh, args.action, args.item, args.value);
     return { done: true, reason: T.done(args.action, args.item, args.value) };
   }
