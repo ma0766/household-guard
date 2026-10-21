@@ -3,39 +3,39 @@ FAILED  no child may unlock a door (done at once)
         principal: Person::"", action: Action::"unlock", resource: Service::""
         context: {amount_cents: -1, local_hour: -1, service_known: true, session: "", value: -1, week_spent_cents: -1}
         entities: [
-          Action::"purchase",
+          Role::"child",
           Person::"mom" in [Role::"child"],
+          Role::"adult",
+          Role::"teen",
           Action::"use_app",
           Person::"maya" in [Role::"child"],
-          Role::"adult",
+          Action::"unlock",
+          Action::"build_site",
           Service::"",
+          Action::"purchase",
+          Action::"garage",
+          Role::"guest",
+          Action::"thermostat",
           Person::"" in [Role::"child"],
           Action::"light",
-          Action::"build_site",
-          Action::"thermostat",
-          Action::"unlock",
-          Role::"teen",
-          Role::"guest",
-          Action::"garage",
-          Role::"child",
         ]
 FAILED  no child may unlock a door (or held for an adult)
         principal: Person::"", action: Action::"unlock", resource: Service::""
         context: {amount_cents: 0, local_hour: 0, service_known: false, session: "", value: 0, week_spent_cents: 0}
         entities: [
-          Role::"child",
-          Action::"build_site",
-          Action::"thermostat",
-          Service::"",
-          Action::"light",
-          Action::"garage",
-          Person::"" in [Role::"child"],
-          Action::"use_app",
-          Action::"unlock",
-          Role::"adult",
           Role::"guest",
+          Action::"unlock",
+          Action::"garage",
           Role::"teen",
+          Action::"use_app",
+          Action::"build_site",
           Action::"purchase",
+          Action::"thermostat",
+          Action::"light",
+          Person::"" in [Role::"child"],
+          Role::"adult",
+          Service::"",
+          Role::"child",
         ]
 PROVEN  no child may open the garage (done at once)
 PROVEN  no child may open the garage (or held for an adult)

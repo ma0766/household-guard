@@ -69,7 +69,7 @@ let standInText = '';
 void (async () => {
   try {
     const list = ((await (await fetch('/config.json')).json()) as { stand_ins?: string[] }).stand_ins ?? [];
-    if (!list.length) return;
+    if (!list.length) { $('standin-note').textContent = ''; return; } // every part is real: no note
     standInText = `Demo stand-ins, not real: ${list.join(', ')}.`;
     $('standin-note').textContent = standInText; // the space is already reserved in the page, so nothing jumps
   } catch { /* no note if the config cannot be read */ }

@@ -4,6 +4,6 @@
   "momText": "Connect Spotify first.",
   "guestText": "Tell me who you are first.",
   "standinBody": "Connect an app\n\nDemo stand-in page. A real app would show its own sign-in here.\n\nSay yes to let the house use this app for you.\n\nAllow",
-  "link": "http://127.0.0.1:8016/standin/connect/aud1792617759723122776~-sI0ffjqNHtEdh2y",
+  "link": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/standin/connect/aud1792618740772645409~-M1UoLpnOodmhlBW",
   "errs": []
 }
