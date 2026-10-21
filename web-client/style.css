@@ -25,3 +25,4 @@ input { font:inherit; padding:8px; border:1px solid var(--line); border-radius:8
 #phones { min-height: 620px; }
 #quick { min-height: 317px; }
 @media (min-width: 700px) { #quick { min-height: 224px; } }
+body:not(.has-sign-in) #account-panel { display: none; } /* shown only when a family-account sign-in server is set up (the server marks the page) */

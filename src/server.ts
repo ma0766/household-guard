@@ -45,7 +45,10 @@ async function serveStatic(req: IncomingMessage, res: ServerResponse) {
     return;
   }
   try {
-    const data = await readFile(file);
+    let data = await readFile(file);
+    // With a family-account sign-in server the page shows the sign-in panel from the very first paint (no jump when the script learns about it)
+    const e = process.env;
+    if (file.endsWith('index.html') && e.HG_OIDC_AUTHORIZE_URL && e.HG_OIDC_TOKEN_URL && e.HG_OIDC_WEB_CLIENT_ID) data = Buffer.from(data.toString('utf8').replace('<body>', '<body class="has-sign-in">'));
     res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' }).end(data);
   } catch {
     res.writeHead(404).end('Not found');

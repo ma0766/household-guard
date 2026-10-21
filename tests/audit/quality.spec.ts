@@ -113,6 +113,7 @@ test('C6 voice: Talk button present, spoken replies use speech synthesis, typed 
 test('C7 typed phrases outside the keyword list get a helpful answer, not a dead end', async ({ page }) => {
   await page.goto(freshHouse()); await page.waitForLoadState('networkidle');
   await page.getByTestId('who-guest').click();
+  await expect(page.getByTestId('alexa-says')).toContainText('I do not know you yet'); // the greeting arrives after a round trip; type only after it
   await say(page, 'play some music in the kitchen');
   const reply = await page.getByTestId('alexa-says').innerText();
   writeFileSync(`${dir}/C-typed-unknown-${target}.json`, JSON.stringify({ typed: 'play some music in the kitchen', reply }, null, 2));

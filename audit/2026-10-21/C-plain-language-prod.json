@@ -1,15 +1,13 @@
 {
-  "checked": 82,
+  "checked": 83,
   "spoken": [
     "Hi. I do not know you yet.",
     "Done. The lights are off.",
     "Tell me who you are first.",
-    "Confirm on your phone: 73",
-    "Maya is confirmed.",
-    "Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 31 to say yes."
+    "Confirm on your phone: 43",
+    "Hi Maya. You are confirmed.",
+    "Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 46 to say yes."
   ],
-  "violations": [
-    "grade 5.2: Maya is confirmed."
-  ],
+  "violations": [],
   "note": "The \"Message log\" developer panel (raw MCP traffic, required by the hackathon web client) is excluded from user-facing text."
 }
