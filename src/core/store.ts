@@ -30,6 +30,20 @@ export class Store {
   async delete(pk: string, sk: string): Promise<void> {
     await this.doc.send(new DeleteCommand({ TableName: this.table, Key: { pk, sk } }));
   }
+  // Remove every row of one household (demo reset only).
+  async wipe(pk: string): Promise<number> {
+    let n = 0;
+    let key: Record<string, any> | undefined;
+    do {
+      const r = await this.doc.send(new QueryCommand({ TableName: this.table, KeyConditionExpression: 'pk = :p', ExpressionAttributeValues: { ':p': pk }, ExclusiveStartKey: key, ConsistentRead: true }));
+      for (const it of r.Items ?? []) {
+        await this.delete(it.pk, it.sk);
+        n++;
+      }
+      key = r.LastEvaluatedKey;
+    } while (key);
+    return n;
+  }
   async query(pk: string, skPrefix: string, opts: { reverse?: boolean; limit?: number } = {}): Promise<Item[]> {
     const out: Item[] = [];
     let key: Record<string, any> | undefined;

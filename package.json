@@ -54,6 +54,7 @@
     "deploy:roadmap": "STAGE=roadmap tsx scripts/deploy.ts",
     "smoke:roadmap": "STAGE=roadmap tsx scripts/smoke.ts",
     "e2e:live": "playwright test -c playwright.live.config.ts",
+    "demo:reset": "tsx scripts/demo-reset.ts",
     "ha:up": "tsx scripts/ha-up.ts",
     "ha:down": "docker rm -f hg-ha",
     "ha:test": "vitest run -c vitest.ha.config.ts",
