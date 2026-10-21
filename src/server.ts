@@ -34,7 +34,7 @@ function demoTokens(url: URL) {
   const want = url.searchParams.get('hh') ?? '';
   // 'service' and 'gateway' belong to the service sign-in and the gateway door: the open demo sign-in can never mint a key for them
   const hh = /^[a-z0-9-]{1,32}$/.test(want) && !['service', 'gateway'].includes(want) ? want : 'demo';
-  return { token: mintToken('demo', 86400, hh), phones: Object.fromEntries(['mom', 'maya'].map((p) => [p, mintToken(p, 86400, hh, 'phone')])) };
+  return { token: mintToken('demo', 86400, hh), phones: Object.fromEntries(['mom', 'dad', 'maya'].map((p) => [p, mintToken(p, 86400, hh, 'phone')])) };
 }
 
 async function serveStatic(req: IncomingMessage, res: ServerResponse) {

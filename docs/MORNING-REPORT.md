@@ -27,7 +27,7 @@ S0 to S16, each with tests and a review. Roadmap is live on its own stack (`Hous
 - 3 live-AI tests fail until you sign in to AWS (above). Not a code bug.
 - AgentCore gateway is slower than 500 ms at p95 (549 ms vs 252 ms direct). It is OFF by default. It answers as a guest only.
 - Home Assistant works only on this laptop (Docker, port 8020).
-- The web page still shows Mom, Maya, Leo and Guest. Dad exists in the demo house but has no button yet.
+- Dad shows on the web page only when you open it with `?dad=1` (after `npm run demo:reset`).
 - The open demo sign-in on the submitted site is still on, as submitted.
 
 ## What you must do next (in order)

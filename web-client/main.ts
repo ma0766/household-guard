@@ -90,6 +90,8 @@ const PEOPLE = [
   { id: 'leo', name: 'Leo', phone: false },
   { id: 'guest', name: 'Guest', phone: false },
 ];
+// the reset demo house (npm run demo:reset) also has Dad: open the page with ?dad=1 to see his button and phone
+if (new URLSearchParams(location.search).get('dad') === '1') PEOPLE.splice(1, 0, { id: 'dad', name: 'Dad', phone: true });
 const saysEl = $('alexa-says');
 function says(text: string, outcome = 'allowed') {
   saysEl.textContent = text;

@@ -8,4 +8,4 @@ import { resetDemoHousehold } from '../src/core/household.js';
 await ensureLocalDynamo();
 const r = await resetDemoHousehold(defaultStore(), process.argv[2] ?? 'demo');
 console.log(`Demo house reset (${r.removed} old rows removed). People: ${r.people.join(', ')}.`);
-console.log("Leo's PIN is 4821. Start the app with: npm run dev");
+console.log("Leo's PIN is 4821. Start the app with: npm run dev, then open http://127.0.0.1:8016/?dad=1 to see Dad too.");
