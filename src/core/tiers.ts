@@ -6,6 +6,7 @@ export type Tier = 'low' | 'medium' | 'high';
 export function tierOf(args: ActionArgs, overCap = false): Tier {
   switch (args.action) {
     case 'unlock':
+    case 'build_site':
     case 'set_rule':
       return 'high';
     case 'garage':

@@ -7,7 +7,7 @@ import { hourWord, money } from '../text.js';
 // questions per kind of person. (The CI proofs in scripts/prove.ts settle the same thing for ALL requests, with a solver.)
 const RANK: Record<Answer, number> = { deny: 0, hold: 1, allow: 2 };
 const AMOUNTS = [1500, 2500, 3000, 5000, 25000, 60000];
-const WHAT: Record<string, string> = { unlock: 'unlock the front door', garage: 'open the garage', purchase: 'buy things', thermostat: 'change the heat', light: 'turn lights on or off', use_app: 'use apps' };
+const WHAT: Record<string, string> = { unlock: 'unlock the front door', garage: 'open the garage', purchase: 'buy things', thermostat: 'change the heat', light: 'turn lights on or off', use_app: 'use apps', build_site: 'publish a site' };
 const WHO: Record<Role, string> = { adult: 'an adult', teen: 'a teen', child: 'a child', guest: 'a guest' };
 
 function questions(p: Person, services: string[], known: (s: string) => boolean): DecisionInput[] {

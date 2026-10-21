@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 
 // Starts the official Home Assistant image in Docker (port 8020, claimed in ~/.claude/ports.md), does its first-run setup, and
@@ -21,7 +21,7 @@ if (!haveKey) await setUp();
 async function setUp() {
 const running = execFileSync('docker', ['ps', '-a', '--filter', 'name=^hg-ha$', '--format', '{{.Status}}'], { encoding: 'utf8' }).trim();
 if (!running) {
-  execFileSync('docker', ['run', '-d', '--name', 'hg-ha', '--restart', 'unless-stopped', '-p', '127.0.0.1:8020:8123', '-v', `${process.cwd()}/tools/ha/config:/config`, 'ghcr.io/home-assistant/home-assistant:stable'], { stdio: 'inherit' });
+  execFileSync('docker', ['run', '-d', '--name', 'hg-ha', '--restart', 'unless-stopped', '-p', '127.0.0.1:8020:8123', '-v', `${process.cwd()}/tools/ha/config:/config`, `ghcr.io/home-assistant/home-assistant:${process.env.HA_VERSION ?? 'stable'}`], { stdio: 'inherit' });
 } else if (!running.startsWith('Up')) execFileSync('docker', ['start', 'hg-ha'], { stdio: 'inherit' });
 
 for (let i = 0; i < 60; i++) {
@@ -38,7 +38,7 @@ if (steps.some((s) => s.step === 'user' && !s.done)) {
   await post('/api/onboarding/core_config', {}, access);
   await post('/api/onboarding/analytics', {}, access);
   await post('/api/onboarding/integration', { client_id, redirect_uri: `${URL_}/?auth_callback=1` }, access);
-  writeFileSync('.ha-bootstrap', access); // short-lived: only to ask for the long-lived key below
+  writeFileSync('.ha-bootstrap', access, { mode: 0o600 }); // short-lived: only to ask for the long-lived key below
 }
 const boot = existsSync('.ha-bootstrap') ? readFileSync('.ha-bootstrap', 'utf8') : '';
 if (!boot) throw new Error('Home Assistant was already set up by hand and there is no key. Create a long-lived key in its profile page and put HG_HA_URL and HG_HA_TOKEN in .env.ha.');
@@ -49,11 +49,12 @@ const long = await new Promise<string>((resolve, reject) => {
     const j = JSON.parse(String(m.data));
     if (j.type === 'auth_required') ws.send(JSON.stringify({ type: 'auth', access_token: boot }));
     else if (j.type === 'auth_ok') ws.send(JSON.stringify({ id: 1, type: 'auth/long_lived_access_token', client_name: 'household-guard', lifespan: 365 }));
-    else if (j.id === 1) { clearTimeout(t); ws.close(); j.success ? resolve(j.result) : reject(new Error(JSON.stringify(j.error))); }
+    else if (j.id === 1) { clearTimeout(t); ws.close(); if (j.success) resolve(j.result); else reject(new Error(JSON.stringify(j.error))); }
     else if (j.type === 'auth_invalid') reject(new Error('auth invalid'));
   };
 });
-writeFileSync(FILE, `HG_HA_URL=${URL_}\nHG_HA_TOKEN=${long}\n`);
+writeFileSync(FILE, `HG_HA_URL=${URL_}\nHG_HA_TOKEN=${long}\n`, { mode: 0o600 });
+unlinkSync('.ha-bootstrap'); // the short-lived key has done its job
 console.log('Home Assistant is set up. Key saved in .env.ha');
 }
 
@@ -66,7 +67,7 @@ await new Promise<void>((resolve, reject) => {
     const j = JSON.parse(String(m.data));
     if (j.type === 'auth_required') ws.send(JSON.stringify({ type: 'auth', access_token: exposeKey }));
     else if (j.type === 'auth_ok') ws.send(JSON.stringify({ id: 2, type: 'homeassistant/expose_entity', assistants: ['conversation'], entity_ids: ['lock.front_door', 'cover.garage_door', 'light.ceiling_lights', 'climate.heatpump'], should_expose: true }));
-    else if (j.id === 2) { clearTimeout(t); ws.close(); j.success ? resolve() : reject(new Error(JSON.stringify(j.error))); }
+    else if (j.id === 2) { clearTimeout(t); ws.close(); if (j.success) resolve(); else reject(new Error(JSON.stringify(j.error))); }
   };
 });
 // and its MCP server (a settings entry, once)

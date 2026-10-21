@@ -11,6 +11,8 @@ import { makeDeps } from './core/deps.js';
 import { handlePhone } from './phone/routes.js';
 import type { Deps } from './core/request-action.js';
 import { defaultRepairer, healthCheck } from './connectors/healing.js';
+import { siteBuilderOf } from './sites/job.js';
+import type { StandInSiteBuilder } from './sites/builder.js';
 import { handleHubWebhook } from './hub/capability.js';
 import { defaultHub, type StandInHub } from './hub/hub.js';
 import { localOutbox } from './notify/notify.js';
@@ -114,6 +116,14 @@ export function createApp(given?: Deps) {
             return void res.writeHead(ok ? 200 : 404, { 'content-type': 'application/json' }).end(JSON.stringify({ ok }));
           }
           return void res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'", 'referrer-policy': 'no-referrer' }).end(STANDIN_PAGE);
+        }
+        // a published preview of a site we built (the stand-in builder); a draft is never served
+        const pm = url.pathname.match(/^\/preview\/([A-Za-z0-9_-]{16,40})$/);
+        if (url.pathname.startsWith('/preview/')) {
+          const b = pm ? siteBuilderOf(getDeps()) : undefined;
+          const html = b && 'html' in b ? await (b as StandInSiteBuilder).html(pm![1]) : undefined;
+          if (!html) return void res.writeHead(404).end();
+          return void res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'", 'referrer-policy': 'no-referrer' }).end(html);
         }
         // the page an adult opens from the email: it carries its own short-lived key in the link
         if (url.pathname === '/approve') return void res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'", 'referrer-policy': 'no-referrer', 'cache-control': 'no-store' }).end(APPROVE_PAGE);

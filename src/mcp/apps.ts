@@ -10,7 +10,7 @@ export const APP_META = { ui: { resourceUri: APP_URI }, 'ui/resourceUri': APP_UR
 
 export interface Card { id: string; who: string; what: string; price_cents: number; why: string; number?: number }
 export interface Row { icon: string; text: string; day: string }
-export type ScreenData = { view: 'approvals'; cards: Card[] } | { view: 'orders' | 'timeline'; rows: Row[] } | { view: 'connect'; name: string; link: string; qr: { size: number; rows: string[] } };
+export type ScreenData = { view: 'approvals'; cards: Card[] } | { view: 'orders' | 'timeline'; rows: Row[] } | { view: 'preview'; name: string; link: string; qr: { size: number; rows: string[] } } | { view: 'connect'; name: string; link: string; qr: { size: number; rows: string[] } };
 
 export const cardsOf = (list: Approval[], viewerIsAdult: boolean): Card[] =>
   list.map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, price_cents: a.amountCents, why: a.reason, ...(viewerIsAdult ? { number: a.number } : {}) }));
@@ -76,7 +76,7 @@ export const APP_HTML = `<!doctype html>
     });
   }
   function connect(d) {
-    heading(label('Connect ') + d.name);
+    heading(d.view === 'preview' ? label('Your site is ready: ') + d.name : label('Connect ') + d.name);
     root.appendChild(el('p', '', say('Scan the code, or open the link, on your phone.')));
     var cell = 6, n = d.qr.size, canvas = document.createElement('canvas');
     canvas.width = canvas.height = (n + 8) * cell; canvas.setAttribute('data-testid', 'app-qr');
@@ -87,7 +87,7 @@ export const APP_HTML = `<!doctype html>
   }
   function render(data) {
     if (!data) { heading(label('Sign in first')); return; }
-    if (data.view === 'connect') { connect(data); return; }
+    if (data.view === 'connect' || data.view === 'preview') { connect(data); return; }
     if (data.view === 'approvals') approvals(data.cards || []);
     else rows(data.rows || [], data.view === 'orders' ? label('Recent buys') : label('What happened'));
   }

@@ -34,7 +34,8 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
   server.registerTool('household_status', { description: 'Who is in the house and what is waiting.', inputSchema: {} }, async () => {
     try {
       await ensureSeeded(deps.store, hh);
-      const r = await householdStatus(deps, hh);
+      const sess = await getSession(deps.store, hh, (deps.now ?? Date.now)()); // who is talking, if anyone has confirmed
+      const r = await householdStatus(deps, hh, sess?.personId);
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
     } catch {
       return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
@@ -197,10 +198,12 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
   );
   server.registerTool(
     'job_status',
-    { description: 'How is a waiting job going?', inputSchema: { job_id: z.string() } },
+    { description: 'How is a waiting job going? A finished site comes with a link and a code to scan.', inputSchema: { job_id: z.string() }, _meta: APP_META },
     async ({ job_id }) => {
       const r = await jobStatus(deps, hh, job_id);
-      return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+      const { qrOf } = await import('../hub/capability.js');
+      const data = r.preview_url ? { view: 'preview', name: r.name ?? 'Your site', link: r.preview_url, qr: qrOf(r.preview_url) } : undefined;
+      return { content: [{ type: 'text', text: r.say }], structuredContent: { ...(r as unknown as Record<string, unknown>), ...(data ? { data } : {}) } };
     },
   );
   return server;

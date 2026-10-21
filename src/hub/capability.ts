@@ -42,7 +42,10 @@ export async function findCapability(deps: Deps, hh: string, a: { query: string 
   }
 }
 
-const QR_ROWS = 21;
+export function qrOf(link: string): { size: number; rows: string[] } {
+  const m = qrCreate(link, { errorCorrectionLevel: 'M' }).modules;
+  return { size: m.size, rows: Array.from({ length: m.size }, (_, y) => Array.from({ length: m.size }, (_, x) => (m.get(x, y) ? '1' : '0')).join('')) };
+}
 // at most 3 links per person per 10 minutes (one counter per 10-minute window, bumped in a single conditional write)
 async function mayLink(deps: Deps, hh: string, person: string, now: number): Promise<boolean> {
   try {
@@ -74,10 +77,7 @@ export async function connectService(deps: Deps, hh: string, a: { toolkit: strin
     if (!(await mayLink(deps, hh, who.me.id, nowMs))) return { ...none, say: T.locked };
     const { connectionId, link } = await hubOf(deps).initiate(userIdOf(hh, who.me.id), slug);
     await deps.store.delete(Store.hk(hh), expKey(who.me.id, slug)); // she is signing in again: the old "ran out" no longer applies
-    const m = qrCreate(link, { errorCorrectionLevel: 'M' }).modules;
-    const rows = Array.from({ length: m.size }, (_, y) => Array.from({ length: m.size }, (_, x) => (m.get(x, y) ? '1' : '0')).join(''));
-    void QR_ROWS;
-    return { link, connection_id: connectionId, toolkit: slug, name: t.name, qr: { size: m.size, rows }, say: T.openLink(t.name) };
+    return { link, connection_id: connectionId, toolkit: slug, name: t.name, qr: qrOf(link), say: T.openLink(t.name) };
   } catch {
     return { ...none, say: T.oops };
   }

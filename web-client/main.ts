@@ -311,6 +311,25 @@ $('btn-connect-spotify').onclick = async () => {
   void openApp('connect');
 };
 $('btn-allow-spotify').onclick = () => void ruleCall({ template: 'allowed_apps', services: ['sim-home', 'mock-ride', 'mock-shop', 'spotify'] });
+// a long job: the answer is a job id at once; we ask again while it works and show the finished site as a screen with a code to scan
+$('btn-build-site').onclick = async () => {
+  const r = await callTool('request_action', { service: 'wix', action: 'build_site', item: 'a one-page site for my bakery, Sunny Bakery', request_id: `s${Date.now()}${Math.random()}` });
+  says(r.say ?? r.reason, r.outcome);
+  if (!r.job_id) return;
+  for (let i = 0; i < 120; i++) {
+    await new Promise((res) => setTimeout(res, 700));
+    const out = await rpc('tools/call', { name: 'job_status', arguments: { job_id: r.job_id } });
+    const j = out.result?.structuredContent;
+    if (!j) continue;
+    if (j.status === 'running') says(j.say, 'allowed');
+    if (j.status === 'done') {
+      says(j.say, 'allowed');
+      if (j.data) { connectResult = out.result; void openApp('connect'); }
+      return;
+    }
+    if (j.status === 'failed' || j.status === 'unknown') return says(j.say, 'denied');
+  }
+};
 $('btn-play-jazz').onclick = async () => {
   const r = await callTool('request_action', { service: 'spotify', action: 'use_app', item: 'play jazz', request_id: `u${Date.now()}${Math.random()}` });
   says(r.say ?? r.reason, r.outcome);

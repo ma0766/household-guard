@@ -15,9 +15,15 @@ export interface Names { light: string; thermostat: string; lock: string; garage
 export const DEFAULT_NAMES: Names = { light: 'Ceiling Lights', thermostat: 'HeatPump', lock: 'Front Door', garage: 'Garage Door' };
 const SAFE_NAME = /^[A-Za-z0-9 ]{1,40}$/;
 
+// What was said must name the device we are wired to. Anything else is refused (a hold), never mapped to some other device.
+const ITEM_OK: Record<string, RegExp> = { light: /^(the |my )?(ceiling )?lights?$/i, unlock: /^(the |my )?front door$/i, garage: /^(the |my )?garage( door)?$/i, thermostat: /^(the |my )?(thermostat|heat|heating|temperature)$/i };
+
+// The call may have reached the home even though we stopped waiting: the answer to the person is "not sure", never "failed".
+export class HomeUnsure extends Error {}
+
 export class HomeAssistantHome implements HomeBackend {
   readonly kind = 'home-assistant' as const;
-  constructor(private url: string, private token: string, private names: Names = DEFAULT_NAMES, private timeoutMs = 6000) {}
+  constructor(private url: string, private token: string, private names: Names = DEFAULT_NAMES, private timeoutMs = 2500) {}
 
   private async tool(name: string, args: Record<string, unknown>): Promise<void> {
     const client = new Client({ name: 'household-guard', version: '1' });
@@ -28,16 +34,22 @@ export class HomeAssistantHome implements HomeBackend {
       const r = (await client.callTool({ name, arguments: args }, undefined, { signal: ctl.signal })) as { isError?: boolean; content?: { type: string; text?: string }[] };
       if (r.isError) throw new Error('the home said no');
       // what it says back is data. The only thing read is whether it says the action was done for at least one device.
-      const j = JSON.parse(r.content?.find((c) => c.type === 'text')?.text ?? '{}');
+      const text = r.content?.find((c) => c.type === 'text')?.text ?? '{}';
+      if (text.length > 65_536) throw new Error('reply too big');
+      const j = JSON.parse(text);
       if (j?.response_type !== 'action_done' || !Array.isArray(j?.data?.success) || j.data.success.length < 1 || (j.data.failed?.length ?? 0) > 0) throw new Error('the home did not do it');
+    } catch (e) {
+      if (ctl.signal.aborted) throw new HomeUnsure('no answer in time');
+      throw e;
     } finally {
       clearTimeout(timer);
       await client.close().catch(() => undefined);
     }
   }
 
-  async run(action: string, _item: string | undefined, value: string | number | undefined): Promise<void> {
+  async run(action: string, item: string | undefined, value: string | number | undefined): Promise<void> {
     const n = this.names;
+    if (item !== undefined && item !== '' && ITEM_OK[action] && !ITEM_OK[action].test(String(item).trim())) throw new Error('not a device we are wired to');
     switch (action) {
       case 'light':
         return this.tool(String(value) === 'off' ? 'intent__HassTurnOff' : 'intent__HassTurnOn', { name: n.light });
@@ -66,6 +78,7 @@ export function defaultHome(): HomeBackend | undefined {
   } catch {
     /* a bad value keeps the defaults */
   }
+  if (!/^https:\/\//.test(url) && !/^http:\/\/(127\.0\.0\.1|localhost)(:|\/|$)/.test(url)) return undefined; // a key never crosses a network in clear text
   for (const v of Object.values(names)) if (!SAFE_NAME.test(v)) return undefined; // an odd device name switches the connector off
   return new HomeAssistantHome(url, token, names);
 }

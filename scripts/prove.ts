@@ -86,7 +86,7 @@ if (base) {
   for (const set of ['auto', 'approvable'] as const) {
     const looser = new Set<string>();
     const stricter = new Set<string>();
-    for (const action of ['light', 'thermostat', 'unlock', 'garage', 'purchase', 'use_app']) {
+    for (const action of ['light', 'thermostat', 'unlock', 'garage', 'purchase', 'use_app', 'build_site']) {
       const noMore = ask(action, 'implies', candidate[set], base[set]).holds; // everything the new rules allow, the old allowed
       const noLess = ask(action, 'implies', base[set], candidate[set]).holds; // everything the old rules allowed, the new allow
       if (!noMore) looser.add(action);
