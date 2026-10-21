@@ -35,7 +35,7 @@ describe('S10 proofs: a rule that breaks a promise fails with a counterexample',
   it('a household whose rules let a child unlock fails', () => {
     const r = prove(['--rules', rulesFile(edit((c) => { c.adultsOnlyActions = ['garage']; c.floor.childrenNoUnlock = false; }))]);
     expect(r.code).toBe(1);
-    expect(r.out).toMatch(/FAILED  no child may unlock a door/);
+    expect(r.out).toMatch(/FAILED {2}no child may unlock a door/);
     expect(r.out).toMatch(/action: Action::"unlock"/);
     expect(r.out).toMatch(/Role::"child"/); // the counterexample names who got through
   });
@@ -54,12 +54,12 @@ describe('S10 proofs: a rule that breaks a promise fails with a counterexample',
     }
     const r = prove(['--policies-dir', dir]);
     expect(r.code).toBe(1);
-    expect(r.out).toMatch(/FAILED  no child may unlock a door \(done at once\)/);
+    expect(r.out).toMatch(/FAILED {2}no child may unlock a door \(done at once\)/);
   });
   it('a guest given a buying limit with the guest rule off fails', () => {
     const r = prove(['--rules', rulesFile(edit((c) => { c.floor.guestsNoBuy = false; c.weeklyCapCents.guest = 2000; c.perRequestCapCents.guest = 2000; }))]);
     expect(r.code).toBe(1);
-    expect(r.out).toMatch(/FAILED  no guest may buy \(done at once\)/);
+    expect(r.out).toMatch(/FAILED {2}no guest may buy \(done at once\)/);
   });
   it('a missing proof tool is a failure, never a pass', () => {
     const r = prove([], { PROVER_DIR: join(tmp, 'nothing-here') });
