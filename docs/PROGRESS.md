@@ -13,6 +13,7 @@ Update after every slice. One line per check, with the command that proved it.
 | S6 Audit and status | DONE | `npx vitest run tests/s6` (hash chain: edited row / edited data / removed row / cut-off end / 20 parallel writers / daily checkpoint lets old rows be deleted; `npm run audit:verify -- <household> --local` exits 1 on an edited row, 0 when clean; plain sentences; person/day filters; voice summary totals first; real household_status; screens escape outside text); `npx playwright test e2e/s6-audit.spec.ts` PASS (test-results/s6-timeline-saving.png: the $24 saving in the timeline) | S6 |
 | S7 Editable rules + full replay | DONE | `npx vitest run tests/s7 tests/replay` (limit change follows on the next decision; teen/guest/PIN-only/stolen tap refused; undo newest-only within 24h; locked rules need warning + 2nd tap; bad input refused before save; kids see own rules; OCC on parallel edits); replay = 30 of 30 cases; `npx playwright test e2e/s7-rules.spec.ts` PASS (test-results/s7-rule-card.png) | S7 |
 | S8 Hardening + submission pack (code parts) | DONE | `npx vitest run tests/s8` (401 on missing/bad/expired/tampered sign-in for /mcp and every /phone route; /.well-known + /privacy public; no tool creates profiles or takes a person; reading-level ≤ grade 5 and no tech words on every spoken line; schema bundled); `npx playwright test e2e/s8-hardening.spec.ts` PASS; `npm run deploy` OK and `npm run smoke:deployed` → initialize ✓ tools/list ✓ tools/call ✓ guest lights ✓ guest unlock denied ✓ no token 401 ✓ well-known ✓ bad Origin 403 ✓ against https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws; README, FEEDBACK.md, FRICTION_LOG.md, LICENSE (MIT), docs/architecture.svg exist | S8 |
+| S9 Real screens with MCP Apps | DONE | `npx vitest run tests/s9` 10 tests (show_on_screen carries `_meta.ui.resourceUri`; `ui://household-guard/screen` read with mime `text/html;profile=mcp-app`; page closed in: no outside address, no innerHTML/eval, content rule `default-src 'none'`; card data gives adults the number, teens never; the card's Yes (approve_request) books the ride; a teen's call is refused); `npx playwright test e2e/s9-apps.spec.ts` PASS (approval made from the screen inside a `sandbox="allow-scripts"` frame; test-results/s9-app-approval-card.png) | S9 |
 
 ## Decisions
 
@@ -54,6 +55,10 @@ Independent review (a subagent with no prior context compared each S0–S8 "Done
 - Must-have "arrives by": `tests/s4/value-honesty.test.ts`; honesty note "The lowest price we found, from the rides we checked." added to every offer.
 - Every `say`/`reason`/`error` string in `src` (not only `src/text.ts`) is checked for tech words, length and grade 5 (found and fixed "Only adults can change rules.").
 - One icon per kind on the timeline; locked rules on by default.
+
+### Roadmap decisions
+- S9: `@modelcontextprotocol/ext-apps` 2.0.3 needs the 2.x server SDK (peer dependency); this repo runs `@modelcontextprotocol/sdk` 1.x. Same wire format built by hand: `ui://` resource, mime `text/html;profile=mcp-app`, `_meta.ui.resourceUri` (plus the older flat alias), JSON-RPC over postMessage (`ui/initialize`, `ui/notifications/initialized`, `ui/notifications/tool-result`, `tools/call`). The host lets a screen call only `approve_request` and `show_on_screen`.
+- S9: a Yes on the screen is the "voice approval" path (needs the adult's own phone tap in the last minute, newer than the request). The phone route stays the strong path. Reviewer: buttons now lock on click and the green "done" shows only on a real approval.
 
 ## Blocked on user
 

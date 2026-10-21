@@ -209,6 +209,43 @@ $('btn-voice-summary').onclick = async () => {
   el.textContent = r.say;
 };
 
+
+// ---- MCP Apps host: the house names a screen page (ui://…), we draw it in a sandboxed frame and carry its messages ----
+const appFrame = $('app-frame') as HTMLIFrameElement;
+const APP_TOOLS = new Set(['approve_request', 'show_on_screen']); // the only things a screen may ask for
+let appHtml = '';
+let appView = 'approvals';
+async function openApp(view: string) {
+  await connect();
+  if (!appHtml) {
+    const tools = (await rpc('tools/list')).result.tools as { name: string; _meta?: { ui?: { resourceUri?: string } } }[];
+    const uri = tools.find((t) => t.name === 'show_on_screen')?._meta?.ui?.resourceUri;
+    if (!uri) return says('I cannot show that screen.', 'denied');
+    appHtml = (await rpc('resources/read', { uri })).result.contents[0].text;
+  }
+  appView = view;
+  appFrame.srcdoc = appHtml; // a fresh page; it starts by saying hello and we answer below
+}
+const toApp = (m: Record<string, unknown>) => appFrame.contentWindow?.postMessage({ jsonrpc: '2.0', ...m }, '*');
+async function pushScreen() {
+  const out = await rpc('tools/call', { name: 'show_on_screen', arguments: { view: appView } });
+  toApp({ method: 'ui/notifications/tool-result', params: out.result });
+}
+window.addEventListener('message', (e) => {
+  if (e.source !== appFrame.contentWindow) return;
+  const m = e.data ?? {};
+  if (m.method === 'ui/initialize') toApp({ id: m.id, result: { protocolVersion: '2025-11-21', hostInfo: { name: 'household-web-client', version: '1' }, hostCapabilities: { serverTools: {} }, hostContext: { theme: 'light' } } });
+  else if (m.method === 'ui/notifications/initialized') void pushScreen();
+  else if (m.method === 'tools/call' && APP_TOOLS.has(m.params?.name)) {
+    void rpc('tools/call', m.params).then((out) => {
+      toApp({ id: m.id, result: out.result ?? { isError: true, content: [{ type: 'text', text: 'Something went wrong. Ask an adult.' }] } });
+      if (m.params.name === 'approve_request') setTimeout(() => void pushScreen(), 400);
+    });
+  } else if (m.id !== undefined) toApp({ id: m.id, error: { code: -32601, message: 'Not allowed' } });
+});
+$('btn-app-approvals').onclick = () => void openApp('approvals');
+$('btn-app-orders').onclick = () => void openApp('orders');
+
 // ---- words → one tool call ----
 function parse(text: string): Record<string, unknown> | undefined {
   const t = text.toLowerCase();

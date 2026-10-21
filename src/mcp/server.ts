@@ -17,6 +17,7 @@ import { openApprovals } from '../approvals/approvals.js';
 import { myRules, proposeRule, rulesHtml } from '../rules/change.js';
 import type { RuleChange } from '../rules/templates.js';
 import { ensureSeeded, loadHousehold } from '../core/household.js';
+import { APP_HTML, APP_META, APP_MIME, APP_URI, cardsOf, rowsOf, type ScreenData } from './apps.js';
 
 // Fixed facade: tool names never change, so nothing behind them needs a redeploy to Alexa.
 // Who is asking, from the confirmed session only. No session → undefined (treated as a guest).
@@ -104,6 +105,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     'show_on_screen',
     {
       description: 'Show a screen: the approval card, recent buys, or what happened. Filter by person or day.',
+      _meta: APP_META,
       inputSchema: { view: z.enum(['approvals', 'orders', 'timeline', 'rules', 'my_rules']), person: z.string().optional(), day: z.string().optional().describe('YYYY-MM-DD') },
     },
     async (a) => {
@@ -120,18 +122,30 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
           const h = await loadHousehold(deps.store, hh);
           return { content: [{ type: 'text', text: 'Here are the house rules.' }], structuredContent: { view: a.view, html: rulesHtml(h.rules, h.people) } };
         }
-        const html =
-          a.view === 'approvals'
-            ? approvalsHtml((await openApprovals(deps, hh)).filter((x) => !mine || x.personId === v.id))
-            : a.view === 'orders'
-              ? ordersHtml((await recentOrders(deps.store, hh, 50)).filter((e) => !mine || e.person === v.id).slice(0, 10))
-              : timelineHtml(await readAudit(deps.store, hh, { person: mine ? v.id : a.person, day: a.day, limit: 50 }));
-        return { content: [{ type: 'text', text: `Here is the ${a.view} screen.` }], structuredContent: { view: a.view, html } };
+        let html: string;
+        let data: ScreenData;
+        if (a.view === 'approvals') {
+          const list = (await openApprovals(deps, hh)).filter((x) => !mine || x.personId === v.id);
+          html = approvalsHtml(list);
+          data = { view: 'approvals', cards: cardsOf(list, !mine) };
+        } else if (a.view === 'orders') {
+          const list = (await recentOrders(deps.store, hh, 50)).filter((e) => !mine || e.person === v.id).slice(0, 10);
+          html = ordersHtml(list);
+          data = { view: 'orders', rows: rowsOf(list) };
+        } else {
+          const list = await readAudit(deps.store, hh, { person: mine ? v.id : a.person, day: a.day, limit: 50 });
+          html = timelineHtml(list);
+          data = { view: 'timeline', rows: rowsOf(list) };
+        }
+        return { content: [{ type: 'text', text: `Here is the ${a.view} screen.` }], structuredContent: { view: a.view, html, data } };
       } catch {
         return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
       }
     },
   );
+  server.registerResource('screen', APP_URI, { title: 'House screen', description: 'Approval card, recent buys, and what happened', mimeType: APP_MIME }, async (uri) => ({
+    contents: [{ uri: uri.href, mimeType: APP_MIME, text: APP_HTML }],
+  }));
   server.registerTool(
     'set_rule',
     {
