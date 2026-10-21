@@ -99,6 +99,7 @@ Independent review (a subagent with no prior context compared each S0–S8 "Done
 
 ## Blocked on user
 
+- 2026-10-21 AWS sign-in expired (`aws sts get-caller-identity`: session expired). The live Bedrock tests (S5 x2, S11 x1) need it, so `npm run verify` cannot exit 0 until the user runs `aws login`. Everything else in S19 passes (see the S19 row).
 - Nothing. Bedrock access opened 2026-10-20 (after first use in the console); `aws bedrock-runtime converse` on `us.anthropic.claude-haiku-4-5-20251001-v1:0` works and the live test runs.
 
 ## Left for the human (not in the goal)
