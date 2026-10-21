@@ -31,7 +31,7 @@ export async function jobStatus(deps: Deps, hh: string, id: string): Promise<Job
     if (ap) {
       const now = (deps.now ?? Date.now)();
       if (ap.status === 'open') return ap.expiresAt <= now ? { job_id: id, status: 'failed', say: 'That ran out of time.', done: false } : { job_id: id, status: 'waiting', say: 'Waiting for an adult.', done: false };
-      if (ap.status === 'approved' && ap.jobId) return jobStatus(deps, hh, ap.jobId);
+      if (ap.status === 'approved') return ap.jobId ? jobStatus(deps, hh, ap.jobId) : { job_id: id, status: 'waiting', say: 'Working on it.', done: false }; // the yes was just saved and the job is still being made: not "closed"
       if (ap.status === 'rejected') return { job_id: id, status: 'failed', say: 'An adult said no.', done: false };
       return { job_id: id, status: 'failed', say: 'Okay. That one is closed.', done: false };
     }

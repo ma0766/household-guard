@@ -1,0 +1,2556 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s1.spec.ts",
+      "tests/audit/s2.spec.ts",
+      "tests/audit/s3.spec.ts",
+      "tests/audit/s5.spec.ts",
+      "tests/audit/s6.spec.ts",
+      "tests/audit/s7.spec.ts",
+      "tests/audit/s9.spec.ts",
+      "tests/audit/s10.spec.ts",
+      "tests/audit/s11.spec.ts",
+      "tests/audit/s12.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-pf1.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s1.spec.ts",
+      "file": "s1.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S1 teen: lights -> done; unlock -> denied in plain words; delete account -> denied",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7035,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:33:11.693Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-teen-lights---done-u-2041f-rds-delete-account---denied/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-teen-lights---done-u-2041f-rds-delete-account---denied/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-teen-lights---done-u-2041f-rds-delete-account---denied/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "66752a930eb7803ac33c-83bc7acdc6e2b23f4eda",
+          "file": "s1.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "S1 typed words: unknown service action and odd phrasing are denied or not understood, never done",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5409,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:33:18.957Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-typed-words-unknown--076ee-r-not-understood-never-done/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-typed-words-unknown--076ee-r-not-understood-never-done/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-typed-words-unknown--076ee-r-not-understood-never-done/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "66752a930eb7803ac33c-8727eddb654aabbb401e",
+          "file": "s1.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "S1 guest (nobody confirmed): lights ok, unlock and delete denied",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2960,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:33:24.537Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-guest-nobody-confirm-cef94-ok-unlock-and-delete-denied/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-guest-nobody-confirm-cef94-ok-unlock-and-delete-denied/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-guest-nobody-confirm-cef94-ok-unlock-and-delete-denied/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "66752a930eb7803ac33c-676ccb75040bc995e8b5",
+          "file": "s1.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "S1 adult: Mom (confirmed on her phone) can unlock",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3076,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:33:27.594Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-adult-Mom-confirmed-on-her-phone-can-unlock/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-adult-Mom-confirmed-on-her-phone-can-unlock/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s1-S1-adult-Mom-confirmed-on-her-phone-can-unlock/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "66752a930eb7803ac33c-432a940186659394170a",
+          "file": "s1.spec.ts",
+          "line": 50,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s10.spec.ts",
+      "file": "s10.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S10 rule card: quiet hours button shows a plain preview and the card",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13380,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "PREVIEW before tap: Kids cannot buy from 9 PM to 6 AM.\n"
+                    },
+                    {
+                      "text": "RULES CARD: House rules\n🛒\nLeo: an adult says yes to buys.\n🛒\nMaya: $20 a week.\n🛒\nMom: $500 a week.\n🔒\nAdults only: unlock, garage.\n🛒\nAllowed apps: sim-home, mock-ride, mock-shop.\n📝\nBest value needs: nothing special.\n🌙\nNo buying for kids from 9 PM to 6 AM.\n🔒\nLocked: children can't unlock doors.\n🔒\nLocked: guests can't buy.\n"
+                    },
+                    {
+                      "text": "MAYA TRIES QUIET OFF -> Ask an adult to change rules.\n"
+                    },
+                    {
+                      "text": "console errors: [\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:33:32.719Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-rule-card-quiet-ho-4b0f0--plain-preview-and-the-card/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-rule-card-quiet-ho-4b0f0--plain-preview-and-the-card/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-rule-card-quiet-ho-4b0f0--plain-preview-and-the-card/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fd05237b26ae45735dc3-de9107d04764c28dcec5",
+          "file": "s10.spec.ts",
+          "line": 88,
+          "column": 1
+        },
+        {
+          "title": "S10 teen purchase inside quiet hours is held (house time zone), adult is exempt",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 25158,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "NY hour \u001b[33m17\u001b[39m UTC hour \u001b[33m21\u001b[39m\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"Hi Mom. You are confirmed.\",\"result\":{\"done\":true,\"reason\":\"Hi Mom. You are confirmed.\"}}\n"
+                    },
+                    {
+                      "text": "set_rule result: {\"status\":\"waiting\",\"say\":\"Confirm on your phone: 33\",\"number\":33,\"challenge_id\":\"c301037e-5ed\",\"sentence\":\"No buying for kids from 5 PM to 7 PM.\",\"preview\":\"Kids cannot buy from 5 PM to 7 PM.\"}\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"No buying for kids from 5 PM to 7 PM.\",\"result\":{\"done\":true,\"reason\":\"No buying for kids from 5 PM to 7 PM.\"}}\n"
+                    },
+                    {
+                      "text": "RULES CARD: House rules\n🛒\nLeo: an adult says yes to buys.\n🛒\nMaya: $20 a week.\n🛒\nMom: $500 a week.\n🔒\nAdults only: unlock, garage.\n🛒\nAllowed apps: sim-home, mock-ride, mock-shop.\n📝\nBest value needs: nothing special.\n🌙\nNo buying for kids from 5 PM to 7 PM.\n🔒\nLocked: children can't unlock doors.\n🔒\nLocked: guests can't buy.\n"
+                    },
+                    {
+                      "text": "MOM IN QUIET WINDOW SAYS: Confirm on your phone: 65\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"Okay. Booking it now.\",\"result\":{\"done\":false,\"reason\":\"Okay. Booking it now.\",\"jobId\":\"e58fcf86-38c\"}}\n"
+                    },
+                    {
+                      "text": "MOM RIDE RESULT: Your ride is booked. $15 in all.\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"Hi Maya. You are confirmed.\",\"result\":{\"done\":true,\"reason\":\"Hi Maya. You are confirmed.\"}}\n"
+                    },
+                    {
+                      "text": "MAYA IN QUIET WINDOW SAYS: Quiet hours: no buying from 5 PM to 7 PM. | outcome denied\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:33:46.338Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-teen-purchase-insi-d7782-e-time-zone-adult-is-exempt/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-teen-purchase-insi-d7782-e-time-zone-adult-is-exempt/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-teen-purchase-insi-d7782-e-time-zone-adult-is-exempt/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fd05237b26ae45735dc3-e33773359a67d05bffc4",
+          "file": "s10.spec.ts",
+          "line": 114,
+          "column": 1
+        },
+        {
+          "title": "S10 time zone: a window that only matches UTC (not New York) must NOT hold",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17783,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "MAYA (window only matches UTC) SAYS: Confirm on your phone: 84\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:34:11.853Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-time-zone-a-window-ee749--not-New-York-must-NOT-hold/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-time-zone-a-window-ee749--not-New-York-must-NOT-hold/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-time-zone-a-window-ee749--not-New-York-must-NOT-hold/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fd05237b26ae45735dc3-3a5138f94ad2bfb888e4",
+          "file": "s10.spec.ts",
+          "line": 150,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "S10 proofs (CLI)",
+          "file": "s10.spec.ts",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "prove passes on the rules that ship",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 380,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "PROVEN  no child may unlock a door (done at once)\nPROVEN  no child may unlock a door (or held for an adult)\nPROVEN  no child may open the garage (done at once)\nPROVEN  no child may open the garage (or held for an adult)\nPROVEN  no guest may use an app (done at once)\nPROVEN  no guest may use an app (or held for an adult)\nPROVEN  no guest may buy (done at once)\nPROVEN  no guest may buy (or held for an adult)\nEvery promise is proven for all requests.\n\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T21:33:30.779Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-proofs-CLI-prove-passes-on-the-rules-that-ship/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-f920594c2cd4e33bc454",
+              "file": "s10.spec.ts",
+              "line": 24,
+              "column": 3
+            },
+            {
+              "title": "prove: a stray permit alone does NOT break the promise (forbid beats permit) - control",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 372,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T21:33:31.172Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-proofs-CLI-prove-a-54b76-rbid-beats-permit---control/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-1532c036d355b5415645",
+              "file": "s10.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "prove FAILS with a counterexample when a rule lets a child unlock",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 384,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "EXIT \u001b[33m1\u001b[39m \nFAILED  no child may unlock a door (done at once)\n        principal: Person::\"\", action: Action::\"unlock\", resource: Service::\"\"\n        context: {amount_cents: -1, local_hour: -1, service_known: true, session: \"\", value: -1, week_spent_cents: -1}\n        entities: [\n          Role::\"child\",\n          Person::\"mom\" in [Role::\"child\"],\n          Role::\"adult\",\n          Role::\"teen\",\n          Action::\"use_app\",\n          Person::\"maya\" in [Role::\"child\"],\n          Action::\"unlock\",\n          Action::\"build_site\",\n          Service::\"\",\n          Action::\"purchase\",\n          Action::\"garage\",\n          Role::\"guest\",\n          Action::\"thermostat\",\n          Person::\"\" in [Role::\"child\"],\n          Action::\"light\",\n        ]\nFAILED  no child may unlock a door (or held for an adult)\n        principal: Person::\"\", action: Action::\"unlock\", resource: Service::\"\"\n        context: {amount_cents: 0, local_hour: 0, service_known: false, session: \"\", value: 0, week_spent_cents: 0}\n        entities: [\n          Role::\"guest\",\n          Action::\"unlock\",\n          Action::\"garage\",\n          Role::\"teen\",\n          Action::\"use_app\",\n          Action::\"build_site\",\n          Action::\"purchase\",\n          Action::\"thermostat\",\n          Action::\"light\",\n          Person::\"\" in [Role::\"child\"],\n          Role::\"adult\",\n          Service::\"\",\n          Role::\"child\",\n        ]\nPROVEN  no child may open the garage (done at once)\nPROVEN  no child may open the garage (or held for an adult)\nPROVEN  no guest may use an app (done at once)\nPROVEN  no guest may use an app (or held for an adult)\nPROVEN  no guest may buy (done at once)\nPROVEN  no guest may buy (or held for an adult)\n2 promise(s) broken.\n\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T21:33:31.555Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-proofs-CLI-prove-F-be5fd--a-rule-lets-a-child-unlock/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-c22ef14ea2d8c7035dd3",
+              "file": "s10.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "prove FAILS when the safety rules are deleted (children can unlock via a plain allow)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 359,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T21:33:31.949Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-proofs-CLI-prove-F-1c26a-n-unlock-via-a-plain-allow-/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-53064ba96a5ed76b908b",
+              "file": "s10.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "prove FAILS when a guest may buy",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 391,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T21:33:32.319Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s10-S10-proofs-CLI-prove-FAILS-when-a-guest-may-buy/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-1efec9876cb8cdaffa27",
+              "file": "s10.spec.ts",
+              "line": 65,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "s11.spec.ts",
+      "file": "s11.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S11 break -> check -> repair -> next ride needs one yes -> yes -> normal again",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21557,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "DEMO break-ride \u001b[33m200\u001b[39m \u001b[33m74293\u001b[39m {\"ok\":true}\n"
+                    },
+                    {
+                      "text": "STATUS right after break (before any check): The ride service works.\n"
+                    },
+                    {
+                      "text": "CHECK CLICK AT \u001b[33m74399\u001b[39m\n"
+                    },
+                    {
+                      "text": "DEMO check-rides \u001b[33m200\u001b[39m \u001b[33m75463\u001b[39m {\"status\":\"repaired\",\"cause\":\"api_changed\",\"say\":\"The ride service changed. We fixed it. The next buy needs a yes.\"}\n"
+                    },
+                    {
+                      "text": "SAYS after check: The ride service changed. We fixed it. The next buy needs a yes.\n"
+                    },
+                    {
+                      "text": "MAYA RIDE AFTER REPAIR SAYS: Held: this service was just fixed. An adult must say yes once. An adult can tap 60 to say yes. | outcome held\n"
+                    },
+                    {
+                      "text": "MOM CARD: Maya wants: ride to the mall |  | $15 |  | Held: this service was just fixed. An adult must say yes once. |  | Tap the number Alexa said: |  | 236011No\n"
+                    },
+                    {
+                      "text": "AFTER MOM YES SAYS: Your ride is booked. $15 in all.\n"
+                    },
+                    {
+                      "text": "TIMELINE: What happened | 🛒 | Ride booked for Maya: $15 at 5:34 PM. | 2026-10-21 | 🛒 | Mom said yes at 5:34 PM. | 2026-10-21 | 🛒 | Maya asked for a $15 ride at 5:34 PM. Held: this service was just fixed. An adult must say yes once. | 2026-10-21 | 🔑 | Maya confirmed on their phone at 5:34 PM. | 2026-10-21\n"
+                    },
+                    {
+                      "text": "console errors: [\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:34:29.855Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-break---check---re-8a5fc-ne-yes---yes---normal-again/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-break---check---re-8a5fc-ne-yes---yes---normal-again/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-break---check---re-8a5fc-ne-yes---yes---normal-again/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-5893db82201ac72a3fa2",
+          "file": "s11.spec.ts",
+          "line": 8,
+          "column": 1
+        },
+        {
+          "title": "S11 a ride asked after the break but before the check is never booked on a wrong price",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12208,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "RIDE BETWEEN BREAK AND CHECK: That service is not working. An adult was told. | outcome held\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:34:51.753Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-ride-asked-after-a7949-ver-booked-on-a-wrong-price/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-ride-asked-after-a7949-ver-booked-on-a-wrong-price/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-ride-asked-after-a7949-ver-booked-on-a-wrong-price/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-9c7faecc87accd16fe9b",
+          "file": "s11.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "S11 a teen cannot break the ride service, and the page does not pretend she did",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10175,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "TEEN CLICKS BREAK, PAGE SAYS: Only an adult can do that.\n"
+                    },
+                    {
+                      "text": "STATUS after teen break+check: The ride service works.\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:04.150Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-0bae263ff1c568f1db77",
+          "file": "s11.spec.ts",
+          "line": 79,
+          "column": 1
+        },
+        {
+          "title": "S11 a healthy service: check changes nothing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7646,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "HEALTHY CHECK SAYS: The ride service works.\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:14.485Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-healthy-service-check-changes-nothing/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-healthy-service-check-changes-nothing/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s11-S11-a-healthy-service-check-changes-nothing/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-9166a50f6f024c37385a",
+          "file": "s11.spec.ts",
+          "line": 93,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s12.spec.ts",
+      "file": "s12.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S12 demo sign-in: the page connects and lists tools (flag state per stage)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 897,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "console errors: [\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:22.261Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-demo-sign-in-the-p-e65f7-tools-flag-state-per-stage-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-demo-sign-in-the-p-e65f7-tools-flag-state-per-stage-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-demo-sign-in-the-p-e65f7-tools-flag-state-per-stage-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-9c4d9ce14558038558fb",
+          "file": "s12.spec.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "S12 forged and unsigned tokens are refused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 643,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:23.222Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-forged-and-unsigned-tokens-are-refused/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-eafb0915f3578ba57e21",
+          "file": "s12.spec.ts",
+          "line": 28,
+          "column": 1
+        },
+        {
+          "title": "S12 hosted sign-in page loads (PKCE authorization-code request) or, with no sign-in server, the panel stays hidden",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1603,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "HOSTED PAGE HOST: hg-prod-679241558430.auth.us-east-1.amazoncognito.com /login\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:23.880Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-hosted-sign-in-pag-f3295-rver-the-panel-stays-hidden/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-hosted-sign-in-pag-f3295-rver-the-panel-stays-hidden/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-hosted-sign-in-pag-f3295-rver-the-panel-stays-hidden/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-c609d0b456ed2b757eda",
+          "file": "s12.spec.ts",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "S12 real Cognito sign-in in a browser (roadmap stage; password login is ON only on sandbox stages)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6704,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "page errors: []\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:25.531Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-real-Cognito-sign--f0893--ON-only-on-sandbox-stages-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-real-Cognito-sign--f0893--ON-only-on-sandbox-stages-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-real-Cognito-sign--f0893--ON-only-on-sandbox-stages-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-f9346ba687e6397c7032",
+          "file": "s12.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "S12 roadmap stage: the open demo sign-in is OFF by design",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 429,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:32.362Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-roadmap-stage-the-open-demo-sign-in-is-OFF-by-design/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-85234b71708ee16b8dc3",
+          "file": "s12.spec.ts",
+          "line": 93,
+          "column": 1
+        },
+        {
+          "title": "S12 prod: the demo token endpoint is open by design - check what it hands out",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 489,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "demo-token keys: token,phones | phones: mom,dad,maya\n"
+                    },
+                    {
+                      "text": "/demo-token?hh=service -> 200 household in key: demo\n"
+                    },
+                    {
+                      "text": "/demo-token?hh=gateway -> 200 household in key: demo\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:32.815Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-prod-the-demo-toke-12fd6-n---check-what-it-hands-out/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-23aadaa7d8a8d1b824c7",
+          "file": "s12.spec.ts",
+          "line": 102,
+          "column": 1
+        },
+        {
+          "title": "S12 email approval link (STAND-IN; MANUAL for the real send)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "MANUAL",
+                  "description": "Real approval email (SES, adult inbox, link, number match) is a STAND-IN: needs verified SES sender + HG_APPROVER_EMAILS"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12451,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "LINK PAGE /approve: Say yes or no | This link does not work.\n"
+                    },
+                    {
+                      "text": "LINK PAGE /approve?k=junk: Say yes or no | This link does not work.\n"
+                    },
+                    {
+                      "text": "LINK PAGE /approve#k=junk: Say yes or no | This link does not work.\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:33.322Z",
+                  "annotations": [
+                    {
+                      "type": "MANUAL",
+                      "description": "Real approval email (SES, adult inbox, link, number match) is a STAND-IN: needs verified SES sender + HG_APPROVER_EMAILS"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-email-approval-lin-6763c-N-MANUAL-for-the-real-send-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-email-approval-lin-6763c-N-MANUAL-for-the-real-send-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s12-S12-email-approval-lin-6763c-N-MANUAL-for-the-real-send-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-5634c90aef17cd7ab192",
+          "file": "s12.spec.ts",
+          "line": 118,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s2.spec.ts",
+      "file": "s2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S2 \"I'm Mom, unlock the door\" with no Mom confirmation -> denied (nobody confirmed)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1495,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:45.925Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-I-m-Mom-unlock-the-d-4822f----denied-nobody-confirmed-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-I-m-Mom-unlock-the-d-4822f----denied-nobody-confirmed-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-I-m-Mom-unlock-the-d-4822f----denied-nobody-confirmed-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "932cead5d44b669cd957-a18f941cc0cfc1f9376f",
+          "file": "s2.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "S2 \"I'm Mom\" said while Maya is the confirmed speaker -> still denied; Mom's phone got nothing to approve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4528,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:47.491Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-I-m-Mom-said-while-M-4cc5e-hone-got-nothing-to-approve/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-I-m-Mom-said-while-M-4cc5e-hone-got-nothing-to-approve/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-I-m-Mom-said-while-M-4cc5e-hone-got-nothing-to-approve/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "932cead5d44b669cd957-8a3207c1c1aeda5e2a12",
+          "file": "s2.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "S2 teen purchase: the number lands on Maya's phone, not Mom's; tapping it books",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6743,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:52.134Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-teen-purchase-the-nu-20a2f--not-Mom-s-tapping-it-books/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-teen-purchase-the-nu-20a2f--not-Mom-s-tapping-it-books/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-teen-purchase-the-nu-20a2f--not-Mom-s-tapping-it-books/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "932cead5d44b669cd957-1a0f4ff90926cfe175cd",
+          "file": "s2.spec.ts",
+          "line": 22,
+          "column": 1
+        },
+        {
+          "title": "S2 Mom pressing a wrong number on Maya's ask does not confirm; a wrong number on Maya's phone is refused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:35:59.023Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Mom-pressing-a-wrong-9d0b0--on-Maya-s-phone-is-refused/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Mom-pressing-a-wrong-9d0b0--on-Maya-s-phone-is-refused/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Mom-pressing-a-wrong-9d0b0--on-Maya-s-phone-is-refused/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "932cead5d44b669cd957-699e23bb3cf074457f9b",
+          "file": "s2.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "S2 4th confirmation push in 10 minutes -> locked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4604,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "pushes: [\"Confirm on your phone: 56\",\"Confirm on your phone: 73\",\"Confirm on your phone: 11\",\"Too many tries. Wait 10 minutes.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:05.918Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-4th-confirmation-push-in-10-minutes---locked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-4th-confirmation-push-in-10-minutes---locked/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-4th-confirmation-push-in-10-minutes---locked/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "932cead5d44b669cd957-905bdd003db931cd61f2",
+          "file": "s2.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "S2 Leo (no phone): 3 wrong PINs -> locked, then even the right PIN is refused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3819,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "pin tries: [\"That PIN is not right.\",\"That PIN is not right.\",\"Too many tries. Wait 10 minutes.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:10.637Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Leo-no-phone-3-wrong-3153d-en-the-right-PIN-is-refused/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Leo-no-phone-3-wrong-3153d-en-the-right-PIN-is-refused/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Leo-no-phone-3-wrong-3153d-en-the-right-PIN-is-refused/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "932cead5d44b669cd957-e10bf2c41116df756db9",
+          "file": "s2.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "S2 Leo with the right PIN is confirmed (positive control) but a ride still needs an adult",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3596,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "Leo PIN accepted says: Hi Leo.\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:14.590Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Leo-with-the-right-P-2b4f1-a-ride-still-needs-an-adult/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Leo-with-the-right-P-2b4f1-a-ride-still-needs-an-adult/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s2-S2-Leo-with-the-right-P-2b4f1-a-ride-still-needs-an-adult/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "932cead5d44b669cd957-084c0ae54015fb6578c8",
+          "file": "s2.spec.ts",
+          "line": 92,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s3.spec.ts",
+      "file": "s3.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S3 two $15 rides at once vs Maya's $20 cap -> exactly one booked, one held",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11704,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:18.282Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-two-15-rides-at-once-7b169-exactly-one-booked-one-held/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-two-15-rides-at-once-7b169-exactly-one-booked-one-held/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-two-15-rides-at-once-7b169-exactly-one-booked-one-held/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-46af9a464cae11ce3fda",
+          "file": "s3.spec.ts",
+          "line": 19,
+          "column": 1
+        },
+        {
+          "title": "S3 the ride held for the cap reaches Mom's phone (even before Maya taps her own phone)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6730,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:30.181Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-23ffc29e9e20d9447438",
+          "file": "s3.spec.ts",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "S3 duplicate: the same request_id sent twice (an Alexa retry) books ONE ride",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9953,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "dup replies [[\"allowed\",\"Confirm on your phone: 44\",\"44b8fa70-181\"],[\"held\",\"Still working on that one.\",null],[\"allowed\",\"Confirm on your phone: 44\",\"44b8fa70-181\"]]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:37.049Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-duplicate-the-same-r-b8973--Alexa-retry-books-ONE-ride/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-duplicate-the-same-r-b8973--Alexa-retry-books-ONE-ride/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-duplicate-the-same-r-b8973--Alexa-retry-books-ONE-ride/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-e2d02fc069e0d3dc188b",
+          "file": "s3.spec.ts",
+          "line": 52,
+          "column": 1
+        },
+        {
+          "title": "S3 teen over the cap in one go ($38 airport) is held with a plain reason, not booked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5497,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:47.157Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-teen-over-the-cap-in-01f2c-h-a-plain-reason-not-booked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-teen-over-the-cap-in-01f2c-h-a-plain-reason-not-booked/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s3-S3-teen-over-the-cap-in-01f2c-h-a-plain-reason-not-booked/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-e220beb63e2594013408",
+          "file": "s3.spec.ts",
+          "line": 77,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s5.spec.ts",
+      "file": "s5.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S5a gift card passes the rules, the AI check holds it, nothing is bought, an adult is asked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "sandbox-console-errors",
+                  "description": "8"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6938,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:52.843Z",
+                  "annotations": [
+                    {
+                      "type": "sandbox-console-errors",
+                      "description": "8"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s5-S5a-gift-card-passes-th-ed808-is-bought-an-adult-is-asked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s5-S5a-gift-card-passes-th-ed808-is-bought-an-adult-is-asked/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s5-S5a-gift-card-passes-th-ed808-is-bought-an-adult-is-asked/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "28da1e47e4556d73a8e7-883e10d3d8975f43ac42",
+          "file": "s5.spec.ts",
+          "line": 8,
+          "column": 1
+        },
+        {
+          "title": "S5b hostile service reply changes nothing (held ride looks the same, nothing booked, hostile text never shown)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "mall-ride-with-hostile-note",
+                  "description": "That needs a closer look. An adult can tap 75 to say yes."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9139,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:36:59.940Z",
+                  "annotations": [
+                    {
+                      "type": "mall-ride-with-hostile-note",
+                      "description": "That needs a closer look. An adult can tap 75 to say yes."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s5-S5b-hostile-service-rep-02220-d-hostile-text-never-shown-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s5-S5b-hostile-service-rep-02220-d-hostile-text-never-shown-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s5-S5b-hostile-service-rep-02220-d-hostile-text-never-shown-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "28da1e47e4556d73a8e7-0badaa0b686bf2dd994d",
+          "file": "s5.spec.ts",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s6.spec.ts",
+      "file": "s6.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S6 timeline in plain sentences, filters by person and day, voice summary, edited row caught by verify script",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "find-in-seconds",
+                  "description": "person+day filter + summary done in 0.789s"
+                },
+                {
+                  "type": "sandbox-console-errors",
+                  "description": "58"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 14178,
+                  "error": {
+                    "message": "Error: audit log BROKEN at entry 1: an entry was edited\nNote: no key is set (HG_AUDIT_KEY or HG_TOKEN_SECRET). If this log was made with a real key, a clean log also looks edited without it. Set the key the stack uses and run this again.\n\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m",
+                    "stack": "Error: audit log BROKEN at entry 1: an entry was edited\nNote: no key is set (HG_AUDIT_KEY or HG_TOKEN_SECRET). If this log was made with a real key, a clean log also looks edited without it. Set the key the stack uses and run this again.\n\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n    at /home/madman/household-guard/tests/audit/s6.spec.ts:64:33",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                      "column": 33,
+                      "line": 64
+                    },
+                    "snippet": "  62 |   const cmd = isProd() ? `npm run audit:verify -- ${hh}` : `npm run audit:verify -- ${hh} --local`;\n  63 |   writeFileSync(`audit/2026-10-21/s6-verify-cli-${T}.log`, `$ ${cmd}   (before edit)\\nexit ${clean.code}\\n${clean.out}\\n$ ${cmd}   (after editing text of AUDIT#2)\\nexit ${bad.code}\\n${bad.out}\\n`);\n> 64 |   expect(clean.code, clean.out).toBe(0);\n     |                                 ^\n  65 |   expect(bad.code, bad.out).toBe(1);\n  66 |   expect(bad.out).toMatch(/BROKEN at entry 2: an entry was edited/);\n  67 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                        "column": 33,
+                        "line": 64
+                      },
+                      "message": "Error: audit log BROKEN at entry 1: an entry was edited\nNote: no key is set (HG_AUDIT_KEY or HG_TOKEN_SECRET). If this log was made with a real key, a clean log also looks edited without it. Set the key the stack uses and run this again.\n\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n\n  62 |   const cmd = isProd() ? `npm run audit:verify -- ${hh}` : `npm run audit:verify -- ${hh} --local`;\n  63 |   writeFileSync(`audit/2026-10-21/s6-verify-cli-${T}.log`, `$ ${cmd}   (before edit)\\nexit ${clean.code}\\n${clean.out}\\n$ ${cmd}   (after editing text of AUDIT#2)\\nexit ${bad.code}\\n${bad.out}\\n`);\n> 64 |   expect(clean.code, clean.out).toBe(0);\n     |                                 ^\n  65 |   expect(bad.code, bad.out).toBe(1);\n  66 |   expect(bad.out).toMatch(/BROKEN at entry 2: an entry was edited/);\n  67 | });\n    at /home/madman/household-guard/tests/audit/s6.spec.ts:64:33"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:37:09.269Z",
+                  "annotations": [
+                    {
+                      "type": "find-in-seconds",
+                      "description": "person+day filter + summary done in 0.789s"
+                    },
+                    {
+                      "type": "sandbox-console-errors",
+                      "description": "58"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                    "column": 33,
+                    "line": 64
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f16d5b9508564124d51a-38972b26031e04c77314",
+          "file": "s6.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s7.spec.ts",
+      "file": "s7.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S7a limit change is followed by the next decision; teen cannot change a rule",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "teen-refusal-wording",
+                  "description": "Ask an adult to change rules."
+                },
+                {
+                  "type": "preview-before-tap",
+                  "description": "This lets Maya spend $30 more a week."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14149,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:37:24.270Z",
+                  "annotations": [
+                    {
+                      "type": "teen-refusal-wording",
+                      "description": "Ask an adult to change rules."
+                    },
+                    {
+                      "type": "preview-before-tap",
+                      "description": "This lets Maya spend $30 more a week."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7a-limit-change-is-fol-8148a-n-teen-cannot-change-a-rule/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7a-limit-change-is-fol-8148a-n-teen-cannot-change-a-rule/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7a-limit-change-is-fol-8148a-n-teen-cannot-change-a-rule/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-73d240064e8e4cfdf998",
+          "file": "s7.spec.ts",
+          "line": 9,
+          "column": 1
+        },
+        {
+          "title": "S7b undo restores the old rule and the next decision follows it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14210,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:37:38.799Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7b-undo-restores-the-o-3519e-he-next-decision-follows-it/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7b-undo-restores-the-o-3519e-he-next-decision-follows-it/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7b-undo-restores-the-o-3519e-he-next-decision-follows-it/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-a06f87fa830873fc0ab0",
+          "file": "s7.spec.ts",
+          "line": 52,
+          "column": 1
+        },
+        {
+          "title": "S7c quiet hours card: plain preview before saving, saved after Mom taps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "quiet-preview",
+                  "description": "Kids cannot buy from 9 PM to 6 AM."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9271,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:37:53.311Z",
+                  "annotations": [
+                    {
+                      "type": "quiet-preview",
+                      "description": "Kids cannot buy from 9 PM to 6 AM."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7c-quiet-hours-card-pl-91bbc-saving-saved-after-Mom-taps/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7c-quiet-hours-card-pl-91bbc-saving-saved-after-Mom-taps/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7c-quiet-hours-card-pl-91bbc-saving-saved-after-Mom-taps/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-60fdb744a4b350e04b70",
+          "file": "s7.spec.ts",
+          "line": 72,
+          "column": 1
+        },
+        {
+          "title": "S7d locked safety rules warn before change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "MANUAL: the web client has no control for the two locked rules (\"children cannot unlock\", \"guests cannot buy\"); they are only reachable by calling set_rule directly, which this audit may not do. Covered by tests/s7 (vitest).",
+                  "location": {
+                    "file": "/home/madman/household-guard/tests/audit/s7.spec.ts",
+                    "line": 87,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 1,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:38:02.721Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "MANUAL: the web client has no control for the two locked rules (\"children cannot unlock\", \"guests cannot buy\"); they are only reachable by calling set_rule directly, which this audit may not do. Covered by tests/s7 (vitest).",
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s7.spec.ts",
+                        "line": 87,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s7-S7d-locked-safety-rules-warn-before-change/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-781ef320a87a23951671",
+          "file": "s7.spec.ts",
+          "line": 86,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s9.spec.ts",
+      "file": "s9.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S9 approval from the house screen books the ride",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15068,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "Yes buttons visible with no adult confirmed: \u001b[33m0\u001b[39m\n"
+                    },
+                    {
+                      "text": "TIMELINE: What happened\n🛒\nRide booked for Maya: $38 at 5:38 PM.\n2026-10-21\n🛒\nMom said yes at 5:38 PM.\n2026-10-21\n🔑\nMom confirmed on their phone at 5:38 PM.\n2026-10-21\n🛒\nMaya asked for a $38 ride at 5:38 PM. Held: over Maya's $20 a week.\n2026-10-21\n🔑\nMaya confirmed on their phone at 5:38 PM.\n2026-10-21\n"
+                    },
+                    {
+                      "text": "console errors: [\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:38:02.736Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s9-S9-approval-from-the-house-screen-books-the-ride/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s9-S9-approval-from-the-house-screen-books-the-ride/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s9-S9-approval-from-the-house-screen-books-the-ride/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "40222bcb118ba21fcbfd-ef78f3fc8f19dc54ada8",
+          "file": "s9.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "S9 a \"Yes\" cannot book twice and a teen cannot approve from the screen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T21:38:18.094Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s9-S9-a-Yes-cannot-book-tw-701ea-not-approve-from-the-screen/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s9-S9-a-Yes-cannot-book-tw-701ea-not-approve-from-the-screen/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/pf1/s9-S9-a-Yes-cannot-book-tw-701ea-not-approve-from-the-screen/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "40222bcb118ba21fcbfd-9674c65fdeb91212ac2e",
+          "file": "s9.spec.ts",
+          "line": 56,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T21:33:11.194Z",
+    "duration": 316865.253,
+    "expected": 41,
+    "skipped": 1,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
