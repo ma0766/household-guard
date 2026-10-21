@@ -1,7 +1,7 @@
 # Morning report (written 2026-10-21)
 
 ## The short version
-All of S0 to S16 is built, tested and pushed on branch `roadmap`. **I did NOT merge to `main`.** One rule blocked it: `npm run verify` must pass first, and three tests that call the real AI on Amazon Bedrock fail because your AWS sign-in ran out. Everything else passes.
+All of S0 to S16 is built, tested and pushed on branch `roadmap`. **Update: you signed in again. `npm run verify` now exits 0 (S0 to S16 all PASS) and e2e passes 18/18, so `roadmap` is merged into `main`.** Prod was NOT redeployed.
 
 ## Proof (what I ran)
 - Tag `submission-v1` is on the remote. The submitted site was never touched.
@@ -24,14 +24,13 @@ S0 to S16, each with tests and a review. Roadmap is live on its own stack (`Hous
 - S18 Certification: needs Amazon and a lawyer, not code.
 
 ## Broken or limited
-- 3 live-AI tests fail until you sign in to AWS (above). Not a code bug.
 - AgentCore gateway is slower than 500 ms at p95 (549 ms vs 252 ms direct). It is OFF by default. It answers as a guest only.
 - Home Assistant works only on this laptop (Docker, port 8020).
 - Dad shows on the web page only when you open it with `?dad=1` (after `npm run demo:reset`).
 - The open demo sign-in on the submitted site is still on, as submitted.
 
 ## What you must do next (in order)
-1. `aws login`, then `npm run verify` and `npm run e2e`. If both pass, merge: `git checkout main && git merge roadmap && git push`. Do not deploy prod unless you want to.
+1. Nothing to merge: done. Do not deploy prod unless you want to.
 2. Verify an SES sender; put `HG_EMAIL_FROM` and `HG_APPROVER_EMAIL` in `.env.deploy.roadmap`; `npm run deploy:roadmap`.
 3. Add Composio and Wix keys when you have them. Add `HG_ALEXA_VENDOR_ID` when Amazon gives it.
 4. Make the repo public, copy it to GitHub, record the video, run the hallway test with two people, submit on Devpost.
