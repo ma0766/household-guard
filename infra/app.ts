@@ -36,6 +36,8 @@ class HouseholdGuardStack extends Stack {
     });
     const secret = process.env.HG_TOKEN_SECRET;
     if (!secret) throw new Error('HG_TOKEN_SECRET is required — run npm run deploy');
+    // exactly the table actions the house uses, on this one table (no BatchGet, no Scan unless that function really scans)
+    const grantData = (fn: Fn, scan = false) => fn.addToRolePolicy(new PolicyStatement({ actions: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem', 'dynamodb:Query', 'dynamodb:ConditionCheckItem', ...(scan ? ['dynamodb:Scan'] : [])], resources: [table.tableArn] }));
     const queue = new Queue(this, 'Jobs', { visibilityTimeout: Duration.seconds(240) }); // longer than the worker's time AND the 90 s lease of a site job
 
     // ---- sign-in (S12): Amazon Cognito as the OAuth 2.1 server (authorization code + PKCE, refresh tokens, client_credentials) ----
@@ -115,7 +117,7 @@ class HouseholdGuardStack extends Stack {
       },
     });
     if (sesPolicy) web.addToRolePolicy(sesPolicy);
-    table.grantReadWriteData(web);
+    grantData(web);
     queue.grantSendMessages(web);
     const worker = new Fn(this, 'Worker', {
       runtime: Runtime.NODEJS_22_X,
@@ -127,8 +129,8 @@ class HouseholdGuardStack extends Stack {
     });
     if (sesPolicy) worker.addToRolePolicy(sesPolicy);
     // the risk check calls Claude Haiku on Amazon Bedrock (us-east-1)
-    worker.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel', 'bedrock:Converse'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
-    table.grantReadWriteData(worker);
+    worker.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
+    grantData(worker);
     worker.addEventSource(new SqsEventSource(queue, { batchSize: 5 }));
     // self-healing: every 5 minutes a safe read of each service; a model proposes a repair only if the answer stopped fitting
     const heal = new Fn(this, 'Heal', {
@@ -139,8 +141,8 @@ class HouseholdGuardStack extends Stack {
       timeout: Duration.minutes(5), // households are checked five at a time; a model repair can take 20 seconds
       environment: { HG_TABLE: table.tableName },
     });
-    heal.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel', 'bedrock:Converse'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
-    table.grantReadWriteData(heal);
+    heal.addToRolePolicy(new PolicyStatement({ actions: ['bedrock:InvokeModel'], resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*'] }));
+    grantData(heal, true);
     new Rule(this, 'HealEvery5Minutes', { schedule: Schedule.rate(Duration.minutes(5)), targets: [new LambdaFunction(heal, { retryAttempts: 0 })] });
     // ---- AgentCore Gateway + Policy (S16): a second front door to the SAME decision. OFF unless -c agentcore=1 ----
     if (ctx('agentcore') === '1') {
@@ -153,7 +155,7 @@ class HouseholdGuardStack extends Stack {
         timeout: Duration.seconds(20),
         environment: { HG_TABLE: table.tableName, HG_QUEUE_URL: queue.queueUrl, HG_TOKEN_SECRET: secret, HG_GATEWAY_HOUSEHOLD: ctx('gatewayHousehold') ?? 'gateway', ...emailEnv },
       });
-      table.grantReadWriteData(target);
+      grantData(target);
       queue.grantSendMessages(target);
       if (sesPolicy) target.addToRolePolicy(sesPolicy);
       // its own sign-in client: the gateway is not opened by the same secret as the main door
