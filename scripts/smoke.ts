@@ -8,7 +8,8 @@ const base = process.env.HG_URL ?? env.HG_URL;
 if (!base) { console.error('No HG_URL. Run npm run deploy first.'); process.exit(1); }
 if (!process.env.HG_TOKEN_SECRET) process.env.HG_TOKEN_SECRET = env.HG_TOKEN_SECRET;
 
-const token = mintToken('smoke', 300);
+const hh = `smoke${Date.now()}`; // a fresh household each run
+const token = mintToken('smoke', 300, hh);
 let id = 1;
 async function rpc(method: string, params?: unknown) {
   const r = await fetch(`${base}/mcp`, {
@@ -27,6 +28,19 @@ const list = await rpc('tools/list');
 console.log('tools/list ✓', list.result.tools.map((t: any) => t.name).join(', '));
 const call = await rpc('tools/call', { name: 'household_status', arguments: {} });
 console.log('tools/call ✓', call.result.content[0].text);
+const act = await rpc('tools/call', { name: 'request_action', arguments: { service: 'sim-home', action: 'light', item: 'lights', value: 'off' } });
+const out = act.result.structuredContent;
+if (out.outcome !== 'allowed' || !out.done) throw new Error(`guest lights should be allowed and done: ${JSON.stringify(out)}`);
+console.log('request_action (guest, lights) ✓', out.say);
+const unlock = (await rpc('tools/call', { name: 'request_action', arguments: { service: 'sim-home', action: 'unlock', item: 'front door' } })).result.structuredContent;
+if (unlock.outcome !== 'denied') throw new Error(`guest unlock must be denied: ${JSON.stringify(unlock)}`);
+console.log('request_action (guest, unlock) denied ✓', unlock.say);
+const none = await fetch(`${base}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' }, body: '{}' });
+if (none.status !== 401) throw new Error(`no token should be 401, got ${none.status}`);
+console.log('no token → 401 ✓');
+const meta = await fetch(`${base}/.well-known/oauth-protected-resource`);
+if (!meta.ok) throw new Error('well-known metadata missing');
+console.log('well-known metadata ✓');
 const bad = await fetch(`${base}/mcp`, { method: 'POST', headers: { origin: 'https://evil.example', authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: '{}' });
 if (bad.status !== 403) throw new Error(`bad Origin should be 403, got ${bad.status}`);
 console.log('bad Origin → 403 ✓');

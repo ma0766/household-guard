@@ -1,10 +1,9 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
 import type { Role, SessionMethod } from '../core/types.js';
 import { generatePolicies, type RulesConfig } from './rules.js';
 
-export const SCHEMA = readFileSync(fileURLToPath(new URL('./schema.cedarschema', import.meta.url)), 'utf8');
+import { SCHEMA_TEXT } from './schema.js';
+export const SCHEMA = SCHEMA_TEXT;
 
 export interface DecisionInput {
   person: { id: string; role: Role };

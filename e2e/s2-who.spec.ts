@@ -25,5 +25,5 @@ test('S2: a name alone does nothing; the number lands on the right phone; PIN wo
   // Maya asks 4 times → locked
   for (let i = 0; i < 3; i++) await page.getByTestId('who-maya').click();
   await page.getByTestId('who-maya').click();
-  await expect(page.getByTestId('alexa-says')).toHaveText('Too many tries. Locked for 10 minutes.');
+  await expect(page.getByTestId('alexa-says')).toHaveText('Too many tries. Wait 10 minutes.');
 });

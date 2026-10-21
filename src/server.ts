@@ -39,6 +39,28 @@ async function serveStatic(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+export const PRIVACY = [
+  'Household Guard privacy note',
+  '',
+  'We do not store audio. Alexa turns speech into text; we only see the text.',
+  'Profiles for children are created only by an adult.',
+  'The log of what happened is kept for 90 days, then it is deleted.',
+  'PINs are stored scrambled (scrypt). We never store a PIN as typed.',
+  'We keep what we need to apply your house rules: names, roles, limits, and the log.',
+  'We never sell or share it. This note is not legal advice.',
+].join('\n');
+
+function sendJson(res: ServerResponse, body: unknown) {
+  res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(body));
+}
+
+// RFC 9728 style metadata: tells a client which resource this is and that a bearer token is required
+function protectedResource(req: IncomingMessage) {
+  const host = req.headers.host ?? 'localhost';
+  const proto = (req.headers['x-forwarded-proto'] as string) ?? (host.startsWith('127.') || host.startsWith('localhost') ? 'http' : 'https');
+  return { resource: `${proto}://${host}/mcp`, bearer_methods_supported: ['header'], resource_documentation: `${proto}://${host}/privacy`, authorization_servers: [] };
+}
+
 export function createApp(given?: Deps) {
   let deps = given;
   const getDeps = (): Deps => (deps ??= makeDeps());
@@ -48,6 +70,10 @@ export function createApp(given?: Deps) {
       try {
         if (url.pathname === '/healthz') return void res.writeHead(200).end('ok');
         if (url.pathname === '/mcp') return await handleMcp(req, res, getDeps());
+        // public metadata (no sign-in needed): what this server is, how it signs people in, and what it keeps
+        if (url.pathname === '/.well-known/oauth-protected-resource') return sendJson(res, protectedResource(req));
+        if (url.pathname === '/.well-known/household-guard.json') return sendJson(res, { name: 'Household Guard', mcp: '/mcp', protocol_versions: ['2025-11-25', '2025-03-26'], tools: 'tools/list', privacy: '/privacy', source: 'MIT licensed, see LICENSE' });
+        if (url.pathname === '/privacy') return void res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' }).end(PRIVACY);
         // local demo only: hands out a signed token so the web client can sign in
         if (url.pathname === '/demo-token' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {
           return void res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(demoTokens(url)));

@@ -26,7 +26,7 @@ export const T = {
   needsAdult: 'An adult must say yes first.',
   oops: 'Something went wrong. Ask an adult.',
   confirmOnPhone: (n: number) => `Confirm on your phone: ${n}`,
-  locked: 'Too many tries. Locked for 10 minutes.',
+  locked: 'Too many tries. Wait 10 minutes.',
   guestNoBuy: "Guests can't buy things.",
   childNoBuy: 'An adult must say yes to buys.',
   overWeekly: (name: string, cap: number) => `Held: over ${name}'s ${money(cap)} a week.`,

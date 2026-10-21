@@ -170,3 +170,38 @@ describe('S7 full replay', () => {
     expect(new Set(CASES.map((c) => c.id)).size).toBe(30);
   });
 });
+
+describe('S7 review fixes', () => {
+  it('undoing a change that had turned a locked rule back ON needs the warning and a second tap', async () => {
+    let t = Date.now();
+    const ctx = await newHousehold({ now: () => t });
+    const again = async () => { t += 11 * 60_000; await speakAs(ctx.store, ctx.hh, 'mom', 'phone', t); };
+    // start from a house where the locked rule is already off, then turn it on, then undo that
+    await ctx.store.put({ pk: Store.hk(ctx.hh), sk: 'RULES#current', config: { ...defaultRules(), floor: { childrenNoUnlock: false, guestsNoBuy: true } } });
+    await again();
+    await change(ctx, { change: { template: 'floor', which: 'childrenNoUnlock', enabled: true } });
+    await again();
+    const r = await proposeRule(ctx.deps, ctx.hh, { undo: true });
+    expect(r.warning).toBe('This turns off a locked rule.');
+    const first = await tapFor(ctx, 'mom', r.challenge_id!);
+    expect(first.result).toMatchObject({ done: false });
+    expect((await loadHousehold(ctx.store, ctx.hh)).rules.floor.childrenNoUnlock).toBe(true); // one tap is not enough
+    expect((await tapFor(ctx, 'mom', first.result!.jobId!)).result).toMatchObject({ done: true });
+    expect((await loadHousehold(ctx.store, ctx.hh)).rules.floor.childrenNoUnlock).toBe(false);
+  });
+  it('refused attempts by a guest or a PIN-only adult are in the log too', async () => {
+    const ctx = await newHousehold();
+    await proposeRule(ctx.deps, ctx.hh, limit('maya', 500));
+    await speakAs(ctx.store, ctx.hh, 'mom', 'pin');
+    await proposeRule(ctx.deps, ctx.hh, limit('maya', 500));
+    const t = (await readAudit(ctx.store, ctx.hh)).map((e) => e.text).join('\n');
+    expect(t).toMatch(/Someone tried to change a rule at .* Nobody was confirmed\./);
+    expect(t).toMatch(/Mom tried to change a rule at .* Needs their phone first\./);
+  });
+  it('the change record is saved with the rule, so it can always be undone', async () => {
+    const ctx = await newHousehold();
+    await speakAs(ctx.store, ctx.hh, 'mom');
+    await change(ctx, limit('maya', 30));
+    expect((await ctx.store.query(Store.hk(ctx.hh), 'RULECHG#')).map((r) => r.status)).toEqual(['applied']);
+  });
+});

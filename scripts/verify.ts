@@ -41,7 +41,7 @@ if (existsSync('test-results/unit.json')) {
   for (const f of j.testResults ?? []) {
     const s = sliceOf(f.name);
     if (!s) continue;
-    for (const a of f.assertionResults) tally[s][a.status === 'passed' ? 'pass' : 'fail']++;
+    for (const a of f.assertionResults) if (!['pending', 'skipped', 'todo'].includes(a.status)) tally[s][a.status === 'passed' ? 'pass' : 'fail']++; // a skipped live-Bedrock test is not a failure
     if (f.status === 'failed' && f.assertionResults.length === 0) tally[s].fail++;
   }
 }

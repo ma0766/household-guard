@@ -29,12 +29,18 @@ export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleCh
     const { people, rules, meta } = await loadHousehold(deps.store, hh);
     const s = await getSession(deps.store, hh, now);
     const me = s && people.find((p) => p.id === s.personId);
-    if (!me || me.role === 'guest') return { status: 'denied', say: T.whoAreYou };
+    if (!me || me.role === 'guest') {
+      await emit(deps, hh, { kind: 'rule', category: 'rule', person: 'guest', personName: 'Someone', text: (t) => `Someone tried to change a rule at ${t}. No. Nobody was confirmed.`, data: { refused: 'no_session' } });
+      return { status: 'denied', say: T.whoAreYou };
+    }
     if (me.role !== 'adult') {
       await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. No. Only adults can.`, data: { refused: 'not_adult' } });
       return { status: 'denied', say: 'Only adults can change rules.' };
     }
-    if (s!.method !== 'phone') return { status: 'denied', say: T.confirmPhone };
+    if (s!.method !== 'phone') {
+      await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. Needs their phone first.`, data: { refused: 'needs_phone' } });
+      return { status: 'denied', say: T.confirmPhone };
+    }
 
     let meta2: Record<string, unknown>;
     let sentence: string;
@@ -43,7 +49,9 @@ export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleCh
       const last = await latestChange(deps, hh);
       if (!last || last.at + UNDO_MS < now) return { status: 'invalid', say: last ? 'That is too old to undo.' : 'Nothing to undo.' };
       sentence = `Undo: ${last.sentence}`;
-      meta2 = { undoVersion: last.version, text: `Undo the last change. ${last.sentence}`, stage: 'final' };
+      const loosens = (['childrenNoUnlock', 'guestsNoBuy'] as const).some((k) => rules.floor[k] && !last.before.floor[k]);
+      if (loosens) warning = 'This turns off a locked rule.';
+      meta2 = { undoVersion: last.version, text: `Undo the last change. ${last.sentence}`, stage: loosens ? 1 : 'final' };
     } else {
       const a = applyChange(rules, req.change!, people);
       if (!a.ok) return { status: 'invalid', say: a.error };
@@ -74,10 +82,11 @@ async function latestChange(deps: Deps, hh: string): Promise<ChangeRow | undefin
   return rows.find((r) => r.status === 'applied');
 }
 
-async function save(deps: Deps, hh: string, next: RulesConfig, baseVersion: number): Promise<boolean> {
+async function save(deps: Deps, hh: string, next: RulesConfig, baseVersion: number, extra: any[]): Promise<boolean> {
   const pk = Store.hk(hh);
   try {
     await deps.store.transact([
+      ...extra, // the change record (or the undo mark) commits WITH the new rules: a saved change is always undoable
       { Update: { TableName: deps.store.table, Key: { pk, sk: 'RULES#current' }, UpdateExpression: 'SET config = :c', ConditionExpression: 'config.version = :v', ExpressionAttributeValues: { ':c': next, ':v': baseVersion } } },
       { Put: { TableName: deps.store.table, Item: { pk, sk: `RULES#v${next.version}`, config: next }, ConditionExpression: 'attribute_not_exists(pk)' } },
     ]);
@@ -96,6 +105,11 @@ export async function completeRule(deps: Deps, hh: string, personId: string, c: 
   const me = people.find((p) => p.id === personId);
   if (!me || me.role !== 'adult') return { done: false, reason: 'Only adults can change rules.' }; // checked again at the moment of the change
 
+  if (m.stage === 1 && m.undoVersion !== undefined) {
+    const { challenge, locked } = await openChallenge(deps, hh, me, 'rule', undefined, { ...m, stage: 'final', text: `Are you sure? This turns off a locked rule. ${m.text}` });
+    if (locked || !challenge) return { done: false, reason: T.locked };
+    return { done: false, reason: `This turns off a locked rule. ${T.confirmOnPhone(challenge.number)}`, jobId: challenge.id };
+  }
   if (m.stage === 1) {
     const a = applyChange(rules, m.change, people);
     if (!a.ok) return { done: false, reason: a.error };
@@ -120,10 +134,12 @@ export async function completeRule(deps: Deps, hh: string, personId: string, c: 
     next = a.config;
     sentence = a.sentence;
   }
-  if (!(await save(deps, hh, next, rules.version))) return { done: false, reason: 'The rules changed. Try again.' };
   const pk = Store.hk(hh);
-  if (undoneVersion !== undefined) await deps.store.update({ Key: { pk, sk: chgKey(undoneVersion) }, UpdateExpression: 'SET #s = :u', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':u': 'undone' } });
-  else await deps.store.put({ pk, sk: chgKey(next.version), version: next.version, by: me.id, sentence, before: rules, at: now, status: 'applied', ttl: Math.floor(now / 1000) + 90 * 86400 });
+  const record =
+    undoneVersion !== undefined
+      ? { Update: { TableName: deps.store.table, Key: { pk, sk: chgKey(undoneVersion) }, UpdateExpression: 'SET #s = :u', ConditionExpression: '#s = :a', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':u': 'undone', ':a': 'applied' } } }
+      : { Put: { TableName: deps.store.table, Item: { pk, sk: chgKey(next.version), version: next.version, by: me.id, sentence, before: rules, at: now, status: 'applied', ttl: Math.floor(now / 1000) + 90 * 86400 } } };
+  if (!(await save(deps, hh, next, rules.version, [record]))) return { done: false, reason: 'The rules changed. Try again.' };
   await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} ${undoneVersion !== undefined ? 'undid' : 'changed'} a rule at ${t}. ${sentence}`, data: { version: next.version } });
   return { done: true, reason: sentence };
 }

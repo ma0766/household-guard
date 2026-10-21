@@ -67,11 +67,11 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
     return { status: 'not_yours', say: 'That is not for you.' };
   }
   if (c.status !== 'open' || c.expiresAt <= now) return { status: 'expired', say: 'That one ran out of time.' };
-  if (await isLocked(deps.store, hh, personId, now)) return { status: 'locked', say: 'Too many tries. Locked for 10 minutes.' };
-  if ((await beginAttempt(deps.store, hh, personId, now)) === 'locked') return { status: 'locked', say: 'Too many tries. Locked for 10 minutes.' };
+  if (await isLocked(deps.store, hh, personId, now)) return { status: 'locked', say: 'Too many tries. Wait 10 minutes.' };
+  if ((await beginAttempt(deps.store, hh, personId, now)) === 'locked') return { status: 'locked', say: 'Too many tries. Wait 10 minutes.' };
   if (number !== c.number) {
     const w = await failAttempt(deps.store, hh, personId, name, now);
-    return w === 'locked' ? { status: 'locked', say: 'Too many tries. Locked for 10 minutes.' } : { status: 'wrong', say: 'Wrong number. Try again.' };
+    return w === 'locked' ? { status: 'locked', say: 'Too many tries. Wait 10 minutes.' } : { status: 'wrong', say: 'Wrong number. Try again.' };
   }
   await clearWrong(deps.store, hh, personId, now);
   // close it first (conditional) so a double tap can never run the action twice

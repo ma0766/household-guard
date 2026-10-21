@@ -12,7 +12,7 @@ Update after every slice. One line per check, with the command that proved it.
 | S5 Risk check | DONE (mock) — live Bedrock blocked, see below | `npx vitest run tests/s5` 17 pass + 1 live-Bedrock test skipped until access works; gift card allowed by rules → held by risk check; injection tests; BedrockRisk fail-closed (throw/timeout/garbage/not-low → hold); `npx playwright test e2e/s5-risk.spec.ts` PASS | S5 |
 | S6 Audit and status | DONE | `npx vitest run tests/s6` (hash chain: edited row / edited data / removed row / cut-off end / 20 parallel writers / daily checkpoint lets old rows be deleted; `npm run audit:verify -- <household> --local` exits 1 on an edited row, 0 when clean; plain sentences; person/day filters; voice summary totals first; real household_status; screens escape outside text); `npx playwright test e2e/s6-audit.spec.ts` PASS (test-results/s6-timeline-saving.png: the $24 saving in the timeline) | S6 |
 | S7 Editable rules + full replay | DONE | `npx vitest run tests/s7 tests/replay` (limit change follows on the next decision; teen/guest/PIN-only/stolen tap refused; undo newest-only within 24h; locked rules need warning + 2nd tap; bad input refused before save; kids see own rules; OCC on parallel edits); replay = 30 of 30 cases; `npx playwright test e2e/s7-rules.spec.ts` PASS (test-results/s7-rule-card.png) | S7 |
-| S8 Hardening + submission pack (code parts) | not started | | |
+| S8 Hardening + submission pack (code parts) | DONE | `npx vitest run tests/s8` (401 on missing/bad/expired/tampered sign-in for /mcp and every /phone route; /.well-known + /privacy public; no tool creates profiles or takes a person; reading-level ≤ grade 5 and no tech words on every spoken line; schema bundled); `npx playwright test e2e/s8-hardening.spec.ts` PASS; `npm run deploy` OK and `npm run smoke:deployed` → initialize ✓ tools/list ✓ tools/call ✓ guest lights ✓ guest unlock denied ✓ no token 401 ✓ well-known ✓ bad Origin 403 ✓ against https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws; README, FEEDBACK.md, FRICTION_LOG.md, LICENSE (MIT), docs/architecture.svg exist | S8 |
 
 ## Decisions
 
@@ -37,6 +37,9 @@ Update after every slice. One line per check, with the command that proved it.
 - 2026-10-20 The log never changes an answer: building or writing a sentence can fail loudly in logs but never throws to the caller. Words from callers are whitelisted/trimmed before they reach a sentence.
 - 2026-10-20 Rule edits: every change (and undo) needs the adult's own phone tap; the 3-pushes-per-10-minutes limit applies to rule edits too (by design). The weekly-limit card sets the per-buy limit to the same amount. Undo only reverts the newest applied change.
 - 2026-10-20 Fixed a real bug found by the S7 test: the audit hash depended on key order in `data`; the hash now sorts keys at every level.
+- 2026-10-20 The Lambda cannot read files at start-up (the first S8 deploy crashed on `schema.cedarschema`), so the Cedar schema is a string in `src/policy/schema.ts`; a test keeps it equal to the readable `.cedarschema`.
+- 2026-10-20 Provisioned concurrency is documented in the README as off-by-default (not scripted); `/demo-token` stays enabled on the deployed Lambda (`HG_DEMO=1`) so the hosted web client can sign in — remove it after judging.
+- 2026-10-20 Review fixes (S7/S8): undo of a change that re-enabled a locked rule needs the warning + second tap; the rule change record commits in the same transaction as the new rules; refused rule attempts are all logged; `-c demo=0` switches the open demo sign-in off after judging.
 
 ## Blocked on user
 
@@ -46,6 +49,8 @@ Update after every slice. One line per check, with the command that proved it.
 
 - Make the GitLab repo PUBLIC (GitLab: Settings → General → Visibility → Public) and add an MIT LICENSE before submitting on Devpost.
 - Copy the repo to a GitHub repo before submitting; Devpost accepts GitHub only.
+- Turn provisioned concurrency on only while recording, then off; run `npx cdk destroy` after Nov 20 (end of judging).
+- Submit the Bedrock use-case form (see Blocked on user), then re-run `npx vitest run tests/s5` — the live test un-skips itself.
 - Record the 2:45 video (script in docs/SPEC.md, "Demo script")
 - Hallway test with two people (docs/SLICES.md, "Usability standard")
 - Fill the friction log "what happened" column from real build notes

@@ -41,7 +41,8 @@ class HouseholdGuardStack extends Stack {
         HG_TABLE: table.tableName,
         HG_QUEUE_URL: queue.queueUrl,
         HG_TOKEN_SECRET: secret,
-        HG_DEMO: '1', // demo-token endpoint so the hosted web client can sign in (decision logged in PROGRESS.md)
+        // demo-token endpoint so the hosted web client can sign in. It hands out tokens to anyone: deploy with `-c demo=0` after judging.
+        HG_DEMO: this.node.tryGetContext('demo') === '0' ? '0' : '1',
       },
     });
     table.grantReadWriteData(web);
