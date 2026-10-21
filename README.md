@@ -34,13 +34,15 @@ Needs Node 22, Docker (for DynamoDB Local on 127.0.0.1:8018).
 npm install
 npx playwright install chromium
 npm run dev            # DynamoDB Local + server (8016) + Vite client (8017)
+npm run demo:reset     # (optional) put the demo house back to its start: Mom, Dad, Maya 15, Leo 8, a guest
 npm test               # unit + replay (30 cases) + concurrency/duplicate/surge/injection/audit-tamper tests
 npm run e2e            # Playwright against the local stack, screenshots in test-results/
 npm run verify         # lint, typecheck, test, e2e; prints a per-slice PASS/FAIL table
 ```
 
 Open http://127.0.0.1:8016. Pick who is talking, say something, and tap numbers on the simulated phones.
-Demo household: **Mom** (adult, phone), **Maya** (teen, phone, $20 a week), **Leo** (child, no phone — PIN `4821`), **Guest**.
+Demo household: **Mom** and **Dad** (adults, phones), **Maya** (teen, phone, $20 a week), **Leo** (8, child, no phone — PIN `4821`), **Guest**. `npm run demo:reset` adds Dad and Maya's and Leo's ages; the web page shows Mom, Maya, Leo and Guest.
+The demo needs no AWS account. The few tests that call the real risk model on Amazon Bedrock (`tests/s5`, one in `tests/s11`) need `aws login` first.
 Locally the risk check uses a mock; on AWS it calls Claude Haiku on Amazon Bedrock (`us.anthropic.claude-haiku-4-5-20251001-v1:0`).
 
 ## Deploy (AWS, us-east-1)
@@ -53,9 +55,9 @@ npm run smoke:deployed            # initialize → tools/list → tools/call (+ 
 
 Lambda + Function URL (Lambda Web Adapter, response streaming), DynamoDB single table, SQS + worker Lambda, Bedrock. **The deployed demo has an open sign-in endpoint** (`/demo-token`, so the hosted web client works for judges): it hands out demo tokens for any household name. Redeploy with `npx cdk deploy -c demo=0` (needs `HG_TOKEN_SECRET` from `.env.deploy`) to switch it off; the real sign-in (Cognito + passkeys) is roadmap slice S12. Provisioned concurrency is **off** (credits); turn it on only while recording the video and off again. Tear down after judging: `npx cdk destroy`.
 
-## The eight tools (a fixed facade)
+## The ten tools (a fixed facade)
 
-`household_status`, `request_action`, `confirm_identity`, `approve_request`, `job_status`, `audit_log`, `show_on_screen`, `set_rule`. Tools never change, so nothing behind them needs a redeploy to Alexa. Anything slow returns a job id in under 500 ms.
+`household_status`, `request_action`, `confirm_identity`, `approve_request`, `job_status`, `audit_log`, `show_on_screen`, `set_rule`, `find_capability`, `connect_service`. Tools never change, so nothing behind them needs a redeploy to Alexa. Anything slow returns a job id in under 500 ms.
 
 ## Layout
 
@@ -72,6 +74,10 @@ tests/s0…s8, tests/replay   e2e/   infra/ (CDK)   docs/ (SPEC, SLICES, PROGRES
 ## Honest limits
 
 Real Alexa+ add-on tools are preview-only, so the demo uses a web MCP client (allowed by the hackathon FAQ). Alexa gives add-ons no per-speaker identity, so identity is confirmed by phone tap/PIN; see FRICTION_LOG.md and FEEDBACK.md. No real money, no real devices: mock ride service, simulated home. The rules cover actions routed through this add-on only. Not legal advice (children's data: no audio stored, adults create child profiles, log expires after 90 days).
+
+## Roadmap (S9–S16)
+
+Screens as MCP Apps, rule proofs in CI, self-healing rides, real sign-in (Amazon Cognito) with approval emails, connect-any-app per person, Home Assistant, site building, and an AgentCore gateway (off by default). **Stand-ins, clearly labelled:** the app hub (Composio), the site builder (Wix) and email sending (SES) run against stand-ins until keys exist. See `docs/PROGRESS.md`, `docs/THREAT_MODEL.md` and `docs/MORNING-REPORT.md`. Deploy the roadmap only with `npm run deploy:roadmap` (its own stack); the submitted stack deploys from `main` only.
 
 ## Rule proofs (S10)
 
