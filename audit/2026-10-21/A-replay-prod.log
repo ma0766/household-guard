@@ -1,0 +1,31 @@
+PASS | teen-lights-off | allowed done=true
+PASS | teen-unlock-denied | denied done=false
+PASS | teen-delete-account-denied | denied done=false
+PASS | adult-unlock-allowed | allowed done=false
+PASS | guest-lights-allowed | allowed done=true
+PASS | guest-unlock-denied | denied done=false
+PASS | unknown-service-held | held done=false
+PASS | child-garage-denied | denied done=false
+PASS | teen-thermostat-72-allowed | allowed done=true
+PASS | teen-thermostat-95-held | held done=false
+PASS | teen-ride-mall-15-allowed | allowed done=false
+PASS | teen-ride-airport-38-held | held done=false
+PASS | teen-ride-airport-shared-14-allowed | allowed done=false
+PASS | guest-ride-denied | denied done=false
+PASS | child-ride-held | held done=false
+PASS | adult-ride-airport-38-allowed | allowed done=false
+PASS | teen-gift-card-15-allowed-by-rules | allowed done=false
+PASS | teen-unknown-store-held | held done=false
+NOT-REPLICABLE | adult-lights-by-pin-done | Mom has no PIN in the seeded household; no public way to set one
+NOT-REPLICABLE | adult-unlock-by-pin-held | Mom has no PIN in the seeded household; no public way to set one
+PASS | limit-raised-teen-airport-38-still-held | held done=false
+PASS | limit-raised-teen-airport-economy-24-allowed | allowed done=false
+PASS | limit-lowered-teen-mall-15-held | held done=false
+PASS | adults-only-thermostat-teen-denied | denied done=false
+PASS | apps-without-shop-teen-gift-card-held | held done=false
+PASS | guest-buy-floor-off-still-denied | denied done=false
+PASS | child-unlock-floor-off-still-denied | denied done=false
+NOT-REPLICABLE | needs-approval-teen-lights-held | no public tool makes this rule (needsApproval/deny lists)
+NOT-REPLICABLE | deny-adult-lights-denied | no public tool makes this rule (needsApproval/deny lists)
+PASS | must-have-bag-teen-airport-held | held done=false
+PROD REPLAY: 26 pass, 0 fail/error, 4 not replicable over HTTP, of 30

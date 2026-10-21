@@ -1,0 +1,172 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s12.spec.ts",
+      "-g",
+      "demo token"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-a3.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s12.spec.ts",
+      "file": "s12.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S12 prod: the demo token endpoint is open by design - check what it hands out",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 343,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "demo-token keys: token,phones | phones: mom,dad,maya\n"
+                    },
+                    {
+                      "text": "/demo-token?hh=service -> 200 household in key: demo\n"
+                    },
+                    {
+                      "text": "/demo-token?hh=gateway -> 200 household in key: demo\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:37:51.430Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3/s12-S12-prod-the-demo-toke-12fd6-n---check-what-it-hands-out/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-23aadaa7d8a8d1b824c7",
+          "file": "s12.spec.ts",
+          "line": 102,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:37:50.876Z",
+    "duration": 971.4399999999999,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

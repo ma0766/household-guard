@@ -1,0 +1,217 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s6.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a2s6",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a2s6",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-a2s6.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s6.spec.ts",
+      "file": "s6.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S6 timeline in plain sentences, filters by person and day, voice summary, edited row caught by verify script",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "find-in-seconds",
+                  "description": "person+day filter + summary done in 0.989s"
+                },
+                {
+                  "type": "sandbox-console-errors",
+                  "description": "56"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11882,
+                  "error": {
+                    "message": "Error: spec: voice summary is two or three sentences; got: The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m3\u001b[39m\nReceived:    \u001b[31m4\u001b[39m",
+                    "stack": "Error: spec: voice summary is two or three sentences; got: The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m3\u001b[39m\nReceived:    \u001b[31m4\u001b[39m\n    at /home/madman/household-guard/tests/audit/s6.spec.ts:52:119",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                      "column": 119,
+                      "line": 52
+                    },
+                    "snippet": "  50 |   writeFileSync(`audit/2026-10-21/s6-summary-${T}.txt`, s + '\\n');\n  51 |   expect(s).toMatch(/\\$14/);\n> 52 |   expect.soft(s.split(/[.!?]+\\s/).filter(Boolean).length, `spec: voice summary is two or three sentences; got: ${s}`).toBeLessThanOrEqual(3);\n     |                                                                                                                       ^\n  53 |   test.info().annotations.push({ type: 'find-in-seconds', description: `person+day filter + summary done in ${(Date.now() - t0) / 1000}s` });\n  54 |   expect.soft(errors.filter((e) => !/Blocked script execution/.test(e)), 'console errors other than sandbox').toEqual([]);\n  55 |   test.info().annotations.push({ type: 'sandbox-console-errors', description: String(errors.length) });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                        "column": 119,
+                        "line": 52
+                      },
+                      "message": "Error: spec: voice summary is two or three sentences; got: The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m3\u001b[39m\nReceived:    \u001b[31m4\u001b[39m\n\n  50 |   writeFileSync(`audit/2026-10-21/s6-summary-${T}.txt`, s + '\\n');\n  51 |   expect(s).toMatch(/\\$14/);\n> 52 |   expect.soft(s.split(/[.!?]+\\s/).filter(Boolean).length, `spec: voice summary is two or three sentences; got: ${s}`).toBeLessThanOrEqual(3);\n     |                                                                                                                       ^\n  53 |   test.info().annotations.push({ type: 'find-in-seconds', description: `person+day filter + summary done in ${(Date.now() - t0) / 1000}s` });\n  54 |   expect.soft(errors.filter((e) => !/Blocked script execution/.test(e)), 'console errors other than sandbox').toEqual([]);\n  55 |   test.info().annotations.push({ type: 'sandbox-console-errors', description: String(errors.length) });\n    at /home/madman/household-guard/tests/audit/s6.spec.ts:52:119"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:31:27.698Z",
+                  "annotations": [
+                    {
+                      "type": "find-in-seconds",
+                      "description": "person+day filter + summary done in 0.989s"
+                    },
+                    {
+                      "type": "sandbox-console-errors",
+                      "description": "56"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a2s6/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a2s6/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a2s6/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a2s6/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                    "column": 119,
+                    "line": 52
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f16d5b9508564124d51a-38972b26031e04c77314",
+          "file": "s6.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:31:27.170Z",
+    "duration": 12975.626,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

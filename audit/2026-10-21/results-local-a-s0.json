@@ -1,0 +1,329 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s0.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8016",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-local-a-s0.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s0.spec.ts",
+      "file": "s0.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S0 browser: connect, list tools, ask status; log shows raw answers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 585,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:36:38.866Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-browser-connect-list-d05e5-tatus-log-shows-raw-answers/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-browser-connect-list-d05e5-tatus-log-shows-raw-answers/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-browser-connect-list-d05e5-tatus-log-shows-raw-answers/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-da597829de47df641013",
+          "file": "s0.spec.ts",
+          "line": 7,
+          "column": 1
+        },
+        {
+          "title": "S0 browser: no console errors on first load and tool list",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2969,
+                  "error": {
+                    "message": "Error: console errors\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: console errors\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /home/madman/household-guard/tests/audit/s0.spec.ts:29:36",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s0.spec.ts",
+                      "column": 36,
+                      "line": 29
+                    },
+                    "snippet": "  27 |   await expect(page.getByTestId('log')).toContainText('request_action', { timeout: 15000 });\n  28 |   await page.waitForTimeout(2500);\n> 29 |   expect(errors, 'console errors').toEqual([]);\n     |                                    ^\n  30 | });\n  31 |\n  32 | test('S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401', async ({ request, baseURL }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s0.spec.ts",
+                        "column": 36,
+                        "line": 29
+                      },
+                      "message": "Error: console errors\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  27 |   await expect(page.getByTestId('log')).toContainText('request_action', { timeout: 15000 });\n  28 |   await page.waitForTimeout(2500);\n> 29 |   expect(errors, 'console errors').toEqual([]);\n     |                                    ^\n  30 | });\n  31 |\n  32 | test('S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401', async ({ request, baseURL }) => {\n    at /home/madman/household-guard/tests/audit/s0.spec.ts:29:36"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:36:39.608Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s0.spec.ts",
+                    "column": 36,
+                    "line": 29
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-844984caa2b005cc4340",
+          "file": "s0.spec.ts",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 99,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:36:43.076Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-http-both-protocol-v-d2cf8--no-token-401-bad-token-401/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-af3a29f59328777bdd64",
+          "file": "s0.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "S0 http: tools/list over raw HTTP has exactly the fixed ten tools and no person field on request_action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 32,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:36:43.229Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a-s0/s0-S0-http-tools-list-over-75e32-son-field-on-request-action/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-809afc91b02befad9d6c",
+          "file": "s0.spec.ts",
+          "line": 56,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:36:38.472Z",
+    "duration": 4824.374,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "teenText": "That's new here. An adult must say yes.",
+  "guestText": "Tell me who you are first.",
+  "seen": [
+    "Confirm on your phone: 58"
+  ],
+  "screenText": "Your site is ready: Sunny Bakery\n\nScan the code, or open the link, on your phone.\n\nhttp://127.0.0.1:8016/preview/lSE0oKYpGI0qjP9o",
+  "previewText": "Sunny Bakery\n\nFresh and local.\n\nWelcome to Sunny Bakery.\n\nA one-page site for Sunny Bakery.\n\nCome by and say hello.",
+  "link": "http://127.0.0.1:8016/preview/lSE0oKYpGI0qjP9o",
+  "answerMs": 122,
+  "errs": [
+    "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."
+  ]
+}

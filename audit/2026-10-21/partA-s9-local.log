@@ -1,0 +1,25 @@
+
+Running 2 tests using 1 worker
+
+Yes buttons visible with no adult confirmed: 0
+TIMELINE: What happened
+🛒
+Ride booked for Maya: $38 at 4:38 PM.
+2026-10-21
+🛒
+Mom said yes at 4:38 PM.
+2026-10-21
+🔑
+Mom confirmed on their phone at 4:38 PM.
+2026-10-21
+🛒
+Maya asked for a $38 ride at 4:38 PM. Held: over Maya's $20 a week.
+2026-10-21
+🔑
+Maya confirmed on their phone at 4:38 PM.
+2026-10-21
+console errors: ["Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  1 tests/audit/s9.spec.ts:5:1 › S9 approval from the house screen books the ride (11.0s)
+  ✓  2 tests/audit/s9.spec.ts:55:1 › S9 a "Yes" cannot book twice and a teen cannot approve from the screen (7.5s)
+
+  2 passed (19.7s)

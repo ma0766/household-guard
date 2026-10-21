@@ -1,0 +1,8 @@
+$ npm run audit:verify -- aus6mvik8szl2046 --local   (before edit)
+exit 0
+audit log OK: 7 entries
+
+$ npm run audit:verify -- aus6mvik8szl2046 --local   (after editing text of AUDIT#2)
+exit 1
+audit log BROKEN at entry 2: an entry was edited
+

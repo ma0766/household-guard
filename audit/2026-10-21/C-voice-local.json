@@ -1,0 +1,11 @@
+{
+  "spokenAfterButton": [
+    "Hi. I do not know you yet.",
+    "Done. The lights are off."
+  ],
+  "spokenAfterEnter": [
+    "Hi. I do not know you yet.",
+    "Done. The lights are off."
+  ],
+  "note": "Live microphone check is MANUAL: headless Chromium has no microphone."
+}

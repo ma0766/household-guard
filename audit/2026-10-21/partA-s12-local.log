@@ -1,0 +1,18 @@
+
+Running 7 tests using 1 worker
+
+console errors: ["Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  1 tests/audit/s12.spec.ts:18:1 › S12 demo sign-in: the page connects and lists tools (flag state per stage) (486ms)
+  ✓  2 tests/audit/s12.spec.ts:28:1 › S12 forged and unsigned tokens are refused (34ms)
+  ✓  3 tests/audit/s12.spec.ts:37:1 › S12 hosted sign-in page loads (PKCE authorization-code request) or, with no sign-in server, the panel stays hidden (317ms)
+  -  4 tests/audit/s12.spec.ts:60:1 › S12 real Cognito sign-in in a browser (roadmap stage; password login is ON only on sandbox stages)
+  ✓  5 tests/audit/s12.spec.ts:93:1 › S12 roadmap stage: the open demo sign-in is OFF by design (502ms)
+  -  6 tests/audit/s12.spec.ts:102:1 › S12 prod: the demo token endpoint is open by design - check what it hands out
+outbox size before/after a held $38 ride: 0 0 (no adult email address configured on this server)
+LINK PAGE /approve: Say yes or no | This link does not work.
+LINK PAGE /approve?k=junk: Say yes or no | This link does not work.
+LINK PAGE /approve#k=junk: Say yes or no | This link does not work.
+  ✓  7 tests/audit/s12.spec.ts:118:1 › S12 email approval link (STAND-IN; MANUAL for the real send) (10.1s)
+
+  2 skipped
+  5 passed (12.5s)

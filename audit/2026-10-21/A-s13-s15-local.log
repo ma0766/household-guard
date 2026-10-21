@@ -1,0 +1,313 @@
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected (8.0s)
+  ✘  2 tests/audit/s13.spec.ts:64:3 › S13 connect any app, per person › stand-in hub is CLEARLY LABELLED to a judge in the UI (1.8s)
+  ✓  3 tests/audit/s13.spec.ts:73:3 › S13 connect any app, per person › stand-in hub is labelled on the app sign-in page and connect screen (5.3s)
+  ✘  4 tests/audit/s13.spec.ts:89:3 › S13 connect any app, per person › the app sign-in page itself says it is a stand-in (not only the URL host) (6.6s)
+  ✓  5 tests/audit/s13.spec.ts:104:3 › S13 connect any app, per person › README labels the app hub (Composio) as a stand-in (8ms)
+  ✘  6 tests/audit/s15.spec.ts:7:3 › S15 long jobs + site building › Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied (10.9s)
+  ✘  7 tests/audit/s15.spec.ts:51:3 › S15 long jobs + site building › stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel) (390ms)
+  ✘  8 tests/audit/s15.spec.ts:57:3 › S15 long jobs + site building › stand-in site builder is labelled on the finished screen and the preview page (3.6s)
+  ✓  9 tests/audit/s15.spec.ts:71:3 › S15 long jobs + site building › README labels the site builder (Wix) as a stand-in (7ms)
+
+
+  1) tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected 
+
+    Error: link shown on the connect screen must open the running server
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "http://127.0.0.1:8016"
+    Received: "https://connect.stand-in.example"
+
+      31 |     // 4. open the app's own sign-in page and press Allow
+      32 |     // FINDING CHECK: the link/QR a person scans must open on this server, not a made-up host
+    > 33 |     expect.soft(new URL(link).origin, 'link shown on the connect screen must open the running server').toBe(new URL(page.url()).origin);
+         |                                                                                                        ^
+      34 |     const p2 = await context.newPage();
+      35 |     await p2.goto(new URL(new URL(link).pathname, page.url()).toString()); // continue the flow on the real host so later steps are still tested
+      36 |     const standinBody = await p2.locator('body').innerText();
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:33:104
+
+    Error: expect(received).not.toMatch(expected)
+
+    Expected pattern: not /connect/i
+    Received string:      "Open the link on your phone to connect Spotify."
+
+      43 |     const mayaText = (await says.textContent())!;
+      44 |     await page.screenshot({ path: 'audit/2026-10-21/A-s13-05-maya-plays.png' });
+    > 45 |     expect(mayaText).not.toMatch(/connect/i); // she is connected: should not ask her to connect again
+         |                          ^
+      46 |     await signIn(page, 'mom');
+      47 |     await page.getByTestId('btn-play-jazz').click();
+      48 |     await page.waitForTimeout(2000);
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:45:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/audit/s13.spec.ts:64:3 › S13 connect any app, per person › stand-in hub is CLEARLY LABELLED to a judge in the UI 
+
+    Error: Apps panel text was: "Apps\nConnect Spotify\nAllow Spotify (adult)\nBuild a site for my bakery\nPlay jazz on Spotify"
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /stand-?in|sample|simulat|demo|mock|fake|not real|placeholder|test mode|pretend/i
+    Received string:  "Apps
+    Connect Spotify
+    Allow Spotify (adult)
+    Build a site for my bakery
+    Play jazz on Spotify"
+
+      68 |     const appsPanel = await page.locator('#apps-panel').innerText();
+      69 |     await page.locator('#apps-panel').screenshot({ path: 'audit/2026-10-21/A-s13-label-apps-panel.png' });
+    > 70 |     expect(appsPanel, `Apps panel text was: ${JSON.stringify(appsPanel)}`).toMatch(STANDIN_WORDS);
+         |                                                                            ^
+      71 |   });
+      72 |
+      73 |   test('stand-in hub is labelled on the app sign-in page and connect screen', async ({ page, context }) => {
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:70:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/audit/s13.spec.ts:89:3 › S13 connect any app, per person › the app sign-in page itself says it is a stand-in (not only the URL host) 
+
+    Error: app page text: "Connect an app\n\nSay yes to let the house use this app for you.\n\nAllow"
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /stand-?in|sample|simulat|demo|mock|fake|not real|placeholder|test mode|pretend/i
+    Received string:  "Connect an app·
+    Say yes to let the house use this app for you.·
+    Allow"
+
+       99 |     const p2 = await context.newPage(); await p2.goto(new URL(new URL(link).pathname, page.url()).toString());
+      100 |     const body = await p2.locator('body').innerText();
+    > 101 |     expect(body, `app page text: ${JSON.stringify(body)}`).toMatch(STANDIN_WORDS);
+          |                                                            ^
+      102 |   });
+      103 |
+      104 |   test('README labels the app hub (Composio) as a stand-in', async () => {
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:101:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/audit/s15.spec.ts:7:3 › S15 long jobs + site building › Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied 
+
+    Error: console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      46 |     expect(previewText).toMatch(/bakery/i);
+      47 |     writeFileSync('audit/2026-10-21/A-s15-texts.json', JSON.stringify({ teenText, guestText, seen, screenText, previewText, link, answerMs, errs }, null, 2));
+    > 48 |     expect.soft(errs, 'console errors').toEqual([]);
+         |                                         ^
+      49 |   });
+      50 |
+      51 |   test('stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel)', async ({ page }) => {
+        at /home/madman/household-guard/tests/audit/s15.spec.ts:48:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/audit/s15.spec.ts:51:3 › S15 long jobs + site building › stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel) 
+
+    Error: Apps panel text: "Apps\nConnect Spotify\nAllow Spotify (adult)\nBuild a site for my bakery\nPlay jazz on Spotify"
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /stand-?in|sample|simulat|demo|mock|fake|not real|placeholder|test mode|pretend/i
+    Received string:  "Apps
+    Connect Spotify
+    Allow Spotify (adult)
+    Build a site for my bakery
+    Play jazz on Spotify"
+
+      52 |     await page.goto(fresh());
+      53 |     const panel = await page.locator('#apps-panel').innerText();
+    > 54 |     expect(panel, `Apps panel text: ${JSON.stringify(panel)}`).toMatch(STANDIN_WORDS);
+         |                                                                ^
+      55 |   });
+      56 |
+      57 |   test('stand-in site builder is labelled on the finished screen and the preview page', async ({ page, context }) => {
+        at /home/madman/household-guard/tests/audit/s15.spec.ts:54:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/audit/s15.spec.ts:57:3 › S15 long jobs + site building › stand-in site builder is labelled on the finished screen and the preview page 
+
+    Error: ready screen: "Your site is ready: Sunny Bakery\n\nScan the code, or open the link, on your phone.\n\nhttp://127.0.0.1:8016/preview/LnQ557tKNKa33PKA" | preview: "Sunny Bakery\n\nFresh and local.\n\nWelcome to Sunny Bakery.\n\nA one-page site for Sunny Bakery.\n\nCome by and say hello."
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /stand-?in|sample|simulat|demo|mock|fake|not real|placeholder|test mode|pretend/i
+    Received string:  "Your site is ready: Sunny Bakery·
+    Scan the code, or open the link, on your phone.·
+    http://127.0.0.1:8016/preview/LnQ557tKNKa33PKA
+    Sunny Bakery·
+    Fresh and local.·
+    Welcome to Sunny Bakery.·
+    A one-page site for Sunny Bakery.·
+    Come by and say hello."
+
+      66 |     const p2 = await context.newPage(); await p2.goto(link);
+      67 |     const prev = await p2.locator('body').innerText();
+    > 68 |     expect(screenText + '\n' + prev, `ready screen: ${JSON.stringify(screenText)} | preview: ${JSON.stringify(prev)}`).toMatch(STANDIN_WORDS);
+         |                                                                                                                        ^
+      69 |   });
+      70 |
+      71 |   test('README labels the site builder (Wix) as a stand-in', async () => {
+        at /home/madman/household-guard/tests/audit/s15.spec.ts:68:120
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/a4/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected 
+    tests/audit/s13.spec.ts:64:3 › S13 connect any app, per person › stand-in hub is CLEARLY LABELLED to a judge in the UI 
+    tests/audit/s13.spec.ts:89:3 › S13 connect any app, per person › the app sign-in page itself says it is a stand-in (not only the URL host) 
+    tests/audit/s15.spec.ts:7:3 › S15 long jobs + site building › Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied 
+    tests/audit/s15.spec.ts:51:3 › S15 long jobs + site building › stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel) 
+    tests/audit/s15.spec.ts:57:3 › S15 long jobs + site building › stand-in site builder is labelled on the finished screen and the preview page 
+  3 passed (42.0s)

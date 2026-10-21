@@ -1,0 +1,121 @@
+
+Running 8 tests using 1 worker
+
+PROVEN  no child may unlock a door (done at once)
+PROVEN  no child may unlock a door (or held for an adult)
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+Every promise is proven for all requests.
+
+  ✓  1 tests/audit/s10.spec.ts:24:3 › S10 proofs (CLI) › prove passes on the rules that ship (389ms)
+  ✓  2 tests/audit/s10.spec.ts:31:3 › S10 proofs (CLI) › prove: a stray permit alone does NOT break the promise (forbid beats permit) - control (361ms)
+EXIT 1 
+FAILED  no child may unlock a door (done at once)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: -1, local_hour: -1, service_known: true, session: "", value: -1, week_spent_cents: -1}
+        entities: [
+          Action::"purchase",
+          Person::"maya" in [Role::"child"],
+          Role::"adult",
+          Action::"unlock",
+          Role::"guest",
+          Person::"mom" in [Role::"child"],
+          Role::"child",
+          Person::"" in [Role::"child"],
+          Action::"light",
+          Action::"build_site",
+          Service::"",
+          Action::"garage",
+          Role::"teen",
+          Action::"thermostat",
+          Action::"use_app",
+        ]
+FAILED  no child may unlock a door (or held for an adult)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: 0, local_hour: 0, service_known: false, session: "", value: 0, week_spent_cents: 0}
+        entities: [
+          Role::"child",
+          Action::"use_app",
+          Role::"adult",
+          Action::"garage",
+          Action::"build_site",
+          Service::"",
+          Role::"guest",
+          Action::"unlock",
+          Person::"" in [Role::"child"],
+          Role::"teen",
+          Action::"purchase",
+          Action::"thermostat",
+          Action::"light",
+        ]
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+2 promise(s) broken.
+
+  ✓  3 tests/audit/s10.spec.ts:39:3 › S10 proofs (CLI) › prove FAILS with a counterexample when a rule lets a child unlock (412ms)
+  ✓  4 tests/audit/s10.spec.ts:52:3 › S10 proofs (CLI) › prove FAILS when the safety rules are deleted (children can unlock via a plain allow) (369ms)
+  ✓  5 tests/audit/s10.spec.ts:65:3 › S10 proofs (CLI) › prove FAILS when a guest may buy (390ms)
+PREVIEW before tap: Kids cannot buy from 9 PM to 6 AM.
+RULES CARD: House rules
+🛒
+Leo: an adult says yes to buys.
+🛒
+Maya: $20 a week.
+🛒
+Mom: $500 a week.
+🔒
+Adults only: unlock, garage.
+🛒
+Allowed apps: sim-home, mock-ride, mock-shop.
+📝
+Best value needs: nothing special.
+🌙
+No buying for kids from 9 PM to 6 AM.
+🔒
+Locked: children can't unlock doors.
+🔒
+Locked: guests can't buy.
+MAYA TRIES QUIET OFF -> Ask an adult to change rules.
+console errors: ["Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  6 tests/audit/s10.spec.ts:88:1 › S10 rule card: quiet hours button shows a plain preview and the card (10.1s)
+NY hour 16 UTC hour 20
+PHONE CONFIRM 200 {"status":"confirmed","say":"Mom is confirmed.","result":{"done":true,"reason":"Mom is confirmed."}}
+set_rule result: {"status":"waiting","say":"Confirm on your phone: 22","number":22,"challenge_id":"272a3f5f-336","sentence":"No buying for kids from 4 PM to 6 PM.","preview":"Kids cannot buy from 4 PM to 6 PM."}
+PHONE CONFIRM 200 {"status":"confirmed","say":"No buying for kids from 4 PM to 6 PM.","result":{"done":true,"reason":"No buying for kids from 4 PM to 6 PM."}}
+RULES CARD: House rules
+🛒
+Leo: an adult says yes to buys.
+🛒
+Maya: $20 a week.
+🛒
+Mom: $500 a week.
+🔒
+Adults only: unlock, garage.
+🛒
+Allowed apps: sim-home, mock-ride, mock-shop.
+📝
+Best value needs: nothing special.
+🌙
+No buying for kids from 4 PM to 6 PM.
+🔒
+Locked: children can't unlock doors.
+🔒
+Locked: guests can't buy.
+MOM IN QUIET WINDOW SAYS: Confirm on your phone: 47
+PHONE CONFIRM 200 {"status":"confirmed","say":"Okay. Booking it now.","result":{"done":false,"reason":"Okay. Booking it now.","jobId":"72bd387b-4db"}}
+MOM RIDE RESULT: Your ride is booked. $15 in all.
+PHONE CONFIRM 200 {"status":"confirmed","say":"Maya is confirmed.","result":{"done":true,"reason":"Maya is confirmed."}}
+MAYA IN QUIET WINDOW SAYS: Quiet hours: no buying from 4 PM to 6 PM. | outcome denied
+  ✓  7 tests/audit/s10.spec.ts:114:1 › S10 teen purchase inside quiet hours is held (house time zone), adult is exempt (17.0s)
+MAYA (window only matches UTC) SAYS: Confirm on your phone: 29
+  ✓  8 tests/audit/s10.spec.ts:150:1 › S10 time zone: a window that only matches UTC (not New York) must NOT hold (11.9s)
+
+  8 passed (42.4s)

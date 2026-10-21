@@ -1,0 +1,5 @@
+
+> household-guard@0.1.0 ha:up
+> tsx scripts/ha-up.ts
+
+Devices exposed and the MCP server is on.

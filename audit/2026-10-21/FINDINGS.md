@@ -1,0 +1,10 @@
+# Findings log (working notes; the report is docs/AUDIT-REPORT.md)
+- F-D1 (Part D, prod+local): show_on_screen RESULT carries no _meta.ui.resourceUri; only the tool DEFINITION does. Plan says the result should. Fix: add _meta: APP_META to every show_on_screen result.
+- F-F1 (Part F, clean clone): `npm test` had 1–2 failures in the live Bedrock tests (tests/s5 live) once, "risk check failed: ServiceUnavailable"; rerun 55/55 pass twice. The product failed CLOSED (held) as designed; the live tests have no retry on transient Bedrock errors. Observation, to fix by retrying only on ServiceUnavailable/Throttling in the live test helper (not weakening the assertion).
+- F-C1 axe (local): PAGE scrollable-region-focusable (serious) — scrollable log <pre> not keyboard focusable. Frames (app-frame, rules-frame, timeline): document-title + html-has-lang (serious) — the srcdoc HTML views lack <title> and <html lang>.
+- F-C2 console (local): "Blocked script execution in 'about:blank'/'about:srcdoc' because the document's frame is sandboxed and 'allow-scripts' is not set" errors during the tour (sandbox="" frames).
+- F-C4 plain language (local): spoken line "Maya is confirmed." grades 5.2 (> 5).
+- F-C6 Enter key in the question box does nothing (only the Send button works).
+- F-C7 an unknown phrase gets "Sorry, I didn't get that." with no example of what to say.
+- F-CI1 GitLab pipeline "rule-proofs" failed on commit 22a0c29 (user report). Likely cause: .gitlab-ci.yml runs `npx vitest run tests/s10` in node:22, but tests/global-setup.ts calls `docker` (DynamoDB Local) and CI has no docker. The CI file was never run on a server before.
+- F-B1 (Part B): the demo script as written needs Maya to confirm on her phone 5+ times in 2:45 (sign-in x3 as speakers switch, the $14 ride tap, the repaired-service ride), but the limit is 3 per person per 10 minutes then a 10-minute lock. Run 1 of the recorded demo locked Maya out. Not weakened: demo re-ordered so no person needs >3 taps (Dad does the healing ride).

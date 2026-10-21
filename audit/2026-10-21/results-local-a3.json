@@ -1,0 +1,195 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s12.spec.ts",
+      "-g",
+      "email"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8016",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-local-a3.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s12.spec.ts",
+      "file": "s12.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S12 email approval link (STAND-IN; MANUAL for the real send)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "MANUAL",
+                  "description": "Real approval email (SES, adult inbox, link, number match) is a STAND-IN: needs verified SES sender + HG_APPROVER_EMAILS"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9890,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "outbox size before/after a held $38 ride: \u001b[33m0\u001b[39m \u001b[33m0\u001b[39m (no adult email address configured on this server)\n"
+                    },
+                    {
+                      "text": "LINK PAGE /approve: Say yes or no | This link does not work.\n"
+                    },
+                    {
+                      "text": "LINK PAGE /approve?k=junk: Say yes or no | This link does not work.\n"
+                    },
+                    {
+                      "text": "LINK PAGE /approve#k=junk: Say yes or no | This link does not work.\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:34:01.501Z",
+                  "annotations": [
+                    {
+                      "type": "MANUAL",
+                      "description": "Real approval email (SES, adult inbox, link, number match) is a STAND-IN: needs verified SES sender + HG_APPROVER_EMAILS"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3/s12-S12-email-approval-lin-6763c-N-MANUAL-for-the-real-send-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3/s12-S12-email-approval-lin-6763c-N-MANUAL-for-the-real-send-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3/s12-S12-email-approval-lin-6763c-N-MANUAL-for-the-real-send-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0b900edc73276dbbc8e-5634c90aef17cd7ab192",
+          "file": "s12.spec.ts",
+          "line": 116,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:34:00.949Z",
+    "duration": 10767.923,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

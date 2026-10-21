@@ -1,0 +1,13 @@
+ctx='' exit=0
+ctx='-c agentcore=1' exit=0
+      1 "Type": "AWS::BedrockAgentCore::Gateway"
+      1 "Type": "AWS::BedrockAgentCore::GatewayTarget"
+      1 "Type": "AWS::BedrockAgentCore::Policy"
+      1 "Type": "AWS::BedrockAgentCore::PolicyEngine"
+"EnforcementMode": "LOG_ONLY"
+ctx='-c agentcore=1 -c agentcoreEnforce=1' exit=0
+      1 "Type": "AWS::BedrockAgentCore::Gateway"
+      1 "Type": "AWS::BedrockAgentCore::GatewayTarget"
+      1 "Type": "AWS::BedrockAgentCore::Policy"
+      1 "Type": "AWS::BedrockAgentCore::PolicyEngine"
+"EnforcementMode": "ENFORCE"

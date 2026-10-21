@@ -1,0 +1,12 @@
+       |                 ^
+    184|     expect(await countBookings(ctx.store, ctx.hh)).toBe(1);
+    185|   }, 90000);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 29 passed (30)
+      Tests  2 failed | 425 passed (427)
+   Start at  16:17:18
+   Duration  39.28s (tests 91%, import 7%, transform 2%)
+

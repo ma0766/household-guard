@@ -1,0 +1,15 @@
+IAM review of synthesized stack HouseholdGuard-roadmap (same CDK code as prod; prod differs only in stage flags)
+ROLE WebServiceRoleA9172838 trust: [{'Service': 'lambda.amazonaws.com'}]
+   managed: ["{'Fn::Join': ['', ['arn:', {'Ref': 'AWS::Partition'}, ':iam::aws:policy/service-role/AWSLa"]
+POLICY WebServiceRoleDefaultPolicy98AA44E1 | actions: dynamodb:GetItem,dynamodb:PutItem,dynamodb:UpdateItem,dynamodb:DeleteItem,dynamodb:Query,dynamodb:ConditionCheckItem | resources: ['ref']  
+POLICY WebServiceRoleDefaultPolicy98AA44E1 | actions: sqs:SendMessage,sqs:GetQueueAttributes,sqs:GetQueueUrl | resources: ['ref']  
+ROLE WorkerServiceRole8543584E trust: [{'Service': 'lambda.amazonaws.com'}]
+   managed: ["{'Fn::Join': ['', ['arn:', {'Ref': 'AWS::Partition'}, ':iam::aws:policy/service-role/AWSLa"]
+POLICY WorkerServiceRoleDefaultPolicyAE71B5FA | actions: bedrock:InvokeModel | resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*']  | STAR-RESOURCE
+POLICY WorkerServiceRoleDefaultPolicyAE71B5FA | actions: dynamodb:GetItem,dynamodb:PutItem,dynamodb:UpdateItem,dynamodb:DeleteItem,dynamodb:Query,dynamodb:ConditionCheckItem | resources: ['ref']  
+POLICY WorkerServiceRoleDefaultPolicyAE71B5FA | actions: sqs:ReceiveMessage,sqs:ChangeMessageVisibility,sqs:GetQueueUrl,sqs:DeleteMessage,sqs:GetQueueAttributes | resources: ['ref']  
+ROLE HealServiceRole06B31FC4 trust: [{'Service': 'lambda.amazonaws.com'}]
+   managed: ["{'Fn::Join': ['', ['arn:', {'Ref': 'AWS::Partition'}, ':iam::aws:policy/service-role/AWSLa"]
+POLICY HealServiceRoleDefaultPolicy4B6FAC00 | actions: bedrock:InvokeModel | resources: ['arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-*', 'arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-haiku-4-5-*']  | STAR-RESOURCE
+POLICY HealServiceRoleDefaultPolicy4B6FAC00 | actions: dynamodb:GetItem,dynamodb:PutItem,dynamodb:UpdateItem,dynamodb:DeleteItem,dynamodb:Query,dynamodb:ConditionCheckItem,dynamodb:Scan | resources: ['ref']  
+RESULT: no "*" action anywhere. Wildcards only inside Bedrock model ARNs (region/account position, name pinned to claude-haiku-4-5): inference profiles route across regions. 3 roles (web, worker, heal), all Lambda-trusted. No IAM user, no admin policy. (A stack with email on adds ses:SendEmail limited to one verified address — not present in this synth.)

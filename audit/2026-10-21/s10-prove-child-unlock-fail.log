@@ -1,0 +1,46 @@
+exit=1
+FAILED  no child may unlock a door (done at once)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: -1, local_hour: -1, service_known: true, session: "", value: -1, week_spent_cents: -1}
+        entities: [
+          Action::"purchase",
+          Person::"maya" in [Role::"child"],
+          Role::"adult",
+          Action::"unlock",
+          Role::"guest",
+          Person::"mom" in [Role::"child"],
+          Role::"child",
+          Person::"" in [Role::"child"],
+          Action::"light",
+          Action::"build_site",
+          Service::"",
+          Action::"garage",
+          Role::"teen",
+          Action::"thermostat",
+          Action::"use_app",
+        ]
+FAILED  no child may unlock a door (or held for an adult)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: 0, local_hour: 0, service_known: false, session: "", value: 0, week_spent_cents: 0}
+        entities: [
+          Role::"child",
+          Action::"use_app",
+          Role::"adult",
+          Action::"garage",
+          Action::"build_site",
+          Service::"",
+          Role::"guest",
+          Action::"unlock",
+          Person::"" in [Role::"child"],
+          Role::"teen",
+          Action::"purchase",
+          Action::"thermostat",
+          Action::"light",
+        ]
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+2 promise(s) broken.

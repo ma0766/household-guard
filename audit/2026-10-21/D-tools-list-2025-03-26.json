@@ -1,0 +1,352 @@
+{
+  "tools": [
+    {
+      "name": "household_status",
+      "description": "Who is in the house and what is waiting.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "request_action",
+      "description": "Ask the house to do something (lights, doors, rides). The house rules are checked first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "Which service, e.g. sim-home"
+          },
+          "action": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "What to do, e.g. light, unlock, thermostat, garage, purchase"
+          },
+          "item": {
+            "description": "What it is about, e.g. front door",
+            "type": "string",
+            "maxLength": 300
+          },
+          "value": {
+            "description": "e.g. off, or 72",
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "option_id": {
+            "description": "Which option, e.g. shared",
+            "type": "string",
+            "maxLength": 120
+          },
+          "replaces": {
+            "description": "The held request this one replaces (taking the cheaper option)",
+            "type": "string",
+            "maxLength": 120
+          },
+          "request_id": {
+            "description": "Same id on a retry = the action happens once",
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "service",
+          "action"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "confirm_identity",
+      "description": "Say who is talking. People with a phone get a number to match on their own phone. People without one give a PIN.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "The name the speaker gave"
+          },
+          "pin": {
+            "description": "4-digit PIN, only for people without a phone",
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "approve_request",
+      "description": "An adult says yes (or no) to a held request by giving the number Alexa said. Needs a phone-confirmed adult.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "approval_id": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "number": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          }
+        },
+        "required": [
+          "approval_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "audit_log",
+      "description": "What happened at home? Answers like \"What did the kids buy this week?\" in a few short sentences, totals first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "who": {
+            "description": "kids, everyone, or a name",
+            "type": "string",
+            "maxLength": 120
+          },
+          "when": {
+            "description": "today, this week, or last week",
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "show_on_screen",
+      "description": "Show a screen: the approval card, recent buys, or what happened. Filter by person or day.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "view": {
+            "type": "string",
+            "enum": [
+              "approvals",
+              "orders",
+              "timeline",
+              "rules",
+              "my_rules"
+            ]
+          },
+          "person": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "day": {
+            "description": "YYYY-MM-DD",
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "view"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "ui": {
+          "resourceUri": "ui://household-guard/screen"
+        },
+        "ui/resourceUri": "ui://household-guard/screen"
+      }
+    },
+    {
+      "name": "find_capability",
+      "description": "Can the house do this? Looks for an app (like music) and says if the speaker has connected it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "What the speaker wants, like \"music\""
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "connect_service",
+      "description": "Start connecting an app for the speaker. Gives a link and a code to scan on their phone.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "toolkit": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The app, like \"spotify\""
+          }
+        },
+        "required": [
+          "toolkit"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "ui": {
+          "resourceUri": "ui://household-guard/screen"
+        },
+        "ui/resourceUri": "ui://household-guard/screen"
+      }
+    },
+    {
+      "name": "set_rule",
+      "description": "An adult changes a house rule (or undoes the last change). The adult must then confirm on their own phone.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "type": "string",
+            "enum": [
+              "weekly_limit",
+              "adults_only",
+              "allowed_apps",
+              "must_haves",
+              "quiet_hours",
+              "floor"
+            ]
+          },
+          "person": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "dollars": {
+            "type": "number"
+          },
+          "actions": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          "services": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          "bag_included": {
+            "type": "boolean"
+          },
+          "arrive_by_hour": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "quiet_from_hour": {
+            "description": "Quiet hours start (0-23); null turns them off",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "quiet_to_hour": {
+            "description": "Quiet hours end (0-23)",
+            "type": "number"
+          },
+          "which": {
+            "type": "string",
+            "enum": [
+              "childrenNoUnlock",
+              "guestsNoBuy"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "undo": {
+            "description": "Undo the newest change (within 24 hours)",
+            "type": "boolean"
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "job_status",
+      "description": "How is a waiting job going? A finished site comes with a link and a code to scan.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "ui": {
+          "resourceUri": "ui://household-guard/screen"
+        },
+        "ui/resourceUri": "ui://household-guard/screen"
+      }
+    }
+  ]
+}

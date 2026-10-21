@@ -1,0 +1,228 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s13.spec.ts",
+      "-g",
+      "teen connects"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8016",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-local-a4.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s13.spec.ts",
+      "file": "s13.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "S13 connect any app, per person",
+          "file": "s13.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13789,
+                      "error": {
+                        "message": "Error: link shown on the connect screen must open the running server\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"http://\u001b[7m127.0.0.1:8016\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"http\u001b[7ms\u001b[27m://\u001b[7mconnect.stand-in.example\u001b[27m\"\u001b[39m",
+                        "stack": "Error: link shown on the connect screen must open the running server\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"http://\u001b[7m127.0.0.1:8016\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"http\u001b[7ms\u001b[27m://\u001b[7mconnect.stand-in.example\u001b[27m\"\u001b[39m\n    at /home/madman/household-guard/tests/audit/s13.spec.ts:36:104",
+                        "location": {
+                          "file": "/home/madman/household-guard/tests/audit/s13.spec.ts",
+                          "column": 104,
+                          "line": 36
+                        },
+                        "snippet": "  34 |     // 4. open the app's own sign-in page and press Allow\n  35 |     // FINDING CHECK: the link/QR a person scans must open on this server, not a made-up host\n> 36 |     expect.soft(new URL(link).origin, 'link shown on the connect screen must open the running server').toBe(new URL(page.url()).origin);\n     |                                                                                                        ^\n  37 |     const p2 = await context.newPage();\n  38 |     await p2.goto(new URL(new URL(link).pathname, page.url()).toString()); // continue the flow on the real host so later steps are still tested\n  39 |     const standinBody = await p2.locator('body').innerText();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/madman/household-guard/tests/audit/s13.spec.ts",
+                            "column": 104,
+                            "line": 36
+                          },
+                          "message": "Error: link shown on the connect screen must open the running server\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"http://\u001b[7m127.0.0.1:8016\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"http\u001b[7ms\u001b[27m://\u001b[7mconnect.stand-in.example\u001b[27m\"\u001b[39m\n\n  34 |     // 4. open the app's own sign-in page and press Allow\n  35 |     // FINDING CHECK: the link/QR a person scans must open on this server, not a made-up host\n> 36 |     expect.soft(new URL(link).origin, 'link shown on the connect screen must open the running server').toBe(new URL(page.url()).origin);\n     |                                                                                                        ^\n  37 |     const p2 = await context.newPage();\n  38 |     await p2.goto(new URL(new URL(link).pathname, page.url()).toString()); // continue the flow on the real host so later steps are still tested\n  39 |     const standinBody = await p2.locator('body').innerText();\n    at /home/madman/household-guard/tests/audit/s13.spec.ts:36:104"
+                        },
+                        {
+                          "location": {
+                            "file": "/home/madman/household-guard/tests/audit/s13.spec.ts",
+                            "column": 41,
+                            "line": 65
+                          },
+                          "message": "Error: console errors\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 14\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  63 |     const notes = { heldText, mayaText, momText, guestText, standinBody, link, errs };\n  64 |     writeFileSync('audit/2026-10-21/A-s13-texts.json', JSON.stringify(notes, null, 2));\n> 65 |     expect.soft(errs, 'console errors').toEqual([]);\n     |                                         ^\n  66 |   });\n  67 |\n  68 |   test('stand-in hub is CLEARLY LABELLED to a judge in the UI', async ({ page, context }) => {\n    at /home/madman/household-guard/tests/audit/s13.spec.ts:65:41"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T20:33:28.716Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/madman/household-guard/tests/audit/s13.spec.ts",
+                        "column": 104,
+                        "line": 36
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "45e2732f857f0ced9c83-e43861e53d1fcf1d9bd3",
+              "file": "s13.spec.ts",
+              "line": 7,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:33:28.160Z",
+    "duration": 15194.050000000001,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

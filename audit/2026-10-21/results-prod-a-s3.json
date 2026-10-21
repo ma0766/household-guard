@@ -1,0 +1,353 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s3.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-a-s3.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s3.spec.ts",
+      "file": "s3.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S3 two $15 rides at once vs Maya's $20 cap -> exactly one booked, one held",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8385,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:43:00.658Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-two-15-rides-at-once-7b169-exactly-one-booked-one-held/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-two-15-rides-at-once-7b169-exactly-one-booked-one-held/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-two-15-rides-at-once-7b169-exactly-one-booked-one-held/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-46af9a464cae11ce3fda",
+          "file": "s3.spec.ts",
+          "line": 19,
+          "column": 1
+        },
+        {
+          "title": "S3 the ride held for the cap reaches Mom's phone (even before Maya taps her own phone)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 16011,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('phone-mom')\nExpected substring: \u001b[32m\"M\u001b[7maya wants\u001b[27m\"\u001b[39m\nReceived string:    \u001b[31m\"M\u001b[7mom's phoneNothing waiting.\u001b[27m\"\u001b[39m\nTimeout: 12000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByTestId('phone-mom') with timeout 12000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('phone-mom')\u001b[22m\n\u001b[2m    28 × locator resolved to <div class=\"phone\" data-testid=\"phone-mom\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"Mom's phoneNothing waiting.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('phone-mom')\nExpected substring: \u001b[32m\"M\u001b[7maya wants\u001b[27m\"\u001b[39m\nReceived string:    \u001b[31m\"M\u001b[7mom's phoneNothing waiting.\u001b[27m\"\u001b[39m\nTimeout: 12000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByTestId('phone-mom') with timeout 12000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('phone-mom')\u001b[22m\n\u001b[2m    28 × locator resolved to <div class=\"phone\" data-testid=\"phone-mom\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"Mom's phoneNothing waiting.\"\u001b[22m\n\n    at /home/madman/household-guard/tests/audit/s3.spec.ts:48:47",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s3.spec.ts",
+                      "column": 47,
+                      "line": 48
+                    },
+                    "snippet": "  46 |   // Alexa said \"An adult can tap NN to say yes\" - so an adult must be able to see that card\n  47 |   await expect(says(page)).toContainText(/Held|Confirm on your phone/, { timeout: 10000 });\n> 48 |   await expect(page.getByTestId('phone-mom')).toContainText('Maya wants', { timeout: 12000 });\n     |                                               ^\n  49 |   await expect(page.getByTestId('phone-mom')).toContainText('$15');\n  50 | });\n  51 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s3.spec.ts",
+                        "column": 47,
+                        "line": 48
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('phone-mom')\nExpected substring: \u001b[32m\"M\u001b[7maya wants\u001b[27m\"\u001b[39m\nReceived string:    \u001b[31m\"M\u001b[7mom's phoneNothing waiting.\u001b[27m\"\u001b[39m\nTimeout: 12000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByTestId('phone-mom') with timeout 12000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('phone-mom')\u001b[22m\n\u001b[2m    28 × locator resolved to <div class=\"phone\" data-testid=\"phone-mom\">…</div>\u001b[22m\n\u001b[2m       - unexpected value \"Mom's phoneNothing waiting.\"\u001b[22m\n\n\n  46 |   // Alexa said \"An adult can tap NN to say yes\" - so an adult must be able to see that card\n  47 |   await expect(says(page)).toContainText(/Held|Confirm on your phone/, { timeout: 10000 });\n> 48 |   await expect(page.getByTestId('phone-mom')).toContainText('Maya wants', { timeout: 12000 });\n     |                                               ^\n  49 |   await expect(page.getByTestId('phone-mom')).toContainText('$15');\n  50 | });\n  51 |\n    at /home/madman/household-guard/tests/audit/s3.spec.ts:48:47"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:43:09.349Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s3.spec.ts",
+                    "column": 47,
+                    "line": 48
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-23ffc29e9e20d9447438",
+          "file": "s3.spec.ts",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "S3 duplicate: the same request_id sent twice (an Alexa retry) books ONE ride",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9243,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "dup replies [[\"allowed\",\"Confirm on your phone: 17\",\"095fa810-930\"],[\"held\",\"Still working on that one.\",null],[\"allowed\",\"Confirm on your phone: 17\",\"095fa810-930\"]]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:43:26.122Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-duplicate-the-same-r-b8973--Alexa-retry-books-ONE-ride/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-duplicate-the-same-r-b8973--Alexa-retry-books-ONE-ride/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-duplicate-the-same-r-b8973--Alexa-retry-books-ONE-ride/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-e2d02fc069e0d3dc188b",
+          "file": "s3.spec.ts",
+          "line": 52,
+          "column": 1
+        },
+        {
+          "title": "S3 teen over the cap in one go ($38 airport) is held with a plain reason, not booked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5570,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:43:35.703Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-teen-over-the-cap-in-01f2c-h-a-plain-reason-not-booked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-teen-over-the-cap-in-01f2c-h-a-plain-reason-not-booked/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a-s3/s3-S3-teen-over-the-cap-in-01f2c-h-a-plain-reason-not-booked/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f21b852bc154cba98c3-e220beb63e2594013408",
+          "file": "s3.spec.ts",
+          "line": 77,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:43:00.249Z",
+    "duration": 41277.227000000006,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

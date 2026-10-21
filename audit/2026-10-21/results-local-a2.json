@@ -1,0 +1,791 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s4.spec.ts",
+      "tests/audit/s5.spec.ts",
+      "tests/audit/s6.spec.ts",
+      "tests/audit/s7.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8016",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-local-a2.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s4.spec.ts",
+      "file": "s4.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S4a teen $38 ride held, $14 shared offered, accepted with no adult, $24 saving shown",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3440,
+                  "error": {
+                    "message": "Error: console errors\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 10\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: console errors\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 10\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /home/madman/household-guard/tests/audit/s4.spec.ts:21:36",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s4.spec.ts",
+                      "column": 36,
+                      "line": 21
+                    },
+                    "snippet": "  19 |   await expect(frameText(page, 'timeline')).toContainText(/saved \\$24/i, { timeout: 15000 });\n  20 |   await page.screenshot({ path: `audit/2026-10-21/s4a-${process.env.AUDIT_TARGET ?? 'local'}.png`, fullPage: true });\n> 21 |   expect(errors, 'console errors').toEqual([]);\n     |                                    ^\n  22 | });\n  23 |\n  24 | test('S4b Mom matches the number on her phone and a $38 ride is booked', async ({ page }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s4.spec.ts",
+                        "column": 36,
+                        "line": 21
+                      },
+                      "message": "Error: console errors\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 10\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  19 |   await expect(frameText(page, 'timeline')).toContainText(/saved \\$24/i, { timeout: 15000 });\n  20 |   await page.screenshot({ path: `audit/2026-10-21/s4a-${process.env.AUDIT_TARGET ?? 'local'}.png`, fullPage: true });\n> 21 |   expect(errors, 'console errors').toEqual([]);\n     |                                    ^\n  22 | });\n  23 |\n  24 | test('S4b Mom matches the number on her phone and a $38 ride is booked', async ({ page }) => {\n    at /home/madman/household-guard/tests/audit/s4.spec.ts:21:36"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:23:56.517Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s4.spec.ts",
+                    "column": 36,
+                    "line": 21
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "883b506721050f993064-dbb24a1334fc31831e26",
+          "file": "s4.spec.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "S4b Mom matches the number on her phone and a $38 ride is booked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "numbers",
+                  "description": "spoken=\"Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 77 to say yes.\" options=77,89,63"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3391,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:24:01.160Z",
+                  "annotations": [
+                    {
+                      "type": "numbers",
+                      "description": "spoken=\"Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 77 to say yes.\" options=77,89,63"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4b-Mom-matches-the-num-1b98b-one-and-a-38-ride-is-booked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4b-Mom-matches-the-num-1b98b-one-and-a-38-ride-is-booked/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4b-Mom-matches-the-num-1b98b-one-and-a-38-ride-is-booked/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "883b506721050f993064-617f49e39c5fc2515e5d",
+          "file": "s4.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "S4c price surge after approval -> held again, nothing booked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3201,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:24:04.818Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4c-price-surge-after-a-d3a09---held-again-nothing-booked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4c-price-surge-after-a-d3a09---held-again-nothing-booked/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s4-S4c-price-surge-after-a-d3a09---held-again-nothing-booked/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "883b506721050f993064-222a7df03c5f543ba083",
+          "file": "s4.spec.ts",
+          "line": 52,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s5.spec.ts",
+      "file": "s5.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S5a gift card passes the rules, the AI check holds it, nothing is bought, an adult is asked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "sandbox-console-errors",
+                  "description": "8"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3521,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:24:08.266Z",
+                  "annotations": [
+                    {
+                      "type": "sandbox-console-errors",
+                      "description": "8"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s5-S5a-gift-card-passes-th-ed808-is-bought-an-adult-is-asked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s5-S5a-gift-card-passes-th-ed808-is-bought-an-adult-is-asked/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s5-S5a-gift-card-passes-th-ed808-is-bought-an-adult-is-asked/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "28da1e47e4556d73a8e7-883e10d3d8975f43ac42",
+          "file": "s5.spec.ts",
+          "line": 8,
+          "column": 1
+        },
+        {
+          "title": "S5b hostile service reply changes nothing (held ride looks the same, nothing booked, hostile text never shown)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "mall-ride-with-hostile-note",
+                  "description": "That needs a closer look. An adult can tap 35 to say yes."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4497,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:24:12.052Z",
+                  "annotations": [
+                    {
+                      "type": "mall-ride-with-hostile-note",
+                      "description": "That needs a closer look. An adult can tap 35 to say yes."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s5-S5b-hostile-service-rep-02220-d-hostile-text-never-shown-/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s5-S5b-hostile-service-rep-02220-d-hostile-text-never-shown-/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s5-S5b-hostile-service-rep-02220-d-hostile-text-never-shown-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "28da1e47e4556d73a8e7-0badaa0b686bf2dd994d",
+          "file": "s5.spec.ts",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s6.spec.ts",
+      "file": "s6.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S6 timeline in plain sentences, filters by person and day, voice summary, edited row caught by verify script",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "find-in-seconds",
+                  "description": "person+day filter + summary done in 0.532s"
+                },
+                {
+                  "type": "sandbox-console-errors",
+                  "description": "39"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6442,
+                  "error": {
+                    "message": "Error: spec: voice summary is two or three sentences; got: The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m3\u001b[39m\nReceived:    \u001b[31m4\u001b[39m",
+                    "stack": "Error: spec: voice summary is two or three sentences; got: The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m3\u001b[39m\nReceived:    \u001b[31m4\u001b[39m\n    at /home/madman/household-guard/tests/audit/s6.spec.ts:52:119",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                      "column": 119,
+                      "line": 52
+                    },
+                    "snippet": "  50 |   writeFileSync(`audit/2026-10-21/s6-summary-${T}.txt`, s + '\\n');\n  51 |   expect(s).toMatch(/\\$14/);\n> 52 |   expect.soft(s.split(/[.!?]+\\s/).filter(Boolean).length, `spec: voice summary is two or three sentences; got: ${s}`).toBeLessThanOrEqual(3);\n     |                                                                                                                       ^\n  53 |   test.info().annotations.push({ type: 'find-in-seconds', description: `person+day filter + summary done in ${(Date.now() - t0) / 1000}s` });\n  54 |   expect.soft(errors.filter((e) => !/Blocked script execution/.test(e)), 'console errors other than sandbox').toEqual([]);\n  55 |   test.info().annotations.push({ type: 'sandbox-console-errors', description: String(errors.length) });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                        "column": 119,
+                        "line": 52
+                      },
+                      "message": "Error: spec: voice summary is two or three sentences; got: The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m3\u001b[39m\nReceived:    \u001b[31m4\u001b[39m\n\n  50 |   writeFileSync(`audit/2026-10-21/s6-summary-${T}.txt`, s + '\\n');\n  51 |   expect(s).toMatch(/\\$14/);\n> 52 |   expect.soft(s.split(/[.!?]+\\s/).filter(Boolean).length, `spec: voice summary is two or three sentences; got: ${s}`).toBeLessThanOrEqual(3);\n     |                                                                                                                       ^\n  53 |   test.info().annotations.push({ type: 'find-in-seconds', description: `person+day filter + summary done in ${(Date.now() - t0) / 1000}s` });\n  54 |   expect.soft(errors.filter((e) => !/Blocked script execution/.test(e)), 'console errors other than sandbox').toEqual([]);\n  55 |   test.info().annotations.push({ type: 'sandbox-console-errors', description: String(errors.length) });\n    at /home/madman/household-guard/tests/audit/s6.spec.ts:52:119"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:24:16.790Z",
+                  "annotations": [
+                    {
+                      "type": "find-in-seconds",
+                      "description": "person+day filter + summary done in 0.532s"
+                    },
+                    {
+                      "type": "sandbox-console-errors",
+                      "description": "39"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s6.spec.ts",
+                    "column": 119,
+                    "line": 52
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f16d5b9508564124d51a-38972b26031e04c77314",
+          "file": "s6.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s7.spec.ts",
+      "file": "s7.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S7a limit change is followed by the next decision; teen cannot change a rule",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "teen-refusal-wording",
+                  "description": "Ask an adult to change rules."
+                },
+                {
+                  "type": "preview-before-tap",
+                  "description": "This lets Maya spend $30 more a week."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6788,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:24:24.181Z",
+                  "annotations": [
+                    {
+                      "type": "teen-refusal-wording",
+                      "description": "Ask an adult to change rules."
+                    },
+                    {
+                      "type": "preview-before-tap",
+                      "description": "This lets Maya spend $30 more a week."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7a-limit-change-is-fol-8148a-n-teen-cannot-change-a-rule/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7a-limit-change-is-fol-8148a-n-teen-cannot-change-a-rule/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7a-limit-change-is-fol-8148a-n-teen-cannot-change-a-rule/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-73d240064e8e4cfdf998",
+          "file": "s7.spec.ts",
+          "line": 9,
+          "column": 1
+        },
+        {
+          "title": "S7b undo restores the old rule and the next decision follows it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 35833,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:24:31.536Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7b-undo-restores-the-o-3519e-he-next-decision-follows-it/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7b-undo-restores-the-o-3519e-he-next-decision-follows-it/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7b-undo-restores-the-o-3519e-he-next-decision-follows-it/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-a06f87fa830873fc0ab0",
+          "file": "s7.spec.ts",
+          "line": 52,
+          "column": 1
+        },
+        {
+          "title": "S7c quiet hours card: plain preview before saving, saved after Mom taps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "quiet-preview",
+                  "description": "Kids cannot buy from 9 PM to 6 AM."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2614,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:25:07.920Z",
+                  "annotations": [
+                    {
+                      "type": "quiet-preview",
+                      "description": "Kids cannot buy from 9 PM to 6 AM."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7c-quiet-hours-card-pl-91bbc-saving-saved-after-Mom-taps/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7c-quiet-hours-card-pl-91bbc-saving-saved-after-Mom-taps/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7c-quiet-hours-card-pl-91bbc-saving-saved-after-Mom-taps/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-60fdb744a4b350e04b70",
+          "file": "s7.spec.ts",
+          "line": 72,
+          "column": 1
+        },
+        {
+          "title": "S7d locked safety rules warn before change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "MANUAL: the web client has no control for the two locked rules (\"children cannot unlock\", \"guests cannot buy\"); they are only reachable by calling set_rule directly, which this audit may not do. Covered by tests/s7 (vitest).",
+                  "location": {
+                    "file": "/home/madman/household-guard/tests/audit/s7.spec.ts",
+                    "line": 87,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 1,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:25:10.660Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "MANUAL: the web client has no control for the two locked rules (\"children cannot unlock\", \"guests cannot buy\"); they are only reachable by calling set_rule directly, which this audit may not do. Covered by tests/s7 (vitest).",
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s7.spec.ts",
+                        "line": 87,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a2/s7-S7d-locked-safety-rules-warn-before-change/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "aee3dd511f456a83bcae-781ef320a87a23951671",
+          "file": "s7.spec.ts",
+          "line": 86,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:23:55.406Z",
+    "duration": 75338.939,
+    "expected": 7,
+    "skipped": 1,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
