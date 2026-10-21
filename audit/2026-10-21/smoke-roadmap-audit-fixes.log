@@ -1,0 +1,19 @@
+
+> household-guard@0.1.0 smoke:roadmap
+> STAGE=roadmap tsx scripts/smoke.ts
+
+initialize ✓ 2025-11-25
+tools/list ✓ household_status, request_action, confirm_identity, approve_request, audit_log, show_on_screen, find_capability, connect_service, set_rule, job_s
+tools/call ✓ Your house is quiet. Nothing is waiting. Maya has $20 left this week.
+request_action (guest, lights) ✓ Done. The lights are off.
+request_action (guest, unlock) denied ✓ Tell me who you are first.
+ride booked through the queue and worker ✓ Your ride is booked. $15 in all.
+no token → 401 ✓
+well-known metadata ✓
+bad Origin → 403 ✓
+family account (real sign-in server) → house_status ✓
+ID token refused (401) ✓
+signed-in token cannot act as a phone (403) ✓
+service client (client_credentials) → house_status ✓
+config.json points at the sign-in domain ✓
+smoke passed in 13439 ms against https://qnvjnhktlzgkb6kcrhi7g2tb5i0tgrtw.lambda-url.us-east-1.on.aws

@@ -1,0 +1,349 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s8.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8016",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-local-a3s8.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s8.spec.ts",
+      "file": "s8.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S8 token is checked on every call (401) and the signed-in page still works",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 830,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:38:00.193Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-token-is-checked-on--fc9cf--signed-in-page-still-works/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-token-is-checked-on--fc9cf--signed-in-page-still-works/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-token-is-checked-on--fc9cf--signed-in-page-still-works/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-3debeeb6dc28c885ef37",
+          "file": "s8.spec.ts",
+          "line": 9,
+          "column": 1
+        },
+        {
+          "title": "S8 UX: the page opens and lists tools with zero console errors",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3009,
+                  "error": {
+                    "message": "Error: console errors on a plain page load\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: console errors on a plain page load\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /home/madman/household-guard/tests/audit/s8.spec.ts:59:55",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s8.spec.ts",
+                      "column": 55,
+                      "line": 59
+                    },
+                    "snippet": "  57 |   await expect(page.getByTestId('log')).toContainText('household_status', { timeout: 15000 });\n  58 |   await page.waitForTimeout(2500); // let the timeline and rules frames draw\n> 59 |   expect(errs, 'console errors on a plain page load').toEqual([]);\n     |                                                       ^\n  60 | });\n  61 |\n  62 | test('S8 privacy page and well-known pages load', async ({ page, request }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s8.spec.ts",
+                        "column": 55,
+                        "line": 59
+                      },
+                      "message": "Error: console errors on a plain page load\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+   \"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  57 |   await expect(page.getByTestId('log')).toContainText('household_status', { timeout: 15000 });\n  58 |   await page.waitForTimeout(2500); // let the timeline and rules frames draw\n> 59 |   expect(errs, 'console errors on a plain page load').toEqual([]);\n     |                                                       ^\n  60 | });\n  61 |\n  62 | test('S8 privacy page and well-known pages load', async ({ page, request }) => {\n    at /home/madman/household-guard/tests/audit/s8.spec.ts:59:55"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:38:01.281Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s8.spec.ts",
+                    "column": 55,
+                    "line": 59
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-0fce320e520cbbeb0095",
+          "file": "s8.spec.ts",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "S8 privacy page and well-known pages load",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 339,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "PRIVACY TEXT:\nHousehold Guard privacy note\n\nWe do not store audio. Alexa turns speech into text; we only see the text.\nProfiles for children are created only by an adult.\nThe log of what happened is kept for 90 days, then it is deleted.\nPINs are stored scrambled (scrypt). We never store a PIN as typed.\nWe keep what we need to apply your house rules: names, roles, limits, and the log.\nWe never sell or share it. This note is not legal advice.\n"
+                    },
+                    {
+                      "text": "/.well-known/household-guard.json {\"name\":\"Household Guard\",\"mcp\":\"/mcp\",\"protocol_versions\":[\"2025-11-25\",\"2025-03-26\"],\"tools\":\"tools/list\",\"privacy\":\"/privacy\",\"source\":\"MIT licensed, see LICENSE\"}\n"
+                    },
+                    {
+                      "text": "/.well-known/oauth-protected-resource {\"resource\":\"http://127.0.0.1:8016/mcp\",\"bearer_methods_supported\":[\"header\"],\"resource_documentation\":\"http://127.0.0.1:8016/privacy\",\"authorization_servers\":[]}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:38:04.808Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-privacy-page-and-well-known-pages-load/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-privacy-page-and-well-known-pages-load/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-privacy-page-and-well-known-pages-load/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-ec88c47726f92fc97d19",
+          "file": "s8.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "S8 submission files exist (CLI evidence)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:38:05.258Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s8/s8-S8-submission-files-exist-CLI-evidence-/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-bb01a61302eee1f239a0",
+          "file": "s8.spec.ts",
+          "line": 82,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:37:59.704Z",
+    "duration": 5608.58,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,536 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s10.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8016",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-local-a3s10.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s10.spec.ts",
+      "file": "s10.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S10 rule card: quiet hours button shows a plain preview and the card",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7598,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "PREVIEW before tap: Kids cannot buy from 9 PM to 6 AM.\n"
+                    },
+                    {
+                      "text": "RULES CARD: House rules\n🛒\nLeo: an adult says yes to buys.\n🛒\nMaya: $20 a week.\n🛒\nMom: $500 a week.\n🔒\nAdults only: unlock, garage.\n🛒\nAllowed apps: sim-home, mock-ride, mock-shop.\n📝\nBest value needs: nothing special.\n🌙\nNo buying for kids from 9 PM to 6 AM.\n🔒\nLocked: children can't unlock doors.\n🔒\nLocked: guests can't buy.\n"
+                    },
+                    {
+                      "text": "MAYA TRIES QUIET OFF -> Ask an adult to change rules.\n"
+                    },
+                    {
+                      "text": "console errors: [\"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:38:29.249Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-rule-card-quiet-ho-4b0f0--plain-preview-and-the-card/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-rule-card-quiet-ho-4b0f0--plain-preview-and-the-card/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-rule-card-quiet-ho-4b0f0--plain-preview-and-the-card/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fd05237b26ae45735dc3-de9107d04764c28dcec5",
+          "file": "s10.spec.ts",
+          "line": 88,
+          "column": 1
+        },
+        {
+          "title": "S10 teen purchase inside quiet hours is held (house time zone), adult is exempt",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10161,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "NY hour \u001b[33m16\u001b[39m UTC hour \u001b[33m20\u001b[39m\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"Mom is confirmed.\",\"result\":{\"done\":true,\"reason\":\"Mom is confirmed.\"}}\n"
+                    },
+                    {
+                      "text": "set_rule result: {\"status\":\"waiting\",\"say\":\"Confirm on your phone: 12\",\"number\":12,\"challenge_id\":\"2eb54df8-2cf\",\"sentence\":\"No buying for kids from 4 PM to 6 PM.\",\"preview\":\"Kids cannot buy from 4 PM to 6 PM.\"}\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"No buying for kids from 4 PM to 6 PM.\",\"result\":{\"done\":true,\"reason\":\"No buying for kids from 4 PM to 6 PM.\"}}\n"
+                    },
+                    {
+                      "text": "RULES CARD: House rules\n🛒\nLeo: an adult says yes to buys.\n🛒\nMaya: $20 a week.\n🛒\nMom: $500 a week.\n🔒\nAdults only: unlock, garage.\n🛒\nAllowed apps: sim-home, mock-ride, mock-shop.\n📝\nBest value needs: nothing special.\n🌙\nNo buying for kids from 4 PM to 6 PM.\n🔒\nLocked: children can't unlock doors.\n🔒\nLocked: guests can't buy.\n"
+                    },
+                    {
+                      "text": "MOM IN QUIET WINDOW SAYS: Confirm on your phone: 11\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"Okay. Booking it now.\",\"result\":{\"done\":false,\"reason\":\"Okay. Booking it now.\",\"jobId\":\"20731ff3-f04\"}}\n"
+                    },
+                    {
+                      "text": "MOM RIDE RESULT: Your ride is booked. $15 in all.\n"
+                    },
+                    {
+                      "text": "PHONE CONFIRM \u001b[33m200\u001b[39m {\"status\":\"confirmed\",\"say\":\"Maya is confirmed.\",\"result\":{\"done\":true,\"reason\":\"Maya is confirmed.\"}}\n"
+                    },
+                    {
+                      "text": "MAYA IN QUIET WINDOW SAYS: Quiet hours: no buying from 4 PM to 6 PM. | outcome denied\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:38:37.169Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-teen-purchase-insi-d7782-e-time-zone-adult-is-exempt/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-teen-purchase-insi-d7782-e-time-zone-adult-is-exempt/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-teen-purchase-insi-d7782-e-time-zone-adult-is-exempt/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fd05237b26ae45735dc3-e33773359a67d05bffc4",
+          "file": "s10.spec.ts",
+          "line": 114,
+          "column": 1
+        },
+        {
+          "title": "S10 time zone: a window that only matches UTC (not New York) must NOT hold",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8877,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "MAYA (window only matches UTC) SAYS: Confirm on your phone: 82\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:38:47.658Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-time-zone-a-window-ee749--not-New-York-must-NOT-hold/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-time-zone-a-window-ee749--not-New-York-must-NOT-hold/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-time-zone-a-window-ee749--not-New-York-must-NOT-hold/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fd05237b26ae45735dc3-3a5138f94ad2bfb888e4",
+          "file": "s10.spec.ts",
+          "line": 150,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "S10 proofs (CLI)",
+          "file": "s10.spec.ts",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "prove passes on the rules that ship",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 465,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "PROVEN  no child may unlock a door (done at once)\nPROVEN  no child may unlock a door (or held for an adult)\nPROVEN  no child may open the garage (done at once)\nPROVEN  no child may open the garage (or held for an adult)\nPROVEN  no guest may use an app (done at once)\nPROVEN  no guest may use an app (or held for an adult)\nPROVEN  no guest may buy (done at once)\nPROVEN  no guest may buy (or held for an adult)\nEvery promise is proven for all requests.\n\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T20:38:26.900Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-proofs-CLI-prove-passes-on-the-rules-that-ship/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-f920594c2cd4e33bc454",
+              "file": "s10.spec.ts",
+              "line": 24,
+              "column": 3
+            },
+            {
+              "title": "prove: a stray permit alone does NOT break the promise (forbid beats permit) - control",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 396,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T20:38:27.407Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-proofs-CLI-prove-a-54b76-rbid-beats-permit---control/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-1532c036d355b5415645",
+              "file": "s10.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "prove FAILS with a counterexample when a rule lets a child unlock",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 565,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "EXIT \u001b[33m1\u001b[39m \nFAILED  no child may unlock a door (done at once)\n        principal: Person::\"\", action: Action::\"unlock\", resource: Service::\"\"\n        context: {amount_cents: -1, local_hour: -1, service_known: true, session: \"\", value: -1, week_spent_cents: -1}\n        entities: [\n          Service::\"\",\n          Action::\"purchase\",\n          Role::\"teen\",\n          Action::\"use_app\",\n          Action::\"unlock\",\n          Action::\"thermostat\",\n          Role::\"adult\",\n          Role::\"guest\",\n          Action::\"garage\",\n          Action::\"light\",\n          Action::\"build_site\",\n          Person::\"\" in [Role::\"child\"],\n          Role::\"child\",\n          Person::\"maya\" in [Role::\"child\"],\n          Person::\"mom\" in [Role::\"child\"],\n        ]\nFAILED  no child may unlock a door (or held for an adult)\n        principal: Person::\"\", action: Action::\"unlock\", resource: Service::\"\"\n        context: {amount_cents: 0, local_hour: 0, service_known: false, session: \"\", value: 0, week_spent_cents: 0}\n        entities: [\n          Action::\"light\",\n          Person::\"\" in [Role::\"child\"],\n          Role::\"child\",\n          Role::\"guest\",\n          Action::\"use_app\",\n          Role::\"adult\",\n          Role::\"teen\",\n          Service::\"\",\n          Action::\"purchase\",\n          Action::\"thermostat\",\n          Action::\"garage\",\n          Action::\"unlock\",\n          Action::\"build_site\",\n        ]\nPROVEN  no child may open the garage (done at once)\nPROVEN  no child may open the garage (or held for an adult)\nPROVEN  no guest may use an app (done at once)\nPROVEN  no guest may use an app (or held for an adult)\nPROVEN  no guest may buy (done at once)\nPROVEN  no guest may buy (or held for an adult)\n2 promise(s) broken.\n\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T20:38:27.831Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-proofs-CLI-prove-F-be5fd--a-rule-lets-a-child-unlock/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-c22ef14ea2d8c7035dd3",
+              "file": "s10.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "prove FAILS when the safety rules are deleted (children can unlock via a plain allow)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 403,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T20:38:28.430Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-proofs-CLI-prove-F-1c26a-n-unlock-via-a-plain-allow-/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-53064ba96a5ed76b908b",
+              "file": "s10.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "prove FAILS when a guest may buy",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 387,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T20:38:28.846Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-local/a3s10/s10-S10-proofs-CLI-prove-FAILS-when-a-guest-may-buy/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fd05237b26ae45735dc3-1efec9876cb8cdaffa27",
+              "file": "s10.spec.ts",
+              "line": 65,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:38:26.455Z",
+    "duration": 30347.391,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,85 @@
+== local s0
+  ✓  1 tests/audit/s0.spec.ts:7:1 › S0 browser: connect, list tools, ask status; log shows raw answers (585ms)
+  ✘  2 tests/audit/s0.spec.ts:21:1 › S0 browser: no console errors on first load and tool list (3.0s)
+  ✓  3 tests/audit/s0.spec.ts:32:1 › S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401 (99ms)
+  ✓  4 tests/audit/s0.spec.ts:56:1 › S0 http: tools/list over raw HTTP has exactly the fixed ten tools and no person field on request_action (32ms)
+    audit/2026-10-21/pw-local/a-s0/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/test-failed-1.png
+  1 failed
+  3 passed (4.8s)
+== local s1
+  ✓  1 tests/audit/s1.spec.ts:4:1 › S1 teen: lights -> done; unlock -> denied in plain words; delete account -> denied (2.6s)
+  ✓  2 tests/audit/s1.spec.ts:29:1 › S1 typed words: unknown service action and odd phrasing are denied or not understood, never done (2.0s)
+  ✓  3 tests/audit/s1.spec.ts:40:1 › S1 guest (nobody confirmed): lights ok, unlock and delete denied (704ms)
+  ✓  4 tests/audit/s1.spec.ts:50:1 › S1 adult: Mom (confirmed on her phone) can unlock (2.1s)
+  4 passed (8.3s)
+== local s2
+  ✓  1 tests/audit/s2.spec.ts:4:1 › S2 "I'm Mom, unlock the door" with no Mom confirmation -> denied (nobody confirmed) (623ms)
+  ✓  2 tests/audit/s2.spec.ts:12:1 › S2 "I'm Mom" said while Maya is the confirmed speaker -> still denied; Mom's phone got nothing to approve (2.4s)
+  ✓  3 tests/audit/s2.spec.ts:22:1 › S2 teen purchase: the number lands on Maya's phone, not Mom's; tapping it books (2.7s)
+  ✓  4 tests/audit/s2.spec.ts:36:1 › S2 Mom pressing a wrong number on Maya's ask does not confirm; a wrong number on Maya's phone is refused (2.5s)
+  ✓  5 tests/audit/s2.spec.ts:48:1 › S2 4th confirmation push in 10 minutes -> locked (2.8s)
+  ✓  6 tests/audit/s2.spec.ts:69:1 › S2 Leo (no phone): 3 wrong PINs -> locked, then even the right PIN is refused (2.3s)
+  ✓  7 tests/audit/s2.spec.ts:92:1 › S2 Leo with the right PIN is confirmed (positive control) but a ride still needs an adult (940ms)
+  7 passed (15.6s)
+== local s3
+  ✓  1 tests/audit/s3.spec.ts:19:1 › S3 two $15 rides at once vs Maya's $20 cap -> exactly one booked, one held (6.7s)
+  ✓  2 tests/audit/s3.spec.ts:42:1 › S3 the ride held for the cap reaches Mom's phone (even before Maya taps her own phone) (2.4s)
+  ✓  3 tests/audit/s3.spec.ts:52:1 › S3 duplicate: the same request_id sent twice (an Alexa retry) books ONE ride (7.0s)
+  ✓  4 tests/audit/s3.spec.ts:77:1 › S3 teen over the cap in one go ($38 airport) is held with a plain reason, not booked (3.8s)
+  4 passed (21.2s)
+== prod s0
+  ✓  1 tests/audit/s0.spec.ts:7:1 › S0 browser: connect, list tools, ask status; log shows raw answers (1.5s)
+  ✘  2 tests/audit/s0.spec.ts:21:1 › S0 browser: no console errors on first load and tool list (3.5s)
+  ✓  3 tests/audit/s0.spec.ts:32:1 › S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401 (693ms)
+  ✓  4 tests/audit/s0.spec.ts:56:1 › S0 http: tools/list over raw HTTP has exactly the fixed ten tools and no person field on request_action (192ms)
+    audit/2026-10-21/pw-prod/a-s0/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/test-failed-1.png
+  1 failed
+  3 passed (7.1s)
+== prod s1
+  ✓  1 tests/audit/s1.spec.ts:4:1 › S1 teen: lights -> done; unlock -> denied in plain words; delete account -> denied (3.9s)
+  ✓  2 tests/audit/s1.spec.ts:29:1 › S1 typed words: unknown service action and odd phrasing are denied or not understood, never done (3.9s)
+  ✓  3 tests/audit/s1.spec.ts:40:1 › S1 guest (nobody confirmed): lights ok, unlock and delete denied (1.5s)
+  ✓  4 tests/audit/s1.spec.ts:50:1 › S1 adult: Mom (confirmed on her phone) can unlock (2.4s)
+  4 passed (12.6s)
+== prod s2
+  ✓  1 tests/audit/s2.spec.ts:4:1 › S2 "I'm Mom, unlock the door" with no Mom confirmation -> denied (nobody confirmed) (1.5s)
+  ✘  2 tests/audit/s2.spec.ts:12:1 › S2 "I'm Mom" said while Maya is the confirmed speaker -> still denied; Mom's phone got nothing to approve (5.7s)
+  ✓  3 tests/audit/s2.spec.ts:22:1 › S2 teen purchase: the number lands on Maya's phone, not Mom's; tapping it books (27.8s)
+  ✘  4 tests/audit/s2.spec.ts:36:1 › S2 Mom pressing a wrong number on Maya's ask does not confirm; a wrong number on Maya's phone is refused (5.7s)
+  ✓  5 tests/audit/s2.spec.ts:48:1 › S2 4th confirmation push in 10 minutes -> locked (5.1s)
+  ✘  6 tests/audit/s2.spec.ts:69:1 › S2 Leo (no phone): 3 wrong PINs -> locked, then even the right PIN is refused (2.9s)
+  ✓  7 tests/audit/s2.spec.ts:92:1 › S2 Leo with the right PIN is confirmed (positive control) but a ride still needs an adult (1.8s)
+    Error: expect(locator).toContainText(expected) failed
+    audit/2026-10-21/pw-prod/a-s2/s2-S2-I-m-Mom-said-while-M-4cc5e-hone-got-nothing-to-approve/test-failed-1.png
+    Error: expect(locator).toContainText(expected) failed
+    audit/2026-10-21/pw-prod/a-s2/s2-S2-Mom-pressing-a-wrong-9d0b0--on-Maya-s-phone-is-refused/test-failed-1.png
+    audit/2026-10-21/pw-prod/a-s2/s2-S2-Leo-no-phone-3-wrong-3153d-en-the-right-PIN-is-refused/test-failed-1.png
+  3 failed
+  4 passed (53.6s)
+== prod s3
+  ✘  1 tests/audit/s3.spec.ts:19:1 › S3 two $15 rides at once vs Maya's $20 cap -> exactly one booked, one held (4.0s)
+  ✘  2 tests/audit/s3.spec.ts:42:1 › S3 the ride held for the cap reaches Mom's phone (even before Maya taps her own phone) (1.5m)
+  ✓  3 tests/audit/s3.spec.ts:52:1 › S3 duplicate: the same request_id sent twice (an Alexa retry) books ONE ride (8.2s)
+  ✓  4 tests/audit/s3.spec.ts:77:1 › S3 teen over the cap in one go ($38 airport) is held with a plain reason, not booked (4.5s)
+    audit/2026-10-21/pw-prod/a-s3/s3-S3-two-15-rides-at-once-7b169-exactly-one-booked-one-held/test-failed-1.png
+    audit/2026-10-21/pw-prod/a-s3/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/test-failed-1.png
+  2 failed
+  2 passed (1.8m)
+== prod s2 (rerun after cooldown)
+  ✓  1 tests/audit/s2.spec.ts:4:1 › S2 "I'm Mom, unlock the door" with no Mom confirmation -> denied (nobody confirmed) (2.7s)
+  ✓  2 tests/audit/s2.spec.ts:12:1 › S2 "I'm Mom" said while Maya is the confirmed speaker -> still denied; Mom's phone got nothing to approve (3.6s)
+  ✓  3 tests/audit/s2.spec.ts:22:1 › S2 teen purchase: the number lands on Maya's phone, not Mom's; tapping it books (5.7s)
+  ✓  4 tests/audit/s2.spec.ts:36:1 › S2 Mom pressing a wrong number on Maya's ask does not confirm; a wrong number on Maya's phone is refused (3.2s)
+  ✓  5 tests/audit/s2.spec.ts:48:1 › S2 4th confirmation push in 10 minutes -> locked (4.9s)
+  ✓  6 tests/audit/s2.spec.ts:69:1 › S2 Leo (no phone): 3 wrong PINs -> locked, then even the right PIN is refused (3.7s)
+  ✓  7 tests/audit/s2.spec.ts:92:1 › S2 Leo with the right PIN is confirmed (positive control) but a ride still needs an adult (2.4s)
+  7 passed (27.8s)
+== prod s3 (rerun after cooldown)
+  ✓  1 tests/audit/s3.spec.ts:19:1 › S3 two $15 rides at once vs Maya's $20 cap -> exactly one booked, one held (8.4s)
+  ✘  2 tests/audit/s3.spec.ts:42:1 › S3 the ride held for the cap reaches Mom's phone (even before Maya taps her own phone) (16.0s)
+  ✓  3 tests/audit/s3.spec.ts:52:1 › S3 duplicate: the same request_id sent twice (an Alexa retry) books ONE ride (9.2s)
+  ✓  4 tests/audit/s3.spec.ts:77:1 › S3 teen over the cap in one go ($38 airport) is held with a plain reason, not booked (5.6s)
+    Error: expect(locator).toContainText(expected) failed
+    audit/2026-10-21/pw-prod/a-s3/s3-S3-the-ride-held-for-th-c3bce-re-Maya-taps-her-own-phone-/test-failed-1.png
+  1 failed
+  3 passed (41.3s)

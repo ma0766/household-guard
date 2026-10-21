@@ -1,0 +1,65 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/audit/s8.spec.ts:9:1 › S8 token is checked on every call (401) and the signed-in page still works (3.3s)
+  ✘  2 tests/audit/s8.spec.ts:53:1 › S8 UX: the page opens and lists tools with zero console errors (3.4s)
+PRIVACY TEXT:
+Household Guard privacy note
+
+We do not store audio. Alexa turns speech into text; we only see the text.
+Profiles for children are created only by an adult.
+The log of what happened is kept for 90 days, then it is deleted.
+PINs are stored scrambled (scrypt). We never store a PIN as typed.
+We keep what we need to apply your house rules: names, roles, limits, and the log.
+We never sell or share it. This note is not legal advice.
+/.well-known/household-guard.json {"name":"Household Guard","mcp":"/mcp","protocol_versions":["2025-11-25","2025-03-26"],"tools":"tools/list","privacy":"/privacy","source":"MIT licensed, see LICENSE"}
+/.well-known/oauth-protected-resource {"resource":"https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/mcp","bearer_methods_supported":["header"],"resource_documentation":"https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/privacy","authorization_servers":["https://cognito-idp.us-east-1.amazonaws.com/us-east-1_pHMvPUdWp"]}
+  ✓  3 tests/audit/s8.spec.ts:62:1 › S8 privacy page and well-known pages load (533ms)
+  ✓  4 tests/audit/s8.spec.ts:82:1 › S8 submission files exist (CLI evidence) (4ms)
+
+
+  1) tests/audit/s8.spec.ts:53:1 › S8 UX: the page opens and lists tools with zero console errors ──
+
+    Error: console errors on a plain page load
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      57 |   await expect(page.getByTestId('log')).toContainText('household_status', { timeout: 15000 });
+      58 |   await page.waitForTimeout(2500); // let the timeline and rules frames draw
+    > 59 |   expect(errs, 'console errors on a plain page load').toEqual([]);
+         |                                                       ^
+      60 | });
+      61 |
+      62 | test('S8 privacy page and well-known pages load', async ({ page, request }) => {
+        at /home/madman/household-guard/tests/audit/s8.spec.ts:59:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-prod/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-prod/a3s8/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/audit/s8.spec.ts:53:1 › S8 UX: the page opens and lists tools with zero console errors ───
+  3 passed (8.5s)

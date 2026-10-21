@@ -18,7 +18,8 @@ export function localClient(): DynamoDBClient {
 
 // idempotent: start the container if missing, then create the single table if missing
 export async function ensureLocalDynamo(): Promise<void> {
-  const running = sh(['ps', '--filter', 'name=^hg-ddb$', '--format', '{{.Status}}']);
+  // CI (GitLab) has no Docker: DynamoDB Local runs as a service next to the job (HG_DDB_EXTERNAL=1, address in DDB_ENDPOINT); only the table is made here
+  const running = process.env.HG_DDB_EXTERNAL === '1' ? 'external' : sh(['ps', '--filter', 'name=^hg-ddb$', '--format', '{{.Status}}']);
   if (!running) {
     const exists = sh(['ps', '-a', '--filter', 'name=^hg-ddb$', '--format', '{{.Status}}']);
     if (exists) sh(['start', 'hg-ddb']);

@@ -106,7 +106,17 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
   const reservationId = randomUUID();
   const cap = rules.weeklyCapCents[person.id] ?? 0;
   const got = await reserve(deps.store, hh, { id: reservationId, person: person.id, amount, week, expiresAt: now + RESERVATION_MS }, cap);
-  if (got === 'cap') return result({ outcome: 'held', reason: heldReason(rules, person, amount, Math.max(spent, cap - amount + 1)), done: false }, tz, now, { ...extra, why: 'cap_race' });
+  if (got === 'cap') {
+    // Lost a race for the last of the limit (another buy took it first). Same answer as any other over-the-limit ask: held for an adult,
+    // with the card on the adult's phone. (Before: a bare "Held" with no card, so nobody could ever say yes to it.)
+    const spentNow = Math.max(spent, cap - amount + 1);
+    const reason = heldReason(rules, person, amount, spentNow);
+    const alt = owed ? undefined : bestValue(rules, person, method, args.service, rideOptions, amount, spentNow, now, tz);
+    const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason });
+    const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, why: 'cap_race', approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
+    out.say = [reason, alt ? `${T.altOffer(alt.label.toLowerCase(), alt.total_cents)} ${T.wantThat}` : '', T.adultCanTap(a.number)].filter(Boolean).join(' ');
+    return out;
+  }
 
   const meta = { purchase: { jobId, reservationId, amountCents: amount, optionId, replacesApprovalId, savedCents } };
   try {

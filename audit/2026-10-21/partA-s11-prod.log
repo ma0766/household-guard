@@ -1,0 +1,62 @@
+
+Running 4 tests using 1 worker
+
+DEMO break-ride 200 47249 {"ok":true}
+STATUS right after break (before any check): The ride service works.
+CHECK CLICK AT 47360
+DEMO check-rides 200 47565 {"status":"broken","cause":"api_changed","detail":"missing: price_cents; new: fare_cents; User: arn:aws:sts::679241558430:assumed-role/HouseholdGuard-WebServiceRoleA9172838-4JDgArU92QbL/HouseholdGuard-Web3C8945","say":"The ride service is not working. An adult was told."}
+SAYS after check: The ride service is not working. An adult was told.
+MAYA RIDE AFTER REPAIR SAYS: Held: this service was just fixed. An adult must say yes once. An adult can tap 40 to say yes. | outcome held
+MOM CARD: Maya wants: ride to the mall |  | $15 |  | Held: this service was just fixed. An adult must say yes once. |  | Tap the number Alexa said: |  | 401065No
+AFTER MOM YES SAYS: Your ride is booked. $15 in all.
+TIMELINE: What happened | 🛒 | Ride booked for Maya: $15 at 4:42 PM. | 2026-10-21 | 🛒 | Mom said yes at 4:42 PM. | 2026-10-21 | 🛒 | Maya asked for a $15 ride at 4:42 PM. Held: this service was just fixed. An adult must say yes once. | 2026-10-21 | 🔑 | Maya confirmed on their phone at 4:42 PM. | 2026-10-21
+console errors: ["Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  1 tests/audit/s11.spec.ts:8:1 › S11 break -> check -> repair -> next ride needs one yes -> yes -> normal again (1.7m)
+RIDE BETWEEN BREAK AND CHECK: That service is not working. An adult was told. | outcome held
+  ✓  2 tests/audit/s11.spec.ts:62:1 › S11 a ride asked after the break but before the check is never booked on a wrong price (10.9s)
+TEEN CLICKS BREAK, PAGE SAYS: The ride service shipped a new version.
+STATUS after teen break+check: The ride service works.
+  ✘  3 tests/audit/s11.spec.ts:79:1 › S11 a teen cannot break the ride service, and the page does not pretend she did (9.9s)
+HEALTHY CHECK SAYS: The ride service works.
+  ✓  4 tests/audit/s11.spec.ts:93:1 › S11 a healthy service: check changes nothing (6.7s)
+
+
+  1) tests/audit/s11.spec.ts:79:1 › S11 a teen cannot break the ride service, and the page does not pretend she did 
+
+    Error: page claims the service changed although a teen is not allowed to break it
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "shipped a new version"
+    Received string:        "The ride service shipped a new version."
+
+      88 |   console.log('STATUS after teen break+check:', await status(page).textContent());
+      89 |   expect(await status(page).textContent()).toBe('The ride service works.');
+    > 90 |   expect(t, 'page claims the service changed although a teen is not allowed to break it').not.toContain('shipped a new version');
+         |                                                                                               ^
+      91 | });
+      92 |
+      93 | test('S11 a healthy service: check changes nothing', async ({ page }) => {
+        at /home/madman/household-guard/tests/audit/s11.spec.ts:90:95
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/audit/s11.spec.ts:79:1 › S11 a teen cannot break the ride service, and the page does not pretend she did 
+  3 passed (2.2m)

@@ -1,0 +1,616 @@
+
+Running 63 tests using 1 worker
+
+  ✓   1 tests/audit/s0.spec.ts:7:1 › S0 browser: connect, list tools, ask status; log shows raw answers (572ms)
+  ✘   2 tests/audit/s0.spec.ts:21:1 › S0 browser: no console errors on first load and tool list (3.0s)
+  ✓   3 tests/audit/s0.spec.ts:32:1 › S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401 (93ms)
+  ✓   4 tests/audit/s0.spec.ts:56:1 › S0 http: tools/list over raw HTTP has exactly the fixed ten tools and no person field on request_action (42ms)
+  ✓   5 tests/audit/s1.spec.ts:4:1 › S1 teen: lights -> done; unlock -> denied in plain words; delete account -> denied (3.5s)
+  ✓   6 tests/audit/s1.spec.ts:29:1 › S1 typed words: unknown service action and odd phrasing are denied or not understood, never done (3.6s)
+  ✓   7 tests/audit/s1.spec.ts:40:1 › S1 guest (nobody confirmed): lights ok, unlock and delete denied (726ms)
+  ✓   8 tests/audit/s1.spec.ts:50:1 › S1 adult: Mom (confirmed on her phone) can unlock (3.1s)
+PROVEN  no child may unlock a door (done at once)
+PROVEN  no child may unlock a door (or held for an adult)
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+Every promise is proven for all requests.
+
+  ✓   9 tests/audit/s10.spec.ts:24:3 › S10 proofs (CLI) › prove passes on the rules that ship (381ms)
+  ✓  10 tests/audit/s10.spec.ts:31:3 › S10 proofs (CLI) › prove: a stray permit alone does NOT break the promise (forbid beats permit) - control (370ms)
+EXIT 1 
+FAILED  no child may unlock a door (done at once)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: -1, local_hour: -1, service_known: true, session: "", value: -1, week_spent_cents: -1}
+        entities: [
+          Action::"purchase",
+          Person::"mom" in [Role::"child"],
+          Action::"use_app",
+          Person::"maya" in [Role::"child"],
+          Role::"adult",
+          Service::"",
+          Person::"" in [Role::"child"],
+          Action::"light",
+          Action::"build_site",
+          Action::"thermostat",
+          Action::"unlock",
+          Role::"teen",
+          Role::"guest",
+          Action::"garage",
+          Role::"child",
+        ]
+FAILED  no child may unlock a door (or held for an adult)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: 0, local_hour: 0, service_known: false, session: "", value: 0, week_spent_cents: 0}
+        entities: [
+          Role::"child",
+          Action::"build_site",
+          Action::"thermostat",
+          Service::"",
+          Action::"light",
+          Action::"garage",
+          Person::"" in [Role::"child"],
+          Action::"use_app",
+          Action::"unlock",
+          Role::"adult",
+          Role::"guest",
+          Role::"teen",
+          Action::"purchase",
+        ]
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+2 promise(s) broken.
+
+  ✓  11 tests/audit/s10.spec.ts:39:3 › S10 proofs (CLI) › prove FAILS with a counterexample when a rule lets a child unlock (372ms)
+  ✓  12 tests/audit/s10.spec.ts:52:3 › S10 proofs (CLI) › prove FAILS when the safety rules are deleted (children can unlock via a plain allow) (357ms)
+  ✓  13 tests/audit/s10.spec.ts:65:3 › S10 proofs (CLI) › prove FAILS when a guest may buy (377ms)
+PREVIEW before tap: Kids cannot buy from 9 PM to 6 AM.
+RULES CARD: House rules
+🛒
+Leo: an adult says yes to buys.
+🛒
+Maya: $20 a week.
+🛒
+Mom: $500 a week.
+🔒
+Adults only: unlock, garage.
+🛒
+Allowed apps: sim-home, mock-ride, mock-shop.
+📝
+Best value needs: nothing special.
+🌙
+No buying for kids from 9 PM to 6 AM.
+🔒
+Locked: children can't unlock doors.
+🔒
+Locked: guests can't buy.
+MAYA TRIES QUIET OFF -> Ask an adult to change rules.
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  14 tests/audit/s10.spec.ts:88:1 › S10 rule card: quiet hours button shows a plain preview and the card (8.5s)
+NY hour 17 UTC hour 21
+PHONE CONFIRM 200 {"status":"confirmed","say":"Hi Mom. You are confirmed.","result":{"done":true,"reason":"Hi Mom. You are confirmed."}}
+set_rule result: {"status":"waiting","say":"Confirm on your phone: 60","number":60,"challenge_id":"2399ad2a-d91","sentence":"No buying for kids from 5 PM to 7 PM.","preview":"Kids cannot buy from 5 PM to 7 PM."}
+PHONE CONFIRM 200 {"status":"confirmed","say":"No buying for kids from 5 PM to 7 PM.","result":{"done":true,"reason":"No buying for kids from 5 PM to 7 PM."}}
+RULES CARD: House rules
+🛒
+Leo: an adult says yes to buys.
+🛒
+Maya: $20 a week.
+🛒
+Mom: $500 a week.
+🔒
+Adults only: unlock, garage.
+🛒
+Allowed apps: sim-home, mock-ride, mock-shop.
+📝
+Best value needs: nothing special.
+🌙
+No buying for kids from 5 PM to 7 PM.
+🔒
+Locked: children can't unlock doors.
+🔒
+Locked: guests can't buy.
+MOM IN QUIET WINDOW SAYS: Confirm on your phone: 72
+PHONE CONFIRM 200 {"status":"confirmed","say":"Okay. Booking it now.","result":{"done":false,"reason":"Okay. Booking it now.","jobId":"651c7963-0b3"}}
+MOM RIDE RESULT: Your ride is booked. $15 in all.
+PHONE CONFIRM 200 {"status":"confirmed","say":"Hi Maya. You are confirmed.","result":{"done":true,"reason":"Hi Maya. You are confirmed."}}
+MAYA IN QUIET WINDOW SAYS: Quiet hours: no buying from 5 PM to 7 PM. | outcome denied
+  ✓  15 tests/audit/s10.spec.ts:114:1 › S10 teen purchase inside quiet hours is held (house time zone), adult is exempt (20.4s)
+MAYA (window only matches UTC) SAYS: Confirm on your phone: 32
+  ✓  16 tests/audit/s10.spec.ts:150:1 › S10 time zone: a window that only matches UTC (not New York) must NOT hold (16.6s)
+DEMO break-ride 200 64001 {"ok":true}
+STATUS right after break (before any check): The ride service works.
+CHECK CLICK AT 64101
+DEMO check-rides 200 64192 {"status":"repaired","cause":"api_changed","say":"The ride service changed. We fixed it. The next buy needs a yes."}
+SAYS after check: The ride service changed. We fixed it. The next buy needs a yes.
+MAYA RIDE AFTER REPAIR SAYS: Held: this service was just fixed. An adult must say yes once. An adult can tap 14 to say yes. | outcome held
+MOM CARD: Maya wants: ride to the mall |  | $15 |  | Held: this service was just fixed. An adult must say yes once. |  | Tap the number Alexa said: |  | 141771No
+AFTER MOM YES SAYS: Your ride is booked. $15 in all.
+TIMELINE: What happened | 🛒 | Ride booked for Maya: $15 at 5:17 PM. | 2026-10-21 | 🛒 | Mom said yes at 5:17 PM. | 2026-10-21 | 🛒 | Maya asked for a $15 ride at 5:17 PM. Held: this service was just fixed. An adult must say yes once. | 2026-10-21 | 🔑 | Maya confirmed on their phone at 5:17 PM. | 2026-10-21
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  17 tests/audit/s11.spec.ts:8:1 › S11 break -> check -> repair -> next ride needs one yes -> yes -> normal again (16.9s)
+RIDE BETWEEN BREAK AND CHECK: That service is not working. An adult was told. | outcome held
+  ✓  18 tests/audit/s11.spec.ts:62:1 › S11 a ride asked after the break but before the check is never booked on a wrong price (9.0s)
+TEEN CLICKS BREAK, PAGE SAYS: Only an adult can do that.
+STATUS after teen break+check: The ride service works.
+  ✓  19 tests/audit/s11.spec.ts:79:1 › S11 a teen cannot break the ride service, and the page does not pretend she did (9.3s)
+HEALTHY CHECK SAYS: The ride service works.
+  ✓  20 tests/audit/s11.spec.ts:93:1 › S11 a healthy service: check changes nothing (6.8s)
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  21 tests/audit/s12.spec.ts:18:1 › S12 demo sign-in: the page connects and lists tools (flag state per stage) (500ms)
+  ✓  22 tests/audit/s12.spec.ts:28:1 › S12 forged and unsigned tokens are refused (21ms)
+  ✓  23 tests/audit/s12.spec.ts:37:1 › S12 hosted sign-in page loads (PKCE authorization-code request) or, with no sign-in server, the panel stays hidden (327ms)
+  -  24 tests/audit/s12.spec.ts:60:1 › S12 real Cognito sign-in in a browser (roadmap stage; password login is ON only on sandbox stages)
+  ✓  25 tests/audit/s12.spec.ts:93:1 › S12 roadmap stage: the open demo sign-in is OFF by design (232ms)
+  -  26 tests/audit/s12.spec.ts:102:1 › S12 prod: the demo token endpoint is open by design - check what it hands out
+outbox size before/after a held $38 ride: 0 0 (no adult email address configured on this server)
+LINK PAGE /approve: Say yes or no | This link does not work.
+LINK PAGE /approve?k=junk: Say yes or no | This link does not work.
+LINK PAGE /approve#k=junk: Say yes or no | This link does not work.
+  ✓  27 tests/audit/s12.spec.ts:118:1 › S12 email approval link (STAND-IN; MANUAL for the real send) (11.0s)
+  ✘  28 tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected (17.5s)
+  ✘  29 tests/audit/s13.spec.ts:68:3 › S13 connect any app, per person › stand-in hub is CLEARLY LABELLED to a judge in the UI (3.4s)
+  ✓  30 tests/audit/s13.spec.ts:77:3 › S13 connect any app, per person › stand-in hub is labelled on the app sign-in page and connect screen (7.5s)
+  ✘  31 tests/audit/s13.spec.ts:93:3 › S13 connect any app, per person › the app sign-in page itself says it is a stand-in (not only the URL host) (10.0s)
+  ✓  32 tests/audit/s13.spec.ts:108:3 › S13 connect any app, per person › README labels the app hub (Composio) as a stand-in (7ms)
+  ✘  33 tests/audit/s15.spec.ts:7:3 › S15 long jobs + site building › Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied (13.8s)
+  ✘  34 tests/audit/s15.spec.ts:51:3 › S15 long jobs + site building › stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel) (431ms)
+  ✓  35 tests/audit/s15.spec.ts:57:3 › S15 long jobs + site building › stand-in site builder is labelled on the finished screen and the preview page (5.2s)
+  ✓  36 tests/audit/s15.spec.ts:71:3 › S15 long jobs + site building › README labels the site builder (Wix) as a stand-in (3ms)
+  ✓  37 tests/audit/s2.spec.ts:4:1 › S2 "I'm Mom, unlock the door" with no Mom confirmation -> denied (nobody confirmed) (515ms)
+  ✓  38 tests/audit/s2.spec.ts:12:1 › S2 "I'm Mom" said while Maya is the confirmed speaker -> still denied; Mom's phone got nothing to approve (3.3s)
+  ✓  39 tests/audit/s2.spec.ts:22:1 › S2 teen purchase: the number lands on Maya's phone, not Mom's; tapping it books (5.1s)
+  ✓  40 tests/audit/s2.spec.ts:36:1 › S2 Mom pressing a wrong number on Maya's ask does not confirm; a wrong number on Maya's phone is refused (4.6s)
+pushes: ["Confirm on your phone: 61","Confirm on your phone: 57","Confirm on your phone: 65","Too many tries. Wait 10 minutes."]
+  ✓  41 tests/audit/s2.spec.ts:48:1 › S2 4th confirmation push in 10 minutes -> locked (2.9s)
+pin tries: ["That PIN is not right.","That PIN is not right.","Too many tries. Wait 10 minutes."]
+  ✓  42 tests/audit/s2.spec.ts:69:1 › S2 Leo (no phone): 3 wrong PINs -> locked, then even the right PIN is refused (2.2s)
+Leo PIN accepted says: Hi Leo.
+  ✓  43 tests/audit/s2.spec.ts:92:1 › S2 Leo with the right PIN is confirmed (positive control) but a ride still needs an adult (942ms)
+  ✓  44 tests/audit/s3.spec.ts:19:1 › S3 two $15 rides at once vs Maya's $20 cap -> exactly one booked, one held (9.2s)
+  ✓  45 tests/audit/s3.spec.ts:42:1 › S3 the ride held for the cap reaches Mom's phone (even before Maya taps her own phone) (4.6s)
+dup replies [["allowed","Confirm on your phone: 50","2105e634-44c"],["held","Still working on that one.",null],["allowed","Confirm on your phone: 50","2105e634-44c"]]
+  ✓  46 tests/audit/s3.spec.ts:52:1 › S3 duplicate: the same request_id sent twice (an Alexa retry) books ONE ride (9.5s)
+  ✓  47 tests/audit/s3.spec.ts:77:1 › S3 teen over the cap in one go ($38 airport) is held with a plain reason, not booked (4.9s)
+  ✘  48 tests/audit/s4.spec.ts:6:1 › S4a teen $38 ride held, $14 shared offered, accepted with no adult, $24 saving shown (5.3s)
+  ✓  49 tests/audit/s4.spec.ts:24:1 › S4b Mom matches the number on her phone and a $38 ride is booked (5.2s)
+  ✓  50 tests/audit/s4.spec.ts:52:1 › S4c price surge after approval -> held again, nothing booked (5.2s)
+  ✓  51 tests/audit/s5.spec.ts:8:1 › S5a gift card passes the rules, the AI check holds it, nothing is bought, an adult is asked (5.1s)
+  ✓  52 tests/audit/s5.spec.ts:25:1 › S5b hostile service reply changes nothing (held ride looks the same, nothing booked, hostile text never shown) (7.2s)
+  ✓  53 tests/audit/s6.spec.ts:8:1 › S6 timeline in plain sentences, filters by person and day, voice summary, edited row caught by verify script (10.2s)
+  ✓  54 tests/audit/s7.spec.ts:9:1 › S7a limit change is followed by the next decision; teen cannot change a rule (9.5s)
+  ✓  55 tests/audit/s7.spec.ts:52:1 › S7b undo restores the old rule and the next decision follows it (9.4s)
+  ✓  56 tests/audit/s7.spec.ts:72:1 › S7c quiet hours card: plain preview before saving, saved after Mom taps (5.0s)
+  -  57 tests/audit/s7.spec.ts:86:1 › S7d locked safety rules warn before change
+  ✓  58 tests/audit/s8.spec.ts:9:1 › S8 token is checked on every call (401) and the signed-in page still works (458ms)
+  ✘  59 tests/audit/s8.spec.ts:53:1 › S8 UX: the page opens and lists tools with zero console errors (2.9s)
+PRIVACY TEXT:
+Household Guard privacy note
+
+We do not store audio. Alexa turns speech into text; we only see the text.
+Profiles for children are created only by an adult.
+The log of what happened is kept for 90 days, then it is deleted.
+PINs are stored scrambled. We never store a PIN as typed.
+We keep what we need to apply your house rules: names, roles, limits, and the log.
+We never sell or share it. This note is not legal advice.
+/.well-known/household-guard.json {"name":"Household Guard","mcp":"/mcp","protocol_versions":["2025-11-25","2025-03-26"],"tools":"tools/list","privacy":"/privacy","source":"MIT licensed, see LICENSE"}
+/.well-known/oauth-protected-resource {"resource":"http://127.0.0.1:8016/mcp","bearer_methods_supported":["header"],"resource_documentation":"http://127.0.0.1:8016/privacy","authorization_servers":[]}
+  ✓  60 tests/audit/s8.spec.ts:62:1 › S8 privacy page and well-known pages load (301ms)
+  ✓  61 tests/audit/s8.spec.ts:82:1 › S8 submission files exist (CLI evidence) (4ms)
+Yes buttons visible with no adult confirmed: 0
+TIMELINE: What happened
+🛒
+Ride booked for Maya: $38 at 5:21 PM.
+2026-10-21
+🛒
+Mom said yes at 5:21 PM.
+2026-10-21
+🔑
+Mom confirmed on their phone at 5:21 PM.
+2026-10-21
+🛒
+Maya asked for a $38 ride at 5:21 PM. Held: over Maya's $20 a week.
+2026-10-21
+🔑
+Maya confirmed on their phone at 5:21 PM.
+2026-10-21
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  62 tests/audit/s9.spec.ts:5:1 › S9 approval from the house screen books the ride (13.2s)
+  ✓  63 tests/audit/s9.spec.ts:56:1 › S9 a "Yes" cannot book twice and a teen cannot approve from the screen (8.6s)
+
+
+  1) tests/audit/s0.spec.ts:21:1 › S0 browser: no console errors on first load and tool list ───────
+
+    Error: console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      27 |   await expect(page.getByTestId('log')).toContainText('request_action', { timeout: 15000 });
+      28 |   await page.waitForTimeout(2500);
+    > 29 |   expect(errors, 'console errors').toEqual([]);
+         |                                    ^
+      30 | });
+      31 |
+      32 | test('S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401', async ({ request, baseURL }) => {
+        at /home/madman/household-guard/tests/audit/s0.spec.ts:29:36
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected 
+
+    Error: console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      63 |     const notes = { heldText, mayaText, momText, guestText, standinBody, link, errs };
+      64 |     writeFileSync('audit/2026-10-21/A-s13-texts.json', JSON.stringify(notes, null, 2));
+    > 65 |     expect.soft(errs, 'console errors').toEqual([]);
+         |                                         ^
+      66 |   });
+      67 |
+      68 |   test('stand-in hub is CLEARLY LABELLED to a judge in the UI', async ({ page }) => {
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:65:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/audit/s13.spec.ts:68:3 › S13 connect any app, per person › stand-in hub is CLEARLY LABELLED to a judge in the UI 
+
+    Error: Apps panel text was: "Apps\n\nSome parts are practice versions. They are: apps like Spotify, the site builder, approval emails.\n\nConnect Spotify\nAllow Spotify (adult)\nBuild a site for my bakery\nPlay jazz on Spotify"
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /stand-?in|sample|simulat|demo|mock|fake|not real|placeholder|test mode|pretend/i
+    Received string:  "Apps·
+    Some parts are practice versions. They are: apps like Spotify, the site builder, approval emails.·
+    Connect Spotify
+    Allow Spotify (adult)
+    Build a site for my bakery
+    Play jazz on Spotify"
+
+      72 |     const appsPanel = await page.locator('#apps-panel').innerText();
+      73 |     await page.locator('#apps-panel').screenshot({ path: 'audit/2026-10-21/A-s13-label-apps-panel.png' });
+    > 74 |     expect(appsPanel, `Apps panel text was: ${JSON.stringify(appsPanel)}`).toMatch(STANDIN_WORDS);
+         |                                                                            ^
+      75 |   });
+      76 |
+      77 |   test('stand-in hub is labelled on the app sign-in page and connect screen', async ({ page, context }) => {
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:74:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/audit/s13.spec.ts:93:3 › S13 connect any app, per person › the app sign-in page itself says it is a stand-in (not only the URL host) 
+
+    Error: app page text: "Connect an app\n\nPractice page. A real app would show its own sign-in here.\n\nSay yes to let the house use this app for you.\n\nAllow"
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /stand-?in|sample|simulat|demo|mock|fake|not real|placeholder|test mode|pretend/i
+    Received string:  "Connect an app·
+    Practice page. A real app would show its own sign-in here.·
+    Say yes to let the house use this app for you.·
+    Allow"
+
+      103 |     const p2 = await context.newPage(); await p2.goto(new URL(new URL(link).pathname, page.url()).toString());
+      104 |     const body = await p2.locator('body').innerText();
+    > 105 |     expect(body, `app page text: ${JSON.stringify(body)}`).toMatch(STANDIN_WORDS);
+          |                                                            ^
+      106 |   });
+      107 |
+      108 |   test('README labels the app hub (Composio) as a stand-in', async () => {
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:105:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/audit/s15.spec.ts:7:3 › S15 long jobs + site building › Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied 
+
+    Error: console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 9
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      46 |     expect(previewText).toMatch(/bakery/i);
+      47 |     writeFileSync('audit/2026-10-21/A-s15-texts.json', JSON.stringify({ teenText, guestText, seen, screenText, previewText, link, answerMs, errs }, null, 2));
+    > 48 |     expect.soft(errs, 'console errors').toEqual([]);
+         |                                         ^
+      49 |   });
+      50 |
+      51 |   test('stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel)', async ({ page }) => {
+        at /home/madman/household-guard/tests/audit/s15.spec.ts:48:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/audit/s15.spec.ts:51:3 › S15 long jobs + site building › stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel) 
+
+    Error: Apps panel text: "Apps\n\nSome parts are practice versions. They are: apps like Spotify, the site builder, approval emails.\n\nConnect Spotify\nAllow Spotify (adult)\nBuild a site for my bakery\nPlay jazz on Spotify"
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /stand-?in|sample|simulat|demo|mock|fake|not real|placeholder|test mode|pretend/i
+    Received string:  "Apps·
+    Some parts are practice versions. They are: apps like Spotify, the site builder, approval emails.·
+    Connect Spotify
+    Allow Spotify (adult)
+    Build a site for my bakery
+    Play jazz on Spotify"
+
+      52 |     await page.goto(fresh());
+      53 |     const panel = await page.locator('#apps-panel').innerText();
+    > 54 |     expect(panel, `Apps panel text: ${JSON.stringify(panel)}`).toMatch(STANDIN_WORDS);
+         |                                                                ^
+      55 |   });
+      56 |
+      57 |   test('stand-in site builder is labelled on the finished screen and the preview page', async ({ page, context }) => {
+        at /home/madman/household-guard/tests/audit/s15.spec.ts:54:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/audit/s4.spec.ts:6:1 › S4a teen $38 ride held, $14 shared offered, accepted with no adult, $24 saving shown 
+
+    Error: console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      19 |   await expect(frameText(page, 'timeline')).toContainText(/saved \$24/i, { timeout: 15000 });
+      20 |   await page.screenshot({ path: `audit/2026-10-21/s4a-${process.env.AUDIT_TARGET ?? 'local'}.png`, fullPage: true });
+    > 21 |   expect(errors, 'console errors').toEqual([]);
+         |                                    ^
+      22 | });
+      23 |
+      24 | test('S4b Mom matches the number on her phone and a $38 ride is booked', async ({ page }) => {
+        at /home/madman/household-guard/tests/audit/s4.spec.ts:21:36
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/audit/s8.spec.ts:53:1 › S8 UX: the page opens and lists tools with zero console errors ──
+
+    Error: console errors on a plain page load
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      57 |   await expect(page.getByTestId('log')).toContainText('household_status', { timeout: 15000 });
+      58 |   await page.waitForTimeout(2500); // let the timeline and rules frames draw
+    > 59 |   expect(errs, 'console errors on a plain page load').toEqual([]);
+         |                                                       ^
+      60 | });
+      61 |
+      62 | test('S8 privacy page and well-known pages load', async ({ page, request }) => {
+        at /home/madman/household-guard/tests/audit/s8.spec.ts:59:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-local/p2/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-local/p2/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-local/p2/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/audit/s0.spec.ts:21:1 › S0 browser: no console errors on first load and tool list ────────
+    tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected 
+    tests/audit/s13.spec.ts:68:3 › S13 connect any app, per person › stand-in hub is CLEARLY LABELLED to a judge in the UI 
+    tests/audit/s13.spec.ts:93:3 › S13 connect any app, per person › the app sign-in page itself says it is a stand-in (not only the URL host) 
+    tests/audit/s15.spec.ts:7:3 › S15 long jobs + site building › Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied 
+    tests/audit/s15.spec.ts:51:3 › S15 long jobs + site building › stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel) 
+    tests/audit/s4.spec.ts:6:1 › S4a teen $38 ride held, $14 shared offered, accepted with no adult, $24 saving shown 
+    tests/audit/s8.spec.ts:53:1 › S8 UX: the page opens and lists tools with zero console errors ───
+  3 skipped
+  52 passed (5.4m)
+done

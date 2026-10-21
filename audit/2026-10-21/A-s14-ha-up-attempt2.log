@@ -1,0 +1,15 @@
+
+> household-guard@0.1.0 ha:up
+> tsx scripts/ha-up.ts
+
+/home/madman/household-guard/scripts/ha-up.ts:65
+  const t = setTimeout(() => reject(new Error('timeout')), 30000);
+                                    ^
+
+Error: timeout
+    at Timeout._onTimeout (/home/madman/household-guard/scripts/ha-up.ts:65:37)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)
+
+Node.js v22.23.3
+exit 1

@@ -1,0 +1,6 @@
+s8 local exit=1
+s9 local exit=0
+s10 local exit=0
+s11 local exit=1
+s12 local exit=0
+done

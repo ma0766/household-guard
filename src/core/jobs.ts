@@ -23,7 +23,8 @@ export async function jobStatus(deps: Deps, hh: string, id: string): Promise<Job
     if (c) {
       if (c.status === 'open') return { job_id: id, status: (c.expiresAt <= (deps.now ?? Date.now)() ? 'failed' : 'waiting'), say: c.expiresAt <= (deps.now ?? Date.now)() ? 'That ran out of time.' : 'Waiting for your phone.', done: false };
       const r = c.result;
-      if (r?.jobId) return jobStatus(deps, hh, r.jobId); // the tap started a job: report on the job
+      if (!r) return { job_id: id, status: 'waiting', say: 'Working on it.', done: false }; // the tap closed it a moment ago and its answer is still being written: not a failure, and never a bare "Done."
+      if (r.jobId) return jobStatus(deps, hh, r.jobId); // the tap started a job: report on the job
       return { job_id: id, status: r?.done ? 'done' : 'failed', say: r?.reason ?? 'Done.', done: !!r?.done };
     }
     const ap = await getApproval(deps, hh, id);

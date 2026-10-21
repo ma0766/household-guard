@@ -1,0 +1,30 @@
+== 2025-11-25
+exit=0
+{
+  "tools": [
+    {
+      "name": "household_status",
+      "description": "Who is in the house and what is waiting.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskS
+Schema portability: 0 errors, 2 warnings across 1 tool. Re-run with --strict for details.
+== 2025-03-26
+exit=0
+{
+  "tools": [
+    {
+      "name": "household_status",
+      "description": "Who is in the house and what is waiting.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "execution": {
+        "taskS
+Schema portability: 0 errors, 2 warnings across 1 tool. Re-run with --strict for details.

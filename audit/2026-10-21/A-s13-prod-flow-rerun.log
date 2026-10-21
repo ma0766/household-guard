@@ -1,0 +1,68 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected (19.2s)
+
+
+  1) tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected 
+
+    Error: console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    +   "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.",
+    + ]
+
+      63 |     const notes = { heldText, mayaText, momText, guestText, standinBody, link, errs };
+      64 |     writeFileSync('audit/2026-10-21/A-s13-texts.json', JSON.stringify(notes, null, 2));
+    > 65 |     expect.soft(errs, 'console errors').toEqual([]);
+         |                                         ^
+      66 |   });
+      67 |
+      68 |   test('stand-in hub is CLEARLY LABELLED to a judge in the UI', async ({ page, context }) => {
+        at /home/madman/household-guard/tests/audit/s13.spec.ts:65:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: audit/2026-10-21/pw-prod/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    audit/2026-10-21/pw-prod/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/trace.zip
+    Usage:
+
+        npx playwright show-trace audit/2026-10-21/pw-prod/a4/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected 

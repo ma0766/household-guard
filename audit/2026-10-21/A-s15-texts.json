@@ -1,0 +1,13 @@
+{
+  "teenText": "That's new here. An adult must say yes.",
+  "guestText": "Tell me who you are first.",
+  "seen": [
+    "Confirm on your phone: 68",
+    "Your site is ready. Sunny Bakery."
+  ],
+  "screenText": "Your site is ready: Sunny Bakery\n\nScan the code, or open the link, on your phone.\n\nhttp://127.0.0.1:8016/preview/THr4rNqiTjY82ISO",
+  "previewText": "Sunny Bakery\n\nFresh and local.\n\nWelcome to Sunny Bakery.\n\nA one-page site for Sunny Bakery.\n\nCome by and say hello.\n\nPractice site made by the demo's stand-in site builder.",
+  "link": "http://127.0.0.1:8016/preview/THr4rNqiTjY82ISO",
+  "answerMs": 126,
+  "errs": []
+}

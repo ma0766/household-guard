@@ -1,0 +1,10 @@
+PASS initialize 2025-11-25 server answered 2025-11-25
+PASS tools/list 2025-11-25 10 tools: household_status,request_action,confirm_identity,approve_request,audit_log,show_on_screen,find_capability,connect_service,set_rule,job_status
+PASS tools/call household_status 2025-11-25 
+PASS request_action schema has no person/speaker field fields: service, action, item, value, option_id, replaces, request_id
+PASS show_on_screen tool definition links _meta.ui.resourceUri ui://household-guard/screen
+PASS ui:// resource (from definition) can be read text/html;profile=mcp-app 5545 chars
+FAIL show_on_screen result has _meta.ui.resourceUri undefined
+PASS initialize 2025-03-26 server answered 2025-03-26
+PASS tools/list 2025-03-26 10 tools: household_status,request_action,confirm_identity,approve_request,audit_log,show_on_screen,find_capability,connect_service,set_rule,job_status
+PASS tools/call household_status 2025-03-26 

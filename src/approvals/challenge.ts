@@ -83,7 +83,7 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
   let result: Challenge['result'];
   if (c.kind === 'login') {
     await setSession(deps.store, hh, personId, 'phone', now);
-    result = { done: true, reason: `${name} is confirmed.` };
+    result = { done: true, reason: `Hi ${name}. You are confirmed.` };
     await emit(deps, hh, { kind: 'who', category: 'who', person: personId, personName: name, text: (t) => `${name} confirmed on their phone at ${t}.` });
   } else if (c.kind === 'rule') {
     try {

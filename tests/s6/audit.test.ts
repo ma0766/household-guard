@@ -181,7 +181,7 @@ describe('S6 voice answers and status', () => {
     const ctx = await newHousehold();
     await savedStory(ctx);
     const r = await voiceSummary(ctx.deps, ctx.hh, { who: 'kids', when: 'this week' });
-    expect(r.say).toBe("The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.");
+    expect(r.say).toBe("The kids spent $14 this week, in 1 buy. The last was Maya's, $14. You saved $24.");
     expect(r).toMatchObject({ spent_cents: 1400, buys: 1, saved_cents: 2400 });
     const sentences = r.say.split(/(?<=\.)\s+/);
     expect(sentences.length).toBeLessThanOrEqual(4);
@@ -200,8 +200,8 @@ describe('S6 voice answers and status', () => {
     await ctx.queue.drain();
     t = Date.parse('2026-10-21T12:00:00-04:00');
     expect((await voiceSummary(ctx.deps, ctx.hh, { who: 'kids', when: 'this week' })).say).toBe('The kids bought nothing this week.');
-    expect((await voiceSummary(ctx.deps, ctx.hh, { who: 'kids', when: 'last week' })).say).toMatch(/^The kids spent \$15 last week\./);
-    expect((await voiceSummary(ctx.deps, ctx.hh, { who: 'maya', when: 'last week' })).say).toMatch(/^Maya spent \$15 last week\./);
+    expect((await voiceSummary(ctx.deps, ctx.hh, { who: 'kids', when: 'last week' })).say).toMatch(/^The kids spent \$15 last week, in 1 buy\./);
+    expect((await voiceSummary(ctx.deps, ctx.hh, { who: 'maya', when: 'last week' })).say).toMatch(/^Maya spent \$15 last week, in 1 buy\./);
     expect((await voiceSummary(ctx.deps, ctx.hh, { who: 'mom', when: 'last week' })).say).toBe('Mom bought nothing last week.');
   });
   it('household status is real: who is here, what is waiting, what is left', async () => {

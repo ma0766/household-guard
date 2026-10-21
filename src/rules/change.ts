@@ -176,5 +176,5 @@ export function rulesHtml(rules: RulesConfig, people: { id: string; name: string
     row('🔒', rules.floor.childrenNoUnlock ? "Locked: children can't unlock doors." : "Off: children can't unlock doors."),
     row('🔒', rules.floor.guestsNoBuy ? "Locked: guests can't buy." : "Off: guests can't buy."),
   ];
-  return `<!doctype html><meta charset="utf-8"><style>body{font:16px/1.4 system-ui,sans-serif;margin:0;padding:8px}.row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #e4dfd2}.ic{width:26px}h2{font-size:16px;margin:0 0 6px}</style><h2>House rules</h2>${rows.join('')}`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><title>House rules</title><style>body{font:16px/1.4 system-ui,sans-serif;margin:0;padding:8px}.row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #e4dfd2}.ic{width:26px}h2{font-size:16px;margin:0 0 6px}</style><h2>House rules</h2>${rows.join('')}`;
 }

@@ -1,0 +1,9 @@
+$ npm run audit:verify -- aus6mvim9oan5369 --local   (before edit)
+exit 0
+audit log OK: 7 entries
+
+$ npm run audit:verify -- aus6mvim9oan5369 --local   (after editing text of AUDIT#2)
+exit 1
+audit log BROKEN at entry 2: an entry was edited
+Note: no key is set (HG_AUDIT_KEY or HG_TOKEN_SECRET). If this log was made with a real key, a clean log also looks edited without it. Set the key the stack uses and run this again.
+

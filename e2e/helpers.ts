@@ -13,5 +13,5 @@ export async function confirmOnPhone(page: Page, who: 'mom' | 'maya') {
 export async function signIn(page: Page, who: 'mom' | 'maya') {
   await page.getByTestId(`who-${who}`).click();
   await confirmOnPhone(page, who);
-  await expect(page.getByTestId('alexa-says')).toContainText('is confirmed');
+  await expect(page.getByTestId('alexa-says')).toContainText('are confirmed');
 }

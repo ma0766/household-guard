@@ -1,0 +1,14 @@
+
+> household-guard@0.1.0 prove
+> tsx scripts/prove.ts
+
+PROVEN  no child may unlock a door (done at once)
+PROVEN  no child may unlock a door (or held for an adult)
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+Every promise is proven for all requests.
+EXIT=0

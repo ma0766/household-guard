@@ -1,0 +1,50 @@
+{
+  "totalSeconds": 64.7,
+  "totalMmSs": "1:05",
+  "budget": "2:45",
+  "segments": [
+    {
+      "seg": "1 hook: teen $38 ride held, parent card pops up",
+      "window": "0:00-0:20",
+      "seconds": 6.6,
+      "note": "Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 64 to say yes."
+    },
+    {
+      "seg": "2 the problem (a slide in the real video; not in the app)",
+      "window": "0:20-0:45",
+      "seconds": 3.1,
+      "note": "No slide exists in the app; time here is a 3 s placeholder, narration needs ~25 s"
+    },
+    {
+      "seg": "3 three speakers, the same three requests",
+      "window": "0:45-1:30",
+      "seconds": 31.7,
+      "note": "guest: lights → Done. The lights are off. | guest: unlock → Tell me who you are first. | guest: ride → Guests can't buy things. | maya: lights → Done. The lights are off. | maya: unlock → Only adults can do that. | maya: ride → Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 29 to say yes. | mom: lights → Done. The lights are off. | mom: unlock → Confirm on your phone: 19 |    (tapped) → Done. The front door is unlocked. | mom: ride → Confirm on your phone: 24 |    (tapped) → Your ride is booked. $38 in all."
+    },
+    {
+      "seg": "4 gift card: allowed by the rules, held by the AI check",
+      "window": "1:30-1:50",
+      "seconds": 7.7,
+      "note": "Confirm on your phone: 73 → after tap: That needs a closer look. An adult can tap 31 to say yes."
+    },
+    {
+      "seg": "5 self-healing: break, check, repaired, next ride needs one yes",
+      "window": "1:50-2:15",
+      "seconds": 8.3,
+      "note": "Held: this service was just fixed. An adult must say yes once. An adult can tap 79 to say yes. -> Your ride is booked. $15 in all."
+    },
+    {
+      "seg": "6 audit timeline + proof",
+      "window": "2:15-2:35",
+      "seconds": 3.3,
+      "note": "The \"30/30 replay passing\" shot is a terminal capture (see tests/replay output), not part of the web page"
+    },
+    {
+      "seg": "7 architecture diagram",
+      "window": "2:35-2:45",
+      "seconds": 3.5
+    }
+  ],
+  "slowMoments": [],
+  "consoleErrors": []
+}

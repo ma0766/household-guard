@@ -1,0 +1,13 @@
+
+> household-guard@0.1.0 ha:test
+> vitest run -c vitest.ha.config.ts
+
+
+ RUN  v5.0.5 /home/madman/household-guard
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  16:23:20
+   Duration  8.11s (tests 91%, transform 5%, import 4%)
+

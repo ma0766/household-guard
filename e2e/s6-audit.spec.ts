@@ -29,5 +29,5 @@ test('S6: $38 ride held → $14 shared ride offered and accepted → the $24 sav
 
   // by voice: totals first
   await page.getByTestId('btn-kids-week').click();
-  await expect(page.getByTestId('summary')).toHaveText("The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.");
+  await expect(page.getByTestId('summary')).toHaveText("The kids spent $14 this week, in 1 buy. The last was Maya's, $14. You saved $24.");
 });

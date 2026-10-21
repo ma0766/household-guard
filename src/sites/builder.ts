@@ -28,7 +28,7 @@ export function siteNameOf(item: string | undefined): string {
   return t || 'My site';
 }
 
-const PAGE = (name: string, brief: string) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(name)}</title><style>body{font:18px/1.5 Georgia,serif;margin:0;color:#3b2a1a;background:#fff8ee}header{padding:48px 24px;text-align:center;background:#f3d9b1}h1{margin:0;font-size:40px}main{max-width:560px;margin:0 auto;padding:24px}</style></head><body><header><h1>${esc(name)}</h1><p>Fresh and local.</p></header><main><p>Welcome to ${esc(name)}.</p><p>${esc(brief.slice(0, 200))}</p><p>Come by and say hello.</p></main></body></html>`;
+const PAGE = (name: string, brief: string) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(name)}</title><style>body{font:18px/1.5 Georgia,serif;margin:0;color:#3b2a1a;background:#fff8ee}header{padding:48px 24px;text-align:center;background:#f3d9b1}h1{margin:0;font-size:40px}main{max-width:560px;margin:0 auto;padding:24px}</style></head><body><header><h1>${esc(name)}</h1><p>Fresh and local.</p></header><main><p>Welcome to ${esc(name)}.</p><p>${esc(brief.slice(0, 200))}</p><p>Come by and say hello.</p></main><footer style="text-align:center;padding:16px;font:14px system-ui;color:#6b5a48">Practice site made by the demo's stand-in site builder.</footer></body></html>`;
 
 export class StandInSiteBuilder implements SiteBuilder {
   readonly kind = 'stand-in' as const;

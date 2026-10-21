@@ -1,0 +1,6 @@
+s8 prod exit=1
+s9 prod exit=1
+s10 prod exit=0
+s11 prod exit=1
+s12 prod exit=0
+done

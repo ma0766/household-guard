@@ -1,0 +1,25 @@
+  ✘  1 tests/audit/s4.spec.ts:6:1 › S4a teen $38 ride held, $14 shared offered, accepted with no adult, $24 saving shown (17.3s)
+  ✓  2 tests/audit/s4.spec.ts:24:1 › S4b Mom matches the number on her phone and a $38 ride is booked (5.3s)
+  ✓  3 tests/audit/s4.spec.ts:52:1 › S4c price surge after approval -> held again, nothing booked (6.1s)
+    Error: expect(locator).toContainText(expected) failed
+    Received string:    "Done."
+    audit/2026-10-21/pw-prod/a2s4/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/test-failed-1.png
+  1 failed
+  2 passed (30.7s)
+  ✓  1 tests/audit/s5.spec.ts:8:1 › S5a gift card passes the rules, the AI check holds it, nothing is bought, an adult is asked (6.6s)
+  ✓  2 tests/audit/s5.spec.ts:25:1 › S5b hostile service reply changes nothing (held ride looks the same, nothing booked, hostile text never shown) (6.9s)
+  2 passed (14.6s)
+  ✘  1 tests/audit/s6.spec.ts:8:1 › S6 timeline in plain sentences, filters by person and day, voice summary, edited row caught by verify script (11.9s)
+    Error: spec: voice summary is two or three sentences; got: The kids spent $14 this week. That is 1 buy. The last was Maya's, $14. You saved $24.
+    Received:    4
+    audit/2026-10-21/pw-prod/a2s6/s6-S6-timeline-in-plain-se-1ce8c-row-caught-by-verify-script/test-failed-1.png
+  1 failed
+  ✓  1 tests/audit/s7.spec.ts:9:1 › S7a limit change is followed by the next decision; teen cannot change a rule (9.8s)
+  ✓  2 tests/audit/s7.spec.ts:52:1 › S7b undo restores the old rule and the next decision follows it (11.2s)
+  ✘  3 tests/audit/s7.spec.ts:72:1 › S7c quiet hours card: plain preview before saving, saved after Mom taps (16.9s)
+  -  4 tests/audit/s7.spec.ts:86:1 › S7d locked safety rules warn before change
+    Error: expect(locator).toContainText(expected) failed
+    Received string:    "Done."
+    audit/2026-10-21/pw-prod/a2s7/s7-S7c-quiet-hours-card-pl-91bbc-saving-saved-after-Mom-taps/test-failed-1.png
+  1 failed
+  2 passed (40.2s)

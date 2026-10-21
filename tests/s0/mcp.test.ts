@@ -6,10 +6,11 @@ import { mintToken } from '../../src/auth.js';
 
 let server: Server;
 let base: string;
+const house = `s0-${Date.now()}-${Math.floor(Math.random() * 1e6)}`; // a fresh house: this test must not depend on what a demo left in the shared table
 const headers = (extra: Record<string, string> = {}): Record<string, string> => ({
   'content-type': 'application/json',
   accept: 'application/json, text/event-stream',
-  authorization: `Bearer ${mintToken()}`,
+  authorization: `Bearer ${mintToken('s0-test', 300, house)}`,
   ...extra,
 });
 const post = (body: unknown, h: Record<string, string> = headers()) => fetch(`${base}/mcp`, { method: 'POST', headers: h, body: JSON.stringify(body) });

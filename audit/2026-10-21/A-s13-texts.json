@@ -1,0 +1,9 @@
+{
+  "heldText": "That's new here. An adult must say yes.",
+  "mayaText": "Done with Spotify: play jazz.",
+  "momText": "Connect Spotify first.",
+  "guestText": "Tell me who you are first.",
+  "standinBody": "Connect an app\n\nDemo stand-in page. A real app would show its own sign-in here.\n\nSay yes to let the house use this app for you.\n\nAllow",
+  "link": "http://127.0.0.1:8016/standin/connect/aud1792617759723122776~-sI0ffjqNHtEdh2y",
+  "errs": []
+}

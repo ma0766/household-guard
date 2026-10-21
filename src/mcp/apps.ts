@@ -18,7 +18,7 @@ export const rowsOf = (entries: AuditEntry[]): Row[] => entries.map((e) => ({ ic
 
 // Self-contained: no outside addresses, text goes in with textContent only, and the content rule shuts everything else.
 export const APP_HTML = `<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en"><head><meta charset="utf-8"><title>Screen from the house</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
 <style>body{font:16px/1.4 system-ui,sans-serif;margin:0;padding:10px;color:#1d2433}h2{font-size:17px;margin:0 0 8px}.card{border:1px solid #d9d4c7;border-radius:10px;padding:10px;margin-bottom:8px}.row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #e4dfd2}.ic{width:26px;font-size:18px}.t{flex:1}.m{color:#5b6477;font-size:13px}button{font:inherit;padding:6px 14px;border-radius:8px;border:1px solid #1d2433;background:#1d2433;color:#fff;margin-right:6px;cursor:pointer}button.no{background:#fff;color:#1d2433}.done{color:#1b6b3a;font-weight:600}</style></head>
 <body><div id="root"></div>

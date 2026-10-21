@@ -1,0 +1,395 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s11.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-a3s11.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s11.spec.ts",
+      "file": "s11.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S11 break -> check -> repair -> next ride needs one yes -> yes -> normal again",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 104016,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "DEMO break-ride \u001b[33m200\u001b[39m \u001b[33m47249\u001b[39m {\"ok\":true}\n"
+                    },
+                    {
+                      "text": "STATUS right after break (before any check): The ride service works.\n"
+                    },
+                    {
+                      "text": "CHECK CLICK AT \u001b[33m47360\u001b[39m\n"
+                    },
+                    {
+                      "text": "DEMO check-rides \u001b[33m200\u001b[39m \u001b[33m47565\u001b[39m {\"status\":\"broken\",\"cause\":\"api_changed\",\"detail\":\"missing: price_cents; new: fare_cents; User: arn:aws:sts::679241558430:assumed-role/HouseholdGuard-WebServiceRoleA9172838-4JDgArU92QbL/HouseholdGuard-Web3C8945\",\"say\":\"The ride service is not working. An adult was told.\"}\n"
+                    },
+                    {
+                      "text": "SAYS after check: The ride service is not working. An adult was told.\n"
+                    },
+                    {
+                      "text": "MAYA RIDE AFTER REPAIR SAYS: Held: this service was just fixed. An adult must say yes once. An adult can tap 40 to say yes. | outcome held\n"
+                    },
+                    {
+                      "text": "MOM CARD: Maya wants: ride to the mall |  | $15 |  | Held: this service was just fixed. An adult must say yes once. |  | Tap the number Alexa said: |  | 401065No\n"
+                    },
+                    {
+                      "text": "AFTER MOM YES SAYS: Your ride is booked. $15 in all.\n"
+                    },
+                    {
+                      "text": "TIMELINE: What happened | 🛒 | Ride booked for Maya: $15 at 4:42 PM. | 2026-10-21 | 🛒 | Mom said yes at 4:42 PM. | 2026-10-21 | 🛒 | Maya asked for a $15 ride at 4:42 PM. Held: this service was just fixed. An adult must say yes once. | 2026-10-21 | 🔑 | Maya confirmed on their phone at 4:42 PM. | 2026-10-21\n"
+                    },
+                    {
+                      "text": "console errors: [\"Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\",\"Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.\"]\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:40:43.347Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-break---check---re-8a5fc-ne-yes---yes---normal-again/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-break---check---re-8a5fc-ne-yes---yes---normal-again/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-break---check---re-8a5fc-ne-yes---yes---normal-again/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-5893db82201ac72a3fa2",
+          "file": "s11.spec.ts",
+          "line": 8,
+          "column": 1
+        },
+        {
+          "title": "S11 a ride asked after the break but before the check is never booked on a wrong price",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10909,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "RIDE BETWEEN BREAK AND CHECK: That service is not working. An adult was told. | outcome held\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:42:28.746Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-ride-asked-after-a7949-ver-booked-on-a-wrong-price/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-ride-asked-after-a7949-ver-booked-on-a-wrong-price/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-ride-asked-after-a7949-ver-booked-on-a-wrong-price/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-9c7faecc87accd16fe9b",
+          "file": "s11.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "S11 a teen cannot break the ride service, and the page does not pretend she did",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9859,
+                  "error": {
+                    "message": "Error: page claims the service changed although a teen is not allowed to break it\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: not \u001b[32m\"shipped a new version\"\u001b[39m\nReceived string:        \u001b[31m\"The ride service \u001b[7mshipped a new version\u001b[27m.\"\u001b[39m",
+                    "stack": "Error: page claims the service changed although a teen is not allowed to break it\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: not \u001b[32m\"shipped a new version\"\u001b[39m\nReceived string:        \u001b[31m\"The ride service \u001b[7mshipped a new version\u001b[27m.\"\u001b[39m\n    at /home/madman/household-guard/tests/audit/s11.spec.ts:90:95",
+                    "location": {
+                      "file": "/home/madman/household-guard/tests/audit/s11.spec.ts",
+                      "column": 95,
+                      "line": 90
+                    },
+                    "snippet": "  88 |   console.log('STATUS after teen break+check:', await status(page).textContent());\n  89 |   expect(await status(page).textContent()).toBe('The ride service works.');\n> 90 |   expect(t, 'page claims the service changed although a teen is not allowed to break it').not.toContain('shipped a new version');\n     |                                                                                               ^\n  91 | });\n  92 |\n  93 | test('S11 a healthy service: check changes nothing', async ({ page }) => {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/tests/audit/s11.spec.ts",
+                        "column": 95,
+                        "line": 90
+                      },
+                      "message": "Error: page claims the service changed although a teen is not allowed to break it\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: not \u001b[32m\"shipped a new version\"\u001b[39m\nReceived string:        \u001b[31m\"The ride service \u001b[7mshipped a new version\u001b[27m.\"\u001b[39m\n\n  88 |   console.log('STATUS after teen break+check:', await status(page).textContent());\n  89 |   expect(await status(page).textContent()).toBe('The ride service works.');\n> 90 |   expect(t, 'page claims the service changed although a teen is not allowed to break it').not.toContain('shipped a new version');\n     |                                                                                               ^\n  91 | });\n  92 |\n  93 | test('S11 a healthy service: check changes nothing', async ({ page }) => {\n    at /home/madman/household-guard/tests/audit/s11.spec.ts:90:95"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "TEEN CLICKS BREAK, PAGE SAYS: The ride service shipped a new version.\n"
+                    },
+                    {
+                      "text": "STATUS after teen break+check: The ride service works.\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:42:39.886Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-teen-cannot-brea-ed0ff-ge-does-not-pretend-she-did/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/madman/household-guard/tests/audit/s11.spec.ts",
+                    "column": 95,
+                    "line": 90
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-0bae263ff1c568f1db77",
+          "file": "s11.spec.ts",
+          "line": 79,
+          "column": 1
+        },
+        {
+          "title": "S11 a healthy service: check changes nothing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6720,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "HEALTHY CHECK SAYS: The ride service works.\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T20:42:50.379Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-healthy-service-check-changes-nothing/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-healthy-service-check-changes-nothing/video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/a3s11/s11-S11-a-healthy-service-check-changes-nothing/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "026a0f8023aff05a734f-9166a50f6f024c37385a",
+          "file": "s11.spec.ts",
+          "line": 93,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T20:40:42.937Z",
+    "duration": 134486.154,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

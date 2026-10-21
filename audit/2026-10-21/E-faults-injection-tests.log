@@ -1,0 +1,9 @@
+
+ RUN  v5.0.5 /home/madman/household-guard
+
+
+ Test Files  3 passed (3)
+      Tests  49 passed (49)
+   Start at  16:16:05
+   Duration  6.89s (tests 83%, import 14%, transform 4%)
+

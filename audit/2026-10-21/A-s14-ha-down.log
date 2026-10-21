@@ -1,0 +1,5 @@
+
+> household-guard@0.1.0 ha:down
+> docker rm -f hg-ha
+
+hg-ha
