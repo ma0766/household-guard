@@ -30,6 +30,7 @@ export const T = {
   guestNoBuy: "Guests can't buy things.",
   childNoBuy: 'An adult must say yes to buys.',
   overWeekly: (name: string, cap: number) => `Held: over ${name}'s ${money(cap)} a week.`,
+  lowestWeFound: 'The lowest price we found, from the rides we checked.',
   overOneBuy: (name: string, cap: number) => `Held: over ${name}'s ${money(cap)} for one buy.`,
   rideBooked: (total: number) => `Your ride is booked. ${money(total)} in all.`,
   bought: (total: number) => `Done. You spent ${money(total)}.`,

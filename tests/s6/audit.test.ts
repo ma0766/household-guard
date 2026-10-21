@@ -310,3 +310,17 @@ describe('S6 hash ignores key order', () => {
     expect((await verifyAudit(ctx.store, ctx.hh)).ok).toBe(true);
   });
 });
+
+describe('S6 one icon per kind', () => {
+  it('lock, light, cart and rule changes each show their own icon on the timeline', async () => {
+    const ctx = await newHousehold();
+    const tz = 'America/New_York';
+    for (const category of ['lock', 'light', 'cart', 'rule'] as const) {
+      await appendAudit(ctx.deps, ctx.hh, tz, { kind: `test_${category}`, category, person: 'mom', personName: 'Mom', text: `A ${category} thing happened.`, data: {} });
+    }
+    const tl = timelineHtml(await readAudit(ctx.store, ctx.hh));
+    for (const [category, icon] of [['lock', '🔒'], ['light', '💡'], ['cart', '🛒'], ['rule', '📝']] as const) {
+      expect(tl, category).toMatch(new RegExp(`data-category="${category}"[^>]*><span class="ic"[^>]*>${icon}<`));
+    }
+  });
+});

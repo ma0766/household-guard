@@ -164,7 +164,23 @@ describe('S5 live Bedrock (Claude Haiku on Amazon Bedrock, us-east-1)', () => {
     expect(bad.verdict).toBe('hold');
     expect(bad.why).not.toMatch(/failed/); // held because the model judged it, not because the call broke
     const plain = await risk.check({ person: 'maya', role: 'teen', service: 'mock-ride', item: 'ride to the mall', amountCents: 1500 });
-    expect(['ok', 'hold']).toContain(plain.verdict);
+    expect(plain.verdict).toBe('ok'); // a plain $15 ride to the mall must not be held by the model
     expect(plain.why).not.toMatch(/failed/); // a real answer, not a failure-hold
   }, 60000);
+
+  it('the whole flow with the real model: teen gift card passes the rules, the live check holds it, nothing is bought', async () => {
+    const ctx = await newHousehold({ risk: new BedrockRisk() });
+    const { r, job } = await requestAndTap(ctx, giftCard);
+    expect(r).toMatchObject({ outcome: 'allowed', amount_cents: 1500 });
+    expect(job).toMatchObject({ status: 'held', done: false });
+    expect(await countBookings(ctx.store, ctx.hh)).toBe(0);
+    expect(await spentThisWeek(ctx.store, ctx.hh, week(), 'maya')).toBe(0);
+  }, 90000);
+
+  it('the whole flow with the real model: a plain ride to the mall is booked', async () => {
+    const ctx = await newHousehold({ risk: new BedrockRisk() });
+    const { job } = await requestAndTap(ctx, ride('mall'));
+    expect(job).toMatchObject({ status: 'done' });
+    expect(await countBookings(ctx.store, ctx.hh)).toBe(1);
+  }, 90000);
 });

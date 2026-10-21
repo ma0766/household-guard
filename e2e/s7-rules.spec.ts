@@ -23,7 +23,7 @@ test('S7: Mom changes Maya\'s limit from the card; the next ride follows it; a t
   // a teen cannot change a rule
   await page.getByTestId('rule-maya-limit').fill('500');
   await page.getByTestId('rule-save-maya').click();
-  await expect(says).toHaveText('Only adults can change rules.');
+  await expect(says).toHaveText('Ask an adult to change rules.');
 });
 
 test('S7: undo restores the old limit', async ({ page }) => {
