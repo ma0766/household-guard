@@ -172,6 +172,7 @@ export function rulesHtml(rules: RulesConfig, people: { id: string; name: string
     row('🔒', `Adults only: ${rules.adultsOnlyActions.join(', ') || 'nothing'}.`),
     row('🛒', `Allowed apps: ${rules.allowedServices.join(', ')}.`),
     row('📝', `Best value needs: ${[rules.mustHaves.bagIncluded ? 'a bag' : '', rules.mustHaves.arriveByHour !== undefined ? `arrive by ${rules.mustHaves.arriveByHour}:00` : ''].filter(Boolean).join(' and ') || 'nothing special'}.`),
+    row('🎁', (rules.orderRoles ?? []).length ? `Adults and ${(rules.orderRoles ?? []).map((r) => (r === 'teen' ? 'teens' : 'children')).join(' and ')} hear orders. Gifts stay private.` : 'Only adults hear orders. Gifts stay private.'),
     row('🌙', rules.quietHours ? `No buying for kids from ${hourWord(rules.quietHours.fromHour)} to ${hourWord(rules.quietHours.toHour)}.` : 'Quiet hours are off.'),
     row('🔒', rules.floor.childrenNoUnlock ? "Locked: children can't unlock doors." : "Off: children can't unlock doors."),
     row('🔒', rules.floor.guestsNoBuy ? "Locked: guests can't buy." : "Off: guests can't buy."),

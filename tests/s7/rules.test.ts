@@ -166,8 +166,9 @@ describe('S7 editable rules', () => {
 
 describe('S7 full replay', () => {
   it('the replay suite has 30 cases', () => {
-    expect(CASES).toHaveLength(30);
-    expect(new Set(CASES.map((c) => c.id)).size).toBe(30);
+    const s7 = CASES.filter((c) => c.slice <= 7); // later slices add cases on top (S19: 34 in all, see tests/s19)
+    expect(s7).toHaveLength(30);
+    expect(new Set(CASES.map((c) => c.id)).size).toBe(CASES.length);
   });
 });
 

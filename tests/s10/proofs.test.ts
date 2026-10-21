@@ -23,7 +23,7 @@ describe('S10 proofs: the rules that ship keep the promises', () => {
   it('no child may unlock, no child may open the garage, no guest may use an app or buy — for every possible request', () => {
     const r = prove([]);
     expect(r.code).toBe(0);
-    expect(r.out.match(/^PROVEN /gm)).toHaveLength(8); // four promises (door, garage, app, buying), each for the do-it and the hold set
+    expect(r.out.match(/^PROVEN /gm)).toHaveLength(16); // eight promises (door, garage, app, buying, and S19: no child, teen or guest hears a gift, no guest hears order history), each for the do-it and the hold set
     expect(r.out).not.toMatch(/FAILED/);
   });
   it('the default rule card config proves too (the cards generate the same rules)', () => {

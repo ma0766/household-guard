@@ -49,4 +49,9 @@ export const CASES: ReplayCase[] = [
   { id: 'needs-approval-teen-lights-held', slice: 7, who: 'maya', rules: { needsApproval: [{ role: 'teen', action: 'light' }] }, args: home('light', 'lights', 'on'), expect: { outcome: 'held' } },
   { id: 'deny-adult-lights-denied', slice: 7, who: 'mom', rules: { deny: [{ role: 'adult', action: 'light' }] }, args: home('light', 'lights', 'on'), expect: { outcome: 'denied' } },
   { id: 'must-have-bag-teen-airport-held', slice: 7, who: 'maya', rules: { mustHaves: { bagIncluded: true } }, args: buy('mock-ride', 'ride to the airport'), expect: { outcome: 'held' } },
+  // S19: private things stay private
+  { id: 'child-order-history-private-denied', slice: 19, who: 'leo', method: 'pin', args: { service: 'mock-shop', action: 'order_history' }, expect: { outcome: 'denied', done: false } },
+  { id: 'adult-order-history-allowed', slice: 19, who: 'mom', args: { service: 'mock-shop', action: 'order_history' }, expect: { outcome: 'allowed', done: true } },
+  { id: 'guest-order-status-denied', slice: 19, who: 'guest', args: { service: 'mock-shop', action: 'order_status' }, expect: { outcome: 'denied', done: false } },
+  { id: 'teen-cart-denied', slice: 19, who: 'maya', args: { service: 'mock-shop', action: 'cart' }, expect: { outcome: 'denied', done: false } },
 ];

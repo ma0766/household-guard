@@ -171,7 +171,8 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     {
       description: 'An adult changes a house rule (or undoes the last change). The adult must then confirm on their own phone.',
       inputSchema: {
-        template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'quiet_hours', 'floor']).optional(),
+        template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'quiet_hours', 'floor', 'private_orders']).optional(),
+        roles: z.array(z.enum(['teen', 'child'])).max(2).optional().describe('private_orders: who besides adults may hear order history'),
         person: z.string().max(120).optional(),
         dollars: z.number().optional(),
         actions: z.array(z.string().max(40)).max(20).optional(),
@@ -192,6 +193,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       else if (a.template === 'allowed_apps') change = { template: 'allowed_apps', services: a.services ?? [] };
       else if (a.template === 'must_haves') change = { template: 'must_haves', bagIncluded: a.bag_included, arriveByHour: a.arrive_by_hour };
       else if (a.template === 'quiet_hours' && a.quiet_from_hour !== undefined) change = { template: 'quiet_hours', fromHour: a.quiet_from_hour, toHour: a.quiet_to_hour };
+      else if (a.template === 'private_orders') change = { template: 'private_orders', roles: a.roles ?? [] };
       else if (a.template === 'floor') change = { template: 'floor', which: a.which as 'childrenNoUnlock', enabled: !!a.enabled };
       const r = !change && !a.undo ? { status: 'invalid', say: "I don't know that rule." } : await proposeRule(deps, hh, { change, undo: a.undo });
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };

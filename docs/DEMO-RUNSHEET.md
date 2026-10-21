@@ -9,7 +9,8 @@ Taps used per person: Maya 3, Mom 3, Dad 2. Nobody goes over 3.
 | Time | What you do | What the viewer sees |
 | --- | --- | --- |
 | 0:00 | Tap **Maya** and tap her number on her phone (Maya tap 1). Press **Book a ride to the airport**. | Held: over her $20 a week. A $14 shared ride is offered. Mom's phone shows the card. |
-| 0:20 | Say the problem line (a slide in the final video). | |
+| 0:20 | Say the problem line (a slide in the final video, 10 seconds). | |
+| 0:30 | Tap **Leo**, type the PIN `4821`, press **What did Mom order?** (Leo uses no phone taps). Later, once Mom has tapped in, press it again as Mom. | Leo hears "That's private. Ask a grown-up." Mom hears the list, gift included. The timeline shows no item names. (S19, 15 seconds; it takes the 15 seconds trimmed from the problem slide.) |
 | 0:45 | Tap **Guest**: *Turn off the lights* (done), *Unlock the front door* (refused), *Book a ride* (refused). | Same three asks, three different answers. |
 | | Tap **Maya** and tap her number (Maya tap 2): same three asks. Press **Accept** on the $14 ride, tap her number (Maya tap 3). | Lights done, unlock refused, the $38 ride held, the $14 ride booked, $24 saved. |
 | | Tap **Mom** and tap her number (Mom tap 1): same three asks. Tap her number for the unlock (Mom tap 2) and the ride (Mom tap 3). | An adult can do all three, each with her own tap. |

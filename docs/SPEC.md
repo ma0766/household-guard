@@ -58,6 +58,12 @@ These come from Amazon's Alexa+ add-on docs. Each one is a problem most entrants
 
 **What we're not claiming:** that Amazon can't solve it. The claim is that a neutral rulebook — one that also limits spending outside Amazon — is something Amazon has little reason to build.
 
+## Private things stay private (S19)
+
+**Why:** Tom's Guide reported that Alexa+ spoiled a child's birthday: a recent-orders question read out the household's order history, birthday gifts included, because Alexa does not tell who is asking. Source: [How Alexa+ accidentally ruined my kid's birthday — here's how to stop it from happening to you (Tom's Guide)](https://www.tomsguide.com/ai/alexa-just-spoiled-my-kids-birthday-heres-what-happened). The workarounds in the coverage (turn off delivery announcements, archive orders) are settings one person flips for the whole house; they do not depend on who is speaking.
+
+**Our answer:** order history, delivery status and the cart are actions in `request_action`, decided by the same Cedar rules as everything else. Only adults hear them by default. A gift is never read aloud or shown to a child, a teen or a guest: that is a `forbid` in both rule sets that no rule card can remove, and `npm run prove` proves it for all requests. A child who asks hears "That's private. Ask a grown-up." The audit timeline says who asked, never what was ordered. An adult can open orders to teens or children with a rule card ("Let teens hear orders"); gifts stay private even then.
+
 ## Architecture
 
 &#91;embedded content: Household Guard architecture · 8 layers\]
@@ -297,7 +303,8 @@ From now (Tue 1 PM) to submission (Fri noon) is about 71 clock hours. Assume \~3
 | Time | On screen | Line |
 | --- | --- | --- |
 | 0:00–0:20 | Teen's request held; parent's approval card pops up | "Alexa+ just let a 15-year-old book a $38 ride. Here's what happens with Household Guard." |
-| 0:20–0:45 | The problem, one slide | One account, one set of permissions, a whole family. The 3× purchase stat. |
+| 0:20–0:30 | The problem, one slide | One account, one set of permissions, a whole family. The 3× purchase stat. |
+| 0:30–0:45 | Leo (8) asks "what did Mom order?" and hears "That's private. Ask a grown-up."; Mom asks and hears the list, gift included; the timeline shows no item names | "Alexa+ read a kid's birthday gifts out loud. Ours keeps them private." (S19) |
 | 0:45–1:30 | Web MCP client: initialize → tools/list → tools/call; three speakers (adult, teen, guest) make the same three requests | Allowed / held / denied, each with its reason; the held $38 ride offers a $14 shared ride that fits, and the $24 saving is logged |
 | 1:30–1:50 | Gift-card request; Bedrock flags it; rule allowed it, model made it stricter | "The AI can only tighten the rules, never loosen them." |
 | 1:50–2:15 | (If built) break the ride connector; health check fails; repaired; tests pass; next ride needs one approval | Self-healing that can't weaken safety |

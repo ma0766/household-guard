@@ -12,7 +12,10 @@ export interface RulesConfig {
   deny: { role: Role; action: string }[];
   mustHaves: { arriveByHour?: number; bagIncluded?: boolean };
   quietHours?: { fromHour: number; toHour: number }; // no buying for non-adults, in the house's own time zone (S10)
+  orderRoles?: Role[]; // S19: who besides adults may hear order history, delivery news and the cart. Missing = adults only. Gifts are never read to non-adults, whatever this says.
 }
+
+export const ORDER_ACTIONS = ['order_history', 'order_status', 'cart'] as const;
 
 export const KNOWN_ACTIONS = ['light', 'thermostat', 'unlock', 'garage', 'purchase', 'use_app', 'build_site'] as const;
 export const ROLES: Role[] = ['adult', 'teen', 'child', 'guest'];
@@ -69,6 +72,13 @@ export function generatePolicies(c: RulesConfig): PolicySets {
     const per = c.perRequestCapCents[id] ?? week;
     auto[`cap_${id}`] = `permit(principal == Person::${q(id)}, action == Action::"purchase", resource) when { context.service_known && context.amount_cents <= ${per} && context.week_spent_cents + context.amount_cents <= ${week} };`;
   }
+
+  // private orders (S19): who may hear order history, delivery status and the cart. Adults always; others only if a card says so.
+  const readers = [...new Set(['adult', ...(c.orderRoles ?? [])])];
+  readers.forEach((r) => (auto[`orders_${r}`] = `permit(principal in Role::${q(r)}, action in [Action::"order_history", Action::"order_status", Action::"cart"], resource) when { context.service_known };`));
+  // a gift is never read aloud or shown to a child, a teen or a guest. A forbid in BOTH sets, and no card can switch it off.
+  auto.gifts_adults = `permit(principal in Role::"adult", action == Action::"order_gift", resource) when { context.service_known };`;
+  both('gifts_private', `forbid(principal, action == Action::"order_gift", resource) unless { principal in Role::"adult" };`);
 
   // locked floor
   if (c.floor.guestsNoBuy) both('floor_guests_no_buy', `forbid(principal in Role::"guest", action == Action::"purchase", resource);`);

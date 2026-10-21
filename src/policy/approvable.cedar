@@ -4,6 +4,9 @@ forbid(principal, action == Action::"unlock", resource) unless { principal in Ro
 @id("adults_only_garage")
 forbid(principal, action == Action::"garage", resource) unless { principal in Role::"adult" };
 
+@id("gifts_private")
+forbid(principal, action == Action::"order_gift", resource) unless { principal in Role::"adult" };
+
 @id("floor_guests_no_buy")
 forbid(principal in Role::"guest", action == Action::"purchase", resource);
 

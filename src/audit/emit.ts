@@ -6,7 +6,7 @@ import { money } from '../text.js';
 import type { ActionArgs, ActionResult } from '../core/types.js';
 
 // Every sentence in the log is built here, once, in plain words (no tech words, short sentences).
-export const categoryOf = (action: string): Category => (action === 'purchase' ? 'cart' : action === 'unlock' || action === 'garage' ? 'lock' : action === 'light' || action === 'thermostat' ? 'light' : 'home');
+export const categoryOf = (action: string): Category => (action === 'purchase' || action === 'order_history' || action === 'order_status' || action === 'cart' ? 'cart' : action === 'unlock' || action === 'garage' ? 'lock' : action === 'light' || action === 'thermostat' ? 'light' : 'home');
 
 async function tzOf(deps: Deps, hh: string): Promise<string> {
   try {
@@ -36,6 +36,9 @@ function what(a: ActionArgs): string {
     case 'light': return `turn the lights ${safeWord(a.value) || 'on'}`;
     case 'unlock': return 'unlock the front door';
     case 'garage': return 'open the garage';
+    case 'order_history': return 'hear about orders';
+    case 'order_status': return 'check on a delivery';
+    case 'cart': return 'look in the cart';
     case 'thermostat': return `set the heat to ${safeWord(a.value, 3) || 'something'}`;
     default: return KNOWN.includes(a.action) ? a.action : 'do something I do not know';
   }
