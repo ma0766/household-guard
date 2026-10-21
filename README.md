@@ -38,6 +38,7 @@ npm run demo:reset     # (optional) put the demo house back to its start: Mom, D
 npm test               # unit + replay (30 cases) + concurrency/duplicate/surge/injection/audit-tamper tests
 npm run e2e            # Playwright against the local stack, screenshots in test-results/
 npm run verify         # lint, typecheck, test, e2e; prints a per-slice PASS/FAIL table
+# audit report: docs/AUDIT-REPORT.md · demo order that fits the safety limits: docs/DEMO-RUNSHEET.md
 ```
 
 Open http://127.0.0.1:8016. Pick who is talking, say something, and tap numbers on the simulated phones.

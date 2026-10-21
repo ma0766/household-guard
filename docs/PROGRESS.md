@@ -118,3 +118,10 @@ Independent review (a subagent with no prior context compared each S0–S8 "Done
 - Tests now always use DynamoDB Local (`vitest.config.ts` env); before, s0/s2 reached the cloud table when signed in. Quiet-hours worker tests use their own clock.
 - `npm run demo:reset` (scripts/demo-reset.ts, `Store.wipe`, `Person.age`). Dad button and phone appear with `?dad=1`.
 - Clean-clone check: `npm ci` + `npm test` in a fresh clone found the hermetic-test bug above.
+
+## Audit (2026-10-21)
+- Full independent audit of Parts A to F: `docs/AUDIT-REPORT.md` (verdict, every check with evidence), plan in `docs/AUDIT-PLAN.md`, evidence in `audit/2026-10-21/`. 20 findings, all fixed or explained; fixes on branch `audit-fixes`, merged to `main`, deployed to prod.
+- Real defects fixed: a held ride that lost the cap race had no approval card; two status races ("Done." / "That one is closed." right after a tap); prod "Check now" lacked the Bedrock permission and leaked a role name; `ha:up` could not cold start; the GitLab proof job had no Docker for DynamoDB Local.
+- The 2:45 demo script needs an order that fits the 3-taps-per-person limit: `docs/DEMO-RUNSHEET.md`.
+- Console-error checks run with Playwright tracing off: the trace recorder's own script causes "Blocked script execution" in the sandboxed frames (`audit/2026-10-21/F1-trace-artifact-probe.mjs.txt`).
+- Open: `npm run smoke:deployed` on prod exits 1 at its Cognito password-login block (prod has password login off on purpose); see the report, section 6.
