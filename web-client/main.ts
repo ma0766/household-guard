@@ -284,7 +284,9 @@ async function openApp(view: string) {
   appFrame.srcdoc = appHtml; // a fresh page; it starts by saying hello and we answer below
 }
 const toApp = (m: Record<string, unknown>) => appFrame.contentWindow?.postMessage({ jsonrpc: '2.0', ...m }, '*');
+let connectResult: unknown;
 async function pushScreen() {
+  if (appView === 'connect') return void toApp({ method: 'ui/notifications/tool-result', params: connectResult });
   const out = await rpc('tools/call', { name: 'show_on_screen', arguments: { view: appView } });
   toApp({ method: 'ui/notifications/tool-result', params: out.result });
 }
@@ -300,6 +302,19 @@ window.addEventListener('message', (e) => {
     });
   } else if (m.id !== undefined) toApp({ id: m.id, error: { code: -32601, message: 'Not allowed' } });
 });
+$('btn-connect-spotify').onclick = async () => {
+  await connect();
+  const out = await rpc('tools/call', { name: 'connect_service', arguments: { toolkit: 'spotify' } });
+  says(out.result?.structuredContent?.say ?? 'Something went wrong. Ask an adult.', out.result?.structuredContent?.link ? 'allowed' : 'held');
+  if (!out.result?.structuredContent?.data) return;
+  connectResult = out.result;
+  void openApp('connect');
+};
+$('btn-allow-spotify').onclick = () => void ruleCall({ template: 'allowed_apps', services: ['sim-home', 'mock-ride', 'mock-shop', 'spotify'] });
+$('btn-play-jazz').onclick = async () => {
+  const r = await callTool('request_action', { service: 'spotify', action: 'use_app', item: 'play jazz', request_id: `u${Date.now()}${Math.random()}` });
+  says(r.say ?? r.reason, r.outcome);
+};
 $('btn-app-approvals').onclick = () => void openApp('approvals');
 $('btn-app-orders').onclick = () => void openApp('orders');
 

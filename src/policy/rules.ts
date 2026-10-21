@@ -14,7 +14,7 @@ export interface RulesConfig {
   quietHours?: { fromHour: number; toHour: number }; // no buying for non-adults, in the house's own time zone (S10)
 }
 
-export const KNOWN_ACTIONS = ['light', 'thermostat', 'unlock', 'garage', 'purchase'] as const;
+export const KNOWN_ACTIONS = ['light', 'thermostat', 'unlock', 'garage', 'purchase', 'use_app'] as const;
 export const ROLES: Role[] = ['adult', 'teen', 'child', 'guest'];
 
 export function defaultRules(): RulesConfig {
@@ -52,6 +52,9 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   auto.light = `permit(principal, action == Action::"light", resource) when { context.service_known };`;
   auto.thermostat = `permit(principal, action == Action::"thermostat", resource) when { context.service_known && context.value >= 60 && context.value <= 78 };`;
 
+  // a connected app (S13): anyone signed in may use an app the house has allowed; guests never
+  auto.use_app = `permit(principal, action == Action::"use_app", resource) when { context.service_known } unless { principal in Role::"guest" };`;
+
   // device class: adults only
   for (const a of c.adultsOnlyActions) {
     both(`adults_only_${a}`, `forbid(principal, action == Action::${q(a)}, resource) unless { principal in Role::"adult" };`);
@@ -80,6 +83,6 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   c.needsApproval.forEach((r, i) => (auto[`needs_approval_${i}`] = `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));
 
   // anything a known person may ask for, but wasn't automatic, can be held for an adult. Unknown action → no permit → deny.
-  approvable.hold_known = `permit(principal, action, resource) when { !(principal in Role::"guest") && [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase"].contains(action) };`;
+  approvable.hold_known = `permit(principal, action, resource) when { !(principal in Role::"guest") && [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app"].contains(action) };`;
   return { auto, approvable };
 }

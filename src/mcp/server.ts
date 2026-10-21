@@ -17,6 +17,7 @@ import { openApprovals } from '../approvals/approvals.js';
 import { myRules, proposeRule, rulesHtml } from '../rules/change.js';
 import type { RuleChange } from '../rules/templates.js';
 import { ensureSeeded, loadHousehold } from '../core/household.js';
+import { connectService, findCapability } from '../hub/capability.js';
 import { APP_HTML, APP_META, APP_MIME, APP_URI, cardsOf, rowsOf, type ScreenData } from './apps.js';
 
 // Fixed facade: tool names never change, so nothing behind them needs a redeploy to Alexa.
@@ -141,6 +142,23 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       } catch {
         return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
       }
+    },
+  );
+  server.registerTool(
+    'find_capability',
+    { description: 'Can the house do this? Looks for an app (like music) and says if the speaker has connected it.', inputSchema: { query: z.string().max(60).describe('What the speaker wants, like "music"') } },
+    async ({ query }) => {
+      const r = await findCapability(deps, hh, { query });
+      return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+    },
+  );
+  server.registerTool(
+    'connect_service',
+    { description: 'Start connecting an app for the speaker. Gives a link and a code to scan on their phone.', inputSchema: { toolkit: z.string().max(40).describe('The app, like "spotify"') }, _meta: APP_META },
+    async ({ toolkit }) => {
+      const r = await connectService(deps, hh, { toolkit });
+      const data = r.link ? { view: 'connect', name: r.name, link: r.link, qr: r.qr } : undefined;
+      return { content: [{ type: 'text', text: r.say }], structuredContent: { ...(r as unknown as Record<string, unknown>), ...(data ? { data } : {}) } };
     },
   );
   server.registerResource('screen', APP_URI, { title: 'House screen', description: 'Approval card, recent buys, and what happened', mimeType: APP_MIME }, async (uri) => ({

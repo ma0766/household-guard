@@ -2,7 +2,7 @@ entity Role;
 entity Person in [Role];
 entity Service;
 
-action light, thermostat, unlock, garage, purchase appliesTo {
+action light, thermostat, unlock, garage, purchase, use_app appliesTo {
   principal: [Person],
   resource: [Service],
   context: {

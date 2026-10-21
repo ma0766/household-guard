@@ -1,3 +1,5 @@
+import type { HomeBackend } from '../connectors/home-assistant.js';
+import type { ConnectorHub } from '../hub/hub.js';
 import type { Notifier } from '../notify/notify.js';
 import type { Store } from './store.js';
 import { getSession, loadHousehold, ensureSeeded } from './household.js';
@@ -5,6 +7,7 @@ import { formatLocal, hourOf } from './time.js';
 import { decide, type DecisionInput } from '../policy/evaluator.js';
 import { KNOWN_ACTIONS } from '../policy/rules.js';
 import { SIM_HOME } from '../connectors/sim-home.js';
+import { handleAppAction, tellAdultsAboutApp } from './app-action.js';
 import { tierOf } from './tiers.js';
 import { executeAction } from './execute.js';
 import { openChallenge } from '../approvals/challenge.js';
@@ -20,6 +23,8 @@ export interface Deps {
   now?: () => number;
   queue?: JobQueue;
   risk?: RiskChecker; // AI risk check, run by the worker; can only make a decision stricter
+  home?: HomeBackend; // a real smart home (Home Assistant); without it the simulated home answers
+  hub?: ConnectorHub; // the apps a person has connected (Composio, or the stand-in)
   notifier?: Notifier; // how adults hear about held requests (email)
   hooks?: { beforeReserve?: () => Promise<void> }; // tests only: line two requests up at the same instant
 }
@@ -64,6 +69,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
     const base = { person: person.id, person_name: person.name, service: args.service, action: args.action };
 
     if (d.answer === 'allow') {
+      if (args.action === 'use_app') return await handleAppAction(deps, hh, { person, args, tz, now, base });
       if (args.service === SIM_HOME) {
         const tier = tierOf(args);
         // low risk: just do it. Medium by PIN (no phone): do it. Otherwise: a number to match on the person's OWN phone.
@@ -79,6 +85,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       return result({ outcome: 'held', reason: T.notReady, done: false }, tz, now, base);
     }
     if (d.answer === 'hold') {
+      if (args.action === 'use_app') await tellAdultsAboutApp(deps, hh, person, args.service, now);
       const reason = !input.serviceKnown ? T.newService : (args.action === 'unlock' || args.action === 'garage') && method === 'pin' ? T.confirmPhone : args.action === 'thermostat' ? T.bigChange : T.needsAdult;
       return result({ outcome: 'held', reason, done: false }, tz, now, base);
     }

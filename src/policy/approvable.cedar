@@ -11,4 +11,4 @@ forbid(principal in Role::"guest", action == Action::"purchase", resource);
 forbid(principal in Role::"child", action == Action::"unlock", resource);
 
 @id("hold_known")
-permit(principal, action, resource) when { !(principal in Role::"guest") && [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase"].contains(action) };
+permit(principal, action, resource) when { !(principal in Role::"guest") && [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app"].contains(action) };
