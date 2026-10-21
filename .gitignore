@@ -8,3 +8,6 @@ playwright-report
 .claude/log.md
 tools/
 .ha-bootstrap
+
+audit/*/pw-*
+audit/*/*.zip
