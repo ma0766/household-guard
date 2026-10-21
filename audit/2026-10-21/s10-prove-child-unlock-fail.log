@@ -3,39 +3,39 @@ FAILED  no child may unlock a door (done at once)
         principal: Person::"", action: Action::"unlock", resource: Service::""
         context: {amount_cents: -1, local_hour: -1, service_known: true, session: "", value: -1, week_spent_cents: -1}
         entities: [
+          Role::"guest",
           Role::"child",
+          Action::"thermostat",
           Person::"mom" in [Role::"child"],
           Role::"adult",
-          Role::"teen",
-          Action::"use_app",
-          Person::"maya" in [Role::"child"],
-          Action::"unlock",
-          Action::"build_site",
-          Service::"",
-          Action::"purchase",
-          Action::"garage",
-          Role::"guest",
-          Action::"thermostat",
           Person::"" in [Role::"child"],
+          Action::"build_site",
+          Action::"purchase",
+          Person::"maya" in [Role::"child"],
+          Action::"garage",
+          Service::"",
+          Action::"unlock",
           Action::"light",
+          Action::"use_app",
+          Role::"teen",
         ]
 FAILED  no child may unlock a door (or held for an adult)
         principal: Person::"", action: Action::"unlock", resource: Service::""
         context: {amount_cents: 0, local_hour: 0, service_known: false, session: "", value: 0, week_spent_cents: 0}
         entities: [
           Role::"guest",
-          Action::"unlock",
-          Action::"garage",
           Role::"teen",
+          Action::"unlock",
+          Action::"light",
           Action::"use_app",
           Action::"build_site",
-          Action::"purchase",
           Action::"thermostat",
-          Action::"light",
-          Person::"" in [Role::"child"],
+          Action::"purchase",
           Role::"adult",
-          Service::"",
+          Action::"garage",
           Role::"child",
+          Service::"",
+          Person::"" in [Role::"child"],
         ]
 PROVEN  no child may open the garage (done at once)
 PROVEN  no child may open the garage (or held for an adult)

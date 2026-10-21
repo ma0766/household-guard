@@ -1,0 +1,1089 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/s0.spec.ts",
+      "tests/audit/s4.spec.ts",
+      "tests/audit/s8.spec.ts",
+      "tests/audit/s13.spec.ts",
+      "tests/audit/s15.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "off",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-final-b.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "s0.spec.ts",
+      "file": "s0.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S0 browser: connect, list tools, ask status; log shows raw answers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 911,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:27:11.420Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s0-S0-browser-connect-list-d05e5-tatus-log-shows-raw-answers/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s0-S0-browser-connect-list-d05e5-tatus-log-shows-raw-answers/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-da597829de47df641013",
+          "file": "s0.spec.ts",
+          "line": 7,
+          "column": 1
+        },
+        {
+          "title": "S0 browser: no console errors on first load and tool list",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3772,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:27:12.413Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s0-S0-browser-no-console-errors-on-first-load-and-tool-list/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-844984caa2b005cc4340",
+          "file": "s0.spec.ts",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 620,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:27:16.196Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-af3a29f59328777bdd64",
+          "file": "s0.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "S0 http: tools/list over raw HTTP has exactly the fixed ten tools and no person field on request_action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 193,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:27:16.829Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "61e4c94c94232e486667-809afc91b02befad9d6c",
+          "file": "s0.spec.ts",
+          "line": 56,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s13.spec.ts",
+      "file": "s13.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "S13 connect any app, per person",
+          "file": "s13.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17171,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:27:17.050Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-finished-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-7f5ce-nects-Mom-stays-unconnected/video-1.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45e2732f857f0ced9c83-e43861e53d1fcf1d9bd3",
+              "file": "s13.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "stand-in hub is CLEARLY LABELLED to a judge in the UI",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3638,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:27:34.236Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-36ce4-BELLED-to-a-judge-in-the-UI/video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45e2732f857f0ced9c83-e8ec2ef5fd056ce4be5e",
+              "file": "s13.spec.ts",
+              "line": 68,
+              "column": 3
+            },
+            {
+              "title": "stand-in hub is labelled on the app sign-in page and connect screen",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7980,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:27:37.888Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-8fd2b--in-page-and-connect-screen/test-finished-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-8fd2b--in-page-and-connect-screen/test-finished-2.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-8fd2b--in-page-and-connect-screen/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-8fd2b--in-page-and-connect-screen/video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45e2732f857f0ced9c83-aec78ce78242a97b2b93",
+              "file": "s13.spec.ts",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "the app sign-in page itself says it is a stand-in (not only the URL host)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7674,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:27:45.879Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/test-finished-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/video.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s13-S13-connect-any-app-pe-6a687-d-in-not-only-the-URL-host-/video-1.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45e2732f857f0ced9c83-d04d51586f1887ab40f9",
+              "file": "s13.spec.ts",
+              "line": 93,
+              "column": 3
+            },
+            {
+              "title": "README labels the app hub (Composio) as a stand-in",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:27:53.564Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "45e2732f857f0ced9c83-6983d9cfbef01639a4e8",
+              "file": "s13.spec.ts",
+              "line": 108,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "s15.spec.ts",
+      "file": "s15.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "S15 long jobs + site building",
+          "file": "s15.spec.ts",
+          "line": 6,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14672,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:27:53.582Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/test-finished-1.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/test-finished-2.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-adac9-pens-teen-held-guest-denied/video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5a28eab97db6fdd2196b-60aef9d8fe8f448d19da",
+              "file": "s15.spec.ts",
+              "line": 7,
+              "column": 3
+            },
+            {
+              "title": "stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 423,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:28:08.260Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-d7a94-to-a-judge-UI-button-panel-/video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5a28eab97db6fdd2196b-d1ab9810e11603f13ab6",
+              "file": "s15.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "stand-in site builder is labelled on the finished screen and the preview page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7215,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:28:08.694Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/test-finished-2.png"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/test-finished-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s15-S15-long-jobs-site-bui-44bc1-screen-and-the-preview-page/video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5a28eab97db6fdd2196b-d2cdb4b1bb354172719d",
+              "file": "s15.spec.ts",
+              "line": 57,
+              "column": 3
+            },
+            {
+              "title": "README labels the site builder (Wix) as a stand-in",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-21T22:28:15.919Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5a28eab97db6fdd2196b-10def7526213a750acb2",
+              "file": "s15.spec.ts",
+              "line": 71,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "s4.spec.ts",
+      "file": "s4.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S4a teen $38 ride held, $14 shared offered, accepted with no adult, $24 saving shown",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7126,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:28:15.991Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s4-S4a-teen-38-ride-held-1-d6a16-th-no-adult-24-saving-shown/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "883b506721050f993064-dbb24a1334fc31831e26",
+          "file": "s4.spec.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "S4b Mom matches the number on her phone and a $38 ride is booked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "numbers",
+                  "description": "spoken=\"Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 49 to say yes.\" options=49,56,19"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5831,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:28:23.128Z",
+                  "annotations": [
+                    {
+                      "type": "numbers",
+                      "description": "spoken=\"Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 49 to say yes.\" options=49,56,19"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s4-S4b-Mom-matches-the-num-1b98b-one-and-a-38-ride-is-booked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s4-S4b-Mom-matches-the-num-1b98b-one-and-a-38-ride-is-booked/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "883b506721050f993064-617f49e39c5fc2515e5d",
+          "file": "s4.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "S4c price surge after approval -> held again, nothing booked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6230,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:28:28.970Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s4-S4c-price-surge-after-a-d3a09---held-again-nothing-booked/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s4-S4c-price-surge-after-a-d3a09---held-again-nothing-booked/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "883b506721050f993064-222a7df03c5f543ba083",
+          "file": "s4.spec.ts",
+          "line": 52,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "s8.spec.ts",
+      "file": "s8.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S8 token is checked on every call (401) and the signed-in page still works",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3313,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:28:35.213Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s8-S8-token-is-checked-on--fc9cf--signed-in-page-still-works/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s8-S8-token-is-checked-on--fc9cf--signed-in-page-still-works/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-3debeeb6dc28c885ef37",
+          "file": "s8.spec.ts",
+          "line": 9,
+          "column": 1
+        },
+        {
+          "title": "S8 UX: the page opens and lists tools with zero console errors",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3813,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:28:38.535Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s8-S8-UX-the-page-opens-an-a0611-ls-with-zero-console-errors/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-0fce320e520cbbeb0095",
+          "file": "s8.spec.ts",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "S8 privacy page and well-known pages load",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 467,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "PRIVACY TEXT:\nHousehold Guard privacy note\n\nWe do not store audio. Alexa turns speech into text; we only see the text.\nProfiles for children are created only by an adult.\nThe log of what happened is kept for 90 days, then it is deleted.\nPINs are stored scrambled. We never store a PIN as typed.\nWe keep what we need to apply your house rules: names, roles, limits, and the log.\nWe never sell or share it. This note is not legal advice.\n"
+                    },
+                    {
+                      "text": "/.well-known/household-guard.json {\"name\":\"Household Guard\",\"mcp\":\"/mcp\",\"protocol_versions\":[\"2025-11-25\",\"2025-03-26\"],\"tools\":\"tools/list\",\"privacy\":\"/privacy\",\"source\":\"MIT licensed, see LICENSE\"}\n"
+                    },
+                    {
+                      "text": "/.well-known/oauth-protected-resource {\"resource\":\"https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/mcp\",\"bearer_methods_supported\":[\"header\"],\"resource_documentation\":\"https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/privacy\",\"authorization_servers\":[\"https://cognito-idp.us-east-1.amazonaws.com/us-east-1_pHMvPUdWp\"]}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:28:42.358Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s8-S8-privacy-page-and-well-known-pages-load/test-finished-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/final-b/s8-S8-privacy-page-and-well-known-pages-load/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-ec88c47726f92fc97d19",
+          "file": "s8.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "S8 submission files exist (CLI evidence)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:28:42.837Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8e457b531b6ef38d7711-bb01a61302eee1f239a0",
+          "file": "s8.spec.ts",
+          "line": 82,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T22:27:10.932Z",
+    "duration": 91968.39499999999,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

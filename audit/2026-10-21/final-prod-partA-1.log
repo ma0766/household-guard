@@ -1,0 +1,202 @@
+
+Running 43 tests using 1 worker
+
+  ✓   1 tests/audit/s1.spec.ts:4:1 › S1 teen: lights -> done; unlock -> denied in plain words; delete account -> denied (4.6s)
+  ✓   2 tests/audit/s1.spec.ts:29:1 › S1 typed words: unknown service action and odd phrasing are denied or not understood, never done (4.3s)
+  ✓   3 tests/audit/s1.spec.ts:40:1 › S1 guest (nobody confirmed): lights ok, unlock and delete denied (1.8s)
+  ✓   4 tests/audit/s1.spec.ts:50:1 › S1 adult: Mom (confirmed on her phone) can unlock (3.5s)
+PROVEN  no child may unlock a door (done at once)
+PROVEN  no child may unlock a door (or held for an adult)
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+Every promise is proven for all requests.
+
+  ✓   5 tests/audit/s10.spec.ts:24:3 › S10 proofs (CLI) › prove passes on the rules that ship (398ms)
+  ✓   6 tests/audit/s10.spec.ts:31:3 › S10 proofs (CLI) › prove: a stray permit alone does NOT break the promise (forbid beats permit) - control (513ms)
+EXIT 1 
+FAILED  no child may unlock a door (done at once)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: -1, local_hour: -1, service_known: true, session: "", value: -1, week_spent_cents: -1}
+        entities: [
+          Action::"garage",
+          Role::"guest",
+          Role::"teen",
+          Person::"" in [Role::"child"],
+          Person::"mom" in [Role::"child"],
+          Action::"light",
+          Person::"maya" in [Role::"child"],
+          Role::"child",
+          Role::"adult",
+          Action::"thermostat",
+          Action::"build_site",
+          Action::"purchase",
+          Action::"unlock",
+          Action::"use_app",
+          Service::"",
+        ]
+FAILED  no child may unlock a door (or held for an adult)
+        principal: Person::"", action: Action::"unlock", resource: Service::""
+        context: {amount_cents: 0, local_hour: 0, service_known: false, session: "", value: 0, week_spent_cents: 0}
+        entities: [
+          Action::"garage",
+          Person::"" in [Role::"child"],
+          Action::"unlock",
+          Action::"use_app",
+          Role::"child",
+          Action::"light",
+          Action::"build_site",
+          Role::"adult",
+          Role::"guest",
+          Action::"thermostat",
+          Service::"",
+          Role::"teen",
+          Action::"purchase",
+        ]
+PROVEN  no child may open the garage (done at once)
+PROVEN  no child may open the garage (or held for an adult)
+PROVEN  no guest may use an app (done at once)
+PROVEN  no guest may use an app (or held for an adult)
+PROVEN  no guest may buy (done at once)
+PROVEN  no guest may buy (or held for an adult)
+2 promise(s) broken.
+
+  ✓   7 tests/audit/s10.spec.ts:39:3 › S10 proofs (CLI) › prove FAILS with a counterexample when a rule lets a child unlock (408ms)
+  ✓   8 tests/audit/s10.spec.ts:52:3 › S10 proofs (CLI) › prove FAILS when the safety rules are deleted (children can unlock via a plain allow) (361ms)
+  ✓   9 tests/audit/s10.spec.ts:65:3 › S10 proofs (CLI) › prove FAILS when a guest may buy (369ms)
+PREVIEW before tap: Kids cannot buy from 9 PM to 6 AM.
+RULES CARD: House rules
+🛒
+Leo: an adult says yes to buys.
+🛒
+Maya: $20 a week.
+🛒
+Mom: $500 a week.
+🔒
+Adults only: unlock, garage.
+🛒
+Allowed apps: sim-home, mock-ride, mock-shop.
+📝
+Best value needs: nothing special.
+🌙
+No buying for kids from 9 PM to 6 AM.
+🔒
+Locked: children can't unlock doors.
+🔒
+Locked: guests can't buy.
+MAYA TRIES QUIET OFF -> Ask an adult to change rules.
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  10 tests/audit/s10.spec.ts:88:1 › S10 rule card: quiet hours button shows a plain preview and the card (13.7s)
+NY hour 18 UTC hour 22
+PHONE CONFIRM 200 {"status":"confirmed","say":"Hi Mom. You are confirmed.","result":{"done":true,"reason":"Hi Mom. You are confirmed."}}
+set_rule result: {"status":"waiting","say":"Confirm on your phone: 99","number":99,"challenge_id":"f7a24a3f-bab","sentence":"No buying for kids from 6 PM to 8 PM.","preview":"Kids cannot buy from 6 PM to 8 PM."}
+PHONE CONFIRM 200 {"status":"confirmed","say":"No buying for kids from 6 PM to 8 PM.","result":{"done":true,"reason":"No buying for kids from 6 PM to 8 PM."}}
+RULES CARD: House rules
+🛒
+Leo: an adult says yes to buys.
+🛒
+Maya: $20 a week.
+🛒
+Mom: $500 a week.
+🔒
+Adults only: unlock, garage.
+🛒
+Allowed apps: sim-home, mock-ride, mock-shop.
+📝
+Best value needs: nothing special.
+🌙
+No buying for kids from 6 PM to 8 PM.
+🔒
+Locked: children can't unlock doors.
+🔒
+Locked: guests can't buy.
+MOM IN QUIET WINDOW SAYS: Confirm on your phone: 35
+PHONE CONFIRM 200 {"status":"confirmed","say":"Okay. Booking it now.","result":{"done":false,"reason":"Okay. Booking it now.","jobId":"8a1f9aa0-acd"}}
+MOM RIDE RESULT: Your ride is booked. $15 in all.
+PHONE CONFIRM 200 {"status":"confirmed","say":"Hi Maya. You are confirmed.","result":{"done":true,"reason":"Hi Maya. You are confirmed."}}
+MAYA IN QUIET WINDOW SAYS: Quiet hours: no buying from 6 PM to 8 PM. | outcome denied
+  ✓  11 tests/audit/s10.spec.ts:114:1 › S10 teen purchase inside quiet hours is held (house time zone), adult is exempt (23.3s)
+MAYA (window only matches UTC) SAYS: Confirm on your phone: 46
+  ✓  12 tests/audit/s10.spec.ts:150:1 › S10 time zone: a window that only matches UTC (not New York) must NOT hold (17.5s)
+DEMO break-ride 200 4585 {"ok":true}
+STATUS right after break (before any check): The ride service works.
+CHECK CLICK AT 4686
+DEMO check-rides 200 5749 {"status":"repaired","cause":"api_changed","say":"The ride service changed. We fixed it. The next buy needs a yes."}
+SAYS after check: The ride service changed. We fixed it. The next buy needs a yes.
+MAYA RIDE AFTER REPAIR SAYS: Held: this service was just fixed. An adult must say yes once. An adult can tap 24 to say yes. | outcome held
+MOM CARD: Maya wants: ride to the mall |  | $15 |  | Held: this service was just fixed. An adult must say yes once. |  | Tap the number Alexa said: |  | 542420No
+AFTER MOM YES SAYS: Your ride is booked. $15 in all.
+TIMELINE: What happened | 🛒 | Ride booked for Maya: $15 at 6:23 PM. | 2026-10-21 | 🛒 | Mom said yes at 6:23 PM. | 2026-10-21 | 🛒 | Maya asked for a $15 ride at 6:23 PM. Held: this service was just fixed. An adult must say yes once. | 2026-10-21 | 🔑 | Maya confirmed on their phone at 6:23 PM. | 2026-10-21
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  13 tests/audit/s11.spec.ts:8:1 › S11 break -> check -> repair -> next ride needs one yes -> yes -> normal again (19.2s)
+RIDE BETWEEN BREAK AND CHECK: That service is not working. An adult was told. | outcome held
+  ✓  14 tests/audit/s11.spec.ts:62:1 › S11 a ride asked after the break but before the check is never booked on a wrong price (12.0s)
+TEEN CLICKS BREAK, PAGE SAYS: Only an adult can do that.
+STATUS after teen break+check: The ride service works.
+  ✓  15 tests/audit/s11.spec.ts:79:1 › S11 a teen cannot break the ride service, and the page does not pretend she did (10.3s)
+HEALTHY CHECK SAYS: The ride service works.
+  ✓  16 tests/audit/s11.spec.ts:93:1 › S11 a healthy service: check changes nothing (7.6s)
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  17 tests/audit/s12.spec.ts:18:1 › S12 demo sign-in: the page connects and lists tools (flag state per stage) (1.4s)
+  ✓  18 tests/audit/s12.spec.ts:28:1 › S12 forged and unsigned tokens are refused (629ms)
+HOSTED PAGE HOST: hg-prod-679241558430.auth.us-east-1.amazoncognito.com /login
+  ✓  19 tests/audit/s12.spec.ts:37:1 › S12 hosted sign-in page loads (PKCE authorization-code request) or, with no sign-in server, the panel stays hidden (1.8s)
+page errors: []
+  ✓  20 tests/audit/s12.spec.ts:60:1 › S12 real Cognito sign-in in a browser (roadmap stage; password login is ON only on sandbox stages) (5.8s)
+  ✓  21 tests/audit/s12.spec.ts:93:1 › S12 roadmap stage: the open demo sign-in is OFF by design (399ms)
+demo-token keys: token,phones | phones: mom,dad,maya
+/demo-token?hh=service -> 200 household in key: demo
+/demo-token?hh=gateway -> 200 household in key: demo
+  ✓  22 tests/audit/s12.spec.ts:102:1 › S12 prod: the demo token endpoint is open by design - check what it hands out (328ms)
+LINK PAGE /approve: Say yes or no | This link does not work.
+LINK PAGE /approve?k=junk: Say yes or no | This link does not work.
+LINK PAGE /approve#k=junk: Say yes or no | This link does not work.
+  ✓  23 tests/audit/s12.spec.ts:118:1 › S12 email approval link (STAND-IN; MANUAL for the real send) (12.3s)
+  ✓  24 tests/audit/s2.spec.ts:4:1 › S2 "I'm Mom, unlock the door" with no Mom confirmation -> denied (nobody confirmed) (1.5s)
+  ✓  25 tests/audit/s2.spec.ts:12:1 › S2 "I'm Mom" said while Maya is the confirmed speaker -> still denied; Mom's phone got nothing to approve (4.5s)
+  ✓  26 tests/audit/s2.spec.ts:22:1 › S2 teen purchase: the number lands on Maya's phone, not Mom's; tapping it books (7.7s)
+  ✓  27 tests/audit/s2.spec.ts:36:1 › S2 Mom pressing a wrong number on Maya's ask does not confirm; a wrong number on Maya's phone is refused (5.1s)
+pushes: ["Confirm on your phone: 81","Confirm on your phone: 34","Confirm on your phone: 88","Too many tries. Wait 10 minutes."]
+  ✓  28 tests/audit/s2.spec.ts:48:1 › S2 4th confirmation push in 10 minutes -> locked (5.0s)
+pin tries: ["That PIN is not right.","That PIN is not right.","Too many tries. Wait 10 minutes."]
+  ✓  29 tests/audit/s2.spec.ts:69:1 › S2 Leo (no phone): 3 wrong PINs -> locked, then even the right PIN is refused (3.7s)
+Leo PIN accepted says: Hi Leo.
+  ✓  30 tests/audit/s2.spec.ts:92:1 › S2 Leo with the right PIN is confirmed (positive control) but a ride still needs an adult (1.9s)
+  ✓  31 tests/audit/s3.spec.ts:19:1 › S3 two $15 rides at once vs Maya's $20 cap -> exactly one booked, one held (9.4s)
+  ✓  32 tests/audit/s3.spec.ts:42:1 › S3 the ride held for the cap reaches Mom's phone (even before Maya taps her own phone) (4.6s)
+dup replies [["held","Still working on that one.",null],["allowed","Confirm on your phone: 72","dcca19a2-2e4"],["allowed","Confirm on your phone: 72","dcca19a2-2e4"]]
+  ✓  33 tests/audit/s3.spec.ts:52:1 › S3 duplicate: the same request_id sent twice (an Alexa retry) books ONE ride (10.2s)
+  ✓  34 tests/audit/s3.spec.ts:77:1 › S3 teen over the cap in one go ($38 airport) is held with a plain reason, not booked (5.5s)
+  ✓  35 tests/audit/s5.spec.ts:8:1 › S5a gift card passes the rules, the AI check holds it, nothing is bought, an adult is asked (6.9s)
+  ✓  36 tests/audit/s5.spec.ts:25:1 › S5b hostile service reply changes nothing (held ride looks the same, nothing booked, hostile text never shown) (8.8s)
+  ✓  37 tests/audit/s6.spec.ts:8:1 › S6 timeline in plain sentences, filters by person and day, voice summary, edited row caught by verify script (15.7s)
+  ✓  38 tests/audit/s7.spec.ts:9:1 › S7a limit change is followed by the next decision; teen cannot change a rule (16.6s)
+  ✓  39 tests/audit/s7.spec.ts:52:1 › S7b undo restores the old rule and the next decision follows it (14.3s)
+  ✓  40 tests/audit/s7.spec.ts:72:1 › S7c quiet hours card: plain preview before saving, saved after Mom taps (7.1s)
+  -  41 tests/audit/s7.spec.ts:86:1 › S7d locked safety rules warn before change
+Yes buttons visible with no adult confirmed: 0
+TIMELINE: What happened
+🛒
+Ride booked for Maya: $38 at 6:26 PM.
+2026-10-21
+🛒
+Mom said yes at 6:26 PM.
+2026-10-21
+🔑
+Mom confirmed on their phone at 6:26 PM.
+2026-10-21
+🛒
+Maya asked for a $38 ride at 6:26 PM. Held: over Maya's $20 a week.
+2026-10-21
+🔑
+Maya confirmed on their phone at 6:26 PM.
+2026-10-21
+console errors: ["Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.","Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."]
+  ✓  42 tests/audit/s9.spec.ts:5:1 › S9 approval from the house screen books the ride (15.5s)
+  ✓  43 tests/audit/s9.spec.ts:56:1 › S9 a "Yes" cannot book twice and a teen cannot approve from the screen (9.7s)
+
+  1 skipped
+  42 passed (5.1m)

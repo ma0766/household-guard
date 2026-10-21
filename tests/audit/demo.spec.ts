@@ -20,12 +20,14 @@ test('B: the 2:45 demo, start to finish', async ({ browser }) => {
   page.on('pageerror', (e) => consoleErrors.push('PAGEERROR ' + e.message));
   const says = page.getByTestId('alexa-says');
   const beat = () => page.waitForTimeout(PAUSE);
+  // after a tap, wait until the old "Confirm on your phone: NN" line is gone, else the next sign-in reads a stale number (slow networks, like prod)
+  const settle = () => expect(says).not.toContainText('Confirm on your phone', { timeout: 20000 });
   // click + time how long until Alexa's line changes (reply time a viewer feels)
-  const ask = async (label: string) => { const before = await says.textContent(); const t = Date.now(); await page.getByRole('button', { name: label, exact: true }).click(); await expect(says).not.toHaveText(before ?? '', { timeout: 15000 }).catch(() => undefined); const ms = Date.now() - t; if (ms > 1000) slow.push(`"${label}" took ${ms} ms to answer`); await beat(); return (await says.textContent()) ?? ''; };
-  const seg = async (name: string, window: string, fn: () => Promise<string | void>) => { const t = Date.now(); const note = await fn(); segs.push({ seg: name, window, seconds: +((Date.now() - t) / 1000).toFixed(1), note: note || undefined }); };
+  const ask = async (label: string) => { console.log(`[demo]   ask ${label} (says now: ${JSON.stringify(await says.textContent())})`); const before = await says.textContent(); const t = Date.now(); await page.getByRole('button', { name: label, exact: true }).click(); await expect(says).not.toHaveText(before ?? '', { timeout: 15000 }).catch(() => undefined); const ms = Date.now() - t; if (ms > 1000) slow.push(`"${label}" took ${ms} ms to answer`); await beat(); return (await says.textContent()) ?? ''; };
+  const seg = async (name: string, window: string, fn: () => Promise<string | void>) => { const t = Date.now(); console.log(`[demo] start ${name}`); const note = await fn(); segs.push({ seg: name, window, seconds: +((Date.now() - t) / 1000).toFixed(1), note: note || undefined }); };
   const T0 = Date.now();
 
-  await page.goto('/?dad=1'); await page.waitForLoadState('networkidle'); // household "demo"
+  await page.goto(`/?dad=1${process.env.AUDIT_DEMO_HH ? `&hh=${process.env.AUDIT_DEMO_HH}` : ''}`); await page.waitForLoadState('networkidle'); // household "demo" (on prod: a separate demo house made by the same reset)
   await seg('1 hook: teen $38 ride held, parent card pops up', '0:00-0:20', async () => {
     await signIn(page, 'maya'); await beat();
     const r = await ask('Book a ride to the airport');
@@ -40,10 +42,10 @@ test('B: the 2:45 demo, start to finish', async ({ browser }) => {
       if (who === 'guest') await page.getByTestId('who-guest').click(); else await signIn(page, who);
       await beat();
       out.push(`${who}: lights → ${await ask('Turn off the lights')}`);
-      const tapIfAsked = async () => { if (who !== 'guest' && /Confirm on your phone/.test((await says.textContent()) ?? '')) { await confirmOnPhone(page, who as any); await beat(); out.push(`   (tapped) → ${await says.textContent()}`); } };
+      const tapIfAsked = async () => { if (who !== 'guest' && /Confirm on your phone/.test((await says.textContent()) ?? '')) { await confirmOnPhone(page, who as any); await settle(); await beat(); out.push(`   (tapped) → ${await says.textContent()}`); } };
       out.push(`${who}: unlock → ${await ask('Unlock the front door')}`); await tapIfAsked();
       out.push(`${who}: ride → ${await ask('Book a ride to the airport')}`); await tapIfAsked();
-      if (who === 'maya') { await page.getByTestId('accept-alt').click().catch(() => undefined); await beat(); await confirmOnPhone(page, 'maya').catch(() => undefined); await beat(); }
+      if (who === 'maya') { await page.getByTestId('accept-alt').click().catch(() => undefined); await beat(); await confirmOnPhone(page, 'maya').catch(() => undefined); await settle().catch(() => undefined); await beat(); }
     }
     await page.screenshot({ path: `${dir}/B-${target}-3-speakers.png` });
     return out.join(' | ');
@@ -52,7 +54,7 @@ test('B: the 2:45 demo, start to finish', async ({ browser }) => {
     await signInAs(page, 'dad'); await beat(); // Mom has used her 3 phone taps in step 3
     const r = await ask('Buy a gift card');
      // mom → phone confirm then the worker's risk check
-    await confirmOnPhone(page, 'dad' as any).catch(() => undefined); await page.waitForTimeout(3000);
+    await confirmOnPhone(page, 'dad' as any).catch(() => undefined); await settle().catch(() => undefined); await page.waitForTimeout(1500);
     await page.screenshot({ path: `${dir}/B-${target}-4-giftcard.png` });
     return `${r} → after tap: ${await says.textContent()}`;
   });

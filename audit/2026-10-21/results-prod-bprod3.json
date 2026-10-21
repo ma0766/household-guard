@@ -1,0 +1,212 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/demo.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/bprod3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/bprod3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-bprod3.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "demo.spec.ts",
+      "file": "demo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B: the 2:45 demo, start to finish",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 400000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 400072,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 400000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 400000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 400000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/home/madman/household-guard/e2e/helpers.ts",
+                        "column": 51,
+                        "line": 10
+                      },
+                      "message": "Error: locator.click: Test ended.\nCall log:\n\u001b[2m  - waiting for getByTestId('phone-mom-num-97')\u001b[22m\n\n\n   at ../../e2e/helpers.ts:10\n\n   8 |   await expect(says).toContainText('Confirm on your phone:');\n   9 |   const n = (await says.textContent())!.match(/(\\d\\d)\\s*$/)![1];\n> 10 |   await page.getByTestId(`phone-${who}-num-${n}`).click();\n     |                                                   ^\n  11 | }\n  12 |\n  13 | export async function signIn(page: Page, who: 'mom' | 'maya') {\n    at confirmOnPhone (/home/madman/household-guard/e2e/helpers.ts:10:51)\n    at signIn (/home/madman/household-guard/e2e/helpers.ts:15:3)\n    at /home/madman/household-guard/tests/audit/demo.spec.ts:40:78\n    at seg (/home/madman/household-guard/tests/audit/demo.spec.ts:25:163)\n    at /home/madman/household-guard/tests/audit/demo.spec.ts:37:3"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "[demo] start 1 hook: teen $38 ride held, parent card pops up\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the airport (says now: \"Hi Maya. You are confirmed.\")\n"
+                    },
+                    {
+                      "text": "[demo] start 2 the problem (a slide in the real video; not in the app)\n"
+                    },
+                    {
+                      "text": "[demo] start 3 three speakers, the same three requests\n"
+                    },
+                    {
+                      "text": "[demo]   ask Turn off the lights (says now: \"Held: over Maya's $20 a week. A shared ride for $14 fits. Want that one? An adult can tap 92 to say yes.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Unlock the front door (says now: \"Done. The lights are off.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the airport (says now: \"Hi. I do not know you yet.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Turn off the lights (says now: \"Hi Maya. You are confirmed.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Unlock the front door (says now: \"Done. The lights are off.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the airport (says now: \"Only adults can do that.\")\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:12:14.203Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/bprod3/demo-B-the-2-45-demo-start-to-finish/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/bprod3/demo-B-the-2-45-demo-start-to-finish/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "05384557491ebd602dd7-8b7b47809d6828c1e358",
+          "file": "demo.spec.ts",
+          "line": 15,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T22:12:13.663Z",
+    "duration": 400947.795,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
