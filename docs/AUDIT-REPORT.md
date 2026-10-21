@@ -6,7 +6,7 @@ How it was done: four independent auditors with no prior context ran Part A (one
 
 ## 1. Verdict
 
-**READY**, with the open items in section 6 listed plainly.
+**READY for the demo, with named exceptions** (section 6). Every check in the plan passes or is MANUAL; the exceptions are things the plan does not check but you should know about.
 
 Why: every non-manual check in the plan passes on both targets after the fixes (final runs in section 2). The first pass of this audit was NOT READY: it found 20 findings, some real (a held ride that nobody could approve, a repair button that failed on prod, a CI job that could never pass, a demo script that tripped the safety limit). All 20 are fixed or explained. What is not green, and why:
 
@@ -24,7 +24,7 @@ Final runs: local 40 passed + 3 skipped (pass 1, trace on) and 20 passed (pass 2
 
 | Check | Target | Result | Evidence | First pass / fix |
 |---|---|---|---|---|
-| S0 tools listed; bad Origin 403; no token 401; both protocol versions | local, prod | PASS | `s0-tools-local.png`, `s0-tools-prod.png`, `results-*-final-*.json` | PASS |
+| S0 tools listed; bad Origin 403; no token 401; both protocol versions | local, prod | PASS | `s0-tools--local.png`, `s0-tools--prod.png`, `results-*-final-*.json` | PASS |
 | S0 zero console errors on load | local, prod | PASS (trace off, see F-1) | `results-prod-final-b.json` | first pass FAIL; **not a product bug**, see F-1 |
 | S1 teen lights done; unlock denied in plain words; delete account denied | local, prod | PASS | `s1-unlock-denied-local.png`, `s1-unlock-denied-prod.png` | PASS |
 | S2 "I'm Mom" without Mom's tap denied; number only on the teen's phone; 4th push locked; 3 wrong PINs locked | local, prod | PASS | `s2-number-on-maya-phone-*.png`, `s2-push-locked-*.png`, `s2-pin-locked-*.png` | PASS |
@@ -64,7 +64,7 @@ Final runs: local 40 passed + 3 skipped (pass 1, trace on) and 20 passed (pass 2
 
 | Check | Target | Result | Evidence |
 |---|---|---|---|
-| Run the demo script and record it | local | PASS. **Total 1:06 of action** (script window 2:45; the rest is narration). Segments: hook 6.6 s, problem slide 3 s (placeholder, no slide in the app), three speakers 32 s, gift card 8 s, self-healing 8 s, audit 3 s, architecture 4 s. | `demo-run.webm`, `B-demo-timing-local.json`, `B-local-*.png` |
+| Run the demo script and record it | local | PASS. **Total 1:06 of action** (script window 2:45; the rest is narration). Segments (see the JSON for exact values): hook about 7 s, problem slide 3 s (placeholder, no slide in the app), three speakers about 32 s, gift card about 8 s, self-healing about 8 s, audit about 3 s, architecture about 3.5 s. | `demo-run.webm`, `B-demo-timing-local.json`, `B-local-*.png` |
 | Run it on prod (own demo house `demoaudit` in the prod table, made by the same reset) | prod | PASS. **Total 1:20.** The self-healing step used the real "Check now" button on prod. | `demo-run-prod.webm`, `B-demo-timing-prod.json`, `B-prod-*.png` |
 | Moments slower than 1 s | both | None | the two timing files |
 | Console errors during the run | both | 0 (trace off, see F-1) | the two timing files |
@@ -78,7 +78,7 @@ Final runs: local 40 passed + 3 skipped (pass 1, trace on) and 20 passed (pass 2
 | Reply speed: p95 under 500 ms over 50 calls, warm prod; cold start separate | prod | **PASS. p95: `request_action` 339 ms, `household_status` 267 ms, `audit_log` 170 ms** (max 416 / 808 / 408 ms). First call after the deploy 538 ms; the first call measured before the fixes was a cold start of 2449 ms. | `C-reply-speed-prod.log` |
 | Accessibility: axe, WCAG 2 A/AA, every screen state including the three screen frames | local, prod | **PASS: 0 violations** on both. First pass: 3 serious (log panel not focusable; frames with no title or language). Fix **A** + **B** | `C-axe-local.json`, `C-axe-prod.json` |
 | Lighthouse: performance ≥ 90, accessibility ≥ 95, best practices ≥ 95 | local, prod | **PASS. Prod 100 / 100 / 96; local 100 / 100 / 96.** First pass: local 77, prod 91; the cause was layout shift from script-built blocks. Fix **B** + **D** (layout shift now 0 on prod) | `C-lighthouse-prod.report.html`, `C-lighthouse-local.report.html` (+ `.json`) |
-| Console: zero errors and zero unhandled rejections | local, prod | PASS (trace off, F-1) | `C-console-local.json`, `C-console-prod.json` |
+| Console: zero errors and zero unhandled rejections | local, prod | PASS **with tracing off** (a deliberate change of the check's condition: with tracing on, the recorder itself adds "Blocked script execution" errors, F-1; probe shows plain 0, tracing 2) | `C-console-local.json`, `C-console-prod.json` |
 | Mobile 390 px: no sideways scroll; phones and approval usable | local, prod | PASS | `C-mobile-*.json`, `C-local-mobile-390.png`, `C-prod-mobile-390.png` |
 | Plain language: no banned word, sentences under 12 words, grade 5 or below | local, prod | PASS. First pass: "Maya is confirmed." graded 5.2, now "Hi Maya. You are confirmed." (fix **A**). `/privacy` no longer says "scrypt". The developer "Message log" panel (raw protocol traffic, required by the hackathon) is excluded from this scan. | `C-plain-language-*.json` |
 | 30-second test at 1 click per 2 s | local, prod | PASS (prod: approve a held request 2.1 s, find last week's buys 2.2 s) | `C-30s-prod.json` |
@@ -118,6 +118,10 @@ Final runs: local 40 passed + 3 skipped (pass 1, trace on) and 20 passed (pass 2
 | Stand-ins labelled wherever a judge could see them | UI | PASS (see S13/S15 rows) | |
 | Full `npm run verify` | repo | PASS (exit 0; lint, typecheck, 457 tests, e2e) at commit `8280a67` (`fix-verify-4.log`). After that only audit specs and evidence changed; lint, typecheck and 459 unit tests were re-run on final `main` (`final-main-unit.log`). | `fix-verify-4.log` |
 | GitLab pipeline `rule-proofs` | CI | FIXED, unconfirmed on the server (section 6, item 2). Old config fails with `spawnSync docker ENOENT` (`F19-gitlab-ci-old-config-fails.log`); new config passes in a Docker copy of the job with DynamoDB Local as a service (`F19-gitlab-ci-simulation.log`). | |
+
+Local Part C was re-run on the final build (after the last fix) and is current: axe 0, console 0, Lighthouse 100 / 100 / 96, all 7 browser checks pass.
+
+The plan's last step also asks for the tag `submission-v3`. It is created on `main` at the commit that holds this report (see section 6, item 5). `submission-v1` is untouched.
 
 ## 3. Demo run
 
@@ -167,3 +171,4 @@ Final runs: local 40 passed + 3 skipped (pass 1, trace on) and 20 passed (pass 2
 2. **GitLab pipeline for the new commits.** I cannot read GitLab from here. The failing job (commit `22a0c29`) was reproduced (`spawnSync docker ENOENT`) and the new config passes in a Docker copy of the job. Please check the pipeline on `main`.
 3. **Parts of Part A on prod depend on shared limits.** The prod 429 limit is per caller; parallel runs from one address can trip it. Re-runs after a pause passed.
 4. S16: through the AgentCore gateway the p95 is 549 ms, over Alexa's 500 ms (not re-measured); the gateway stays off.
+5. **Tag `submission-v3`.** Created and pushed after the final merge, because every check in the plan passes (S0 and Part D were re-run on prod after the last deploy: 4 of 4 and 11 of 11). It sits on top of two open items (1 and 2 above), neither of which is a plan check. If you would rather wait for the pipeline, delete the tag with `git tag -d submission-v3 && git push origin :submission-v3`; `submission-v1` stays the rollback.
