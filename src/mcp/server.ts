@@ -14,6 +14,8 @@ import { householdStatus, voiceSummary, recentOrders } from '../audit/report.js'
 import { readAudit } from '../audit/audit.js';
 import { approvalsHtml, ordersHtml, timelineHtml } from '../audit/views.js';
 import { openApprovals } from '../approvals/approvals.js';
+import { myRules, proposeRule, rulesHtml } from '../rules/change.js';
+import type { RuleChange } from '../rules/templates.js';
 import { ensureSeeded, loadHousehold } from '../core/household.js';
 
 // Fixed facade: tool names never change, so nothing behind them needs a redeploy to Alexa.
@@ -102,7 +104,7 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     'show_on_screen',
     {
       description: 'Show a screen: the approval card, recent buys, or what happened. Filter by person or day.',
-      inputSchema: { view: z.enum(['approvals', 'orders', 'timeline']), person: z.string().optional(), day: z.string().optional().describe('YYYY-MM-DD') },
+      inputSchema: { view: z.enum(['approvals', 'orders', 'timeline', 'rules', 'my_rules']), person: z.string().optional(), day: z.string().optional().describe('YYYY-MM-DD') },
     },
     async (a) => {
       try {
@@ -110,6 +112,14 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
         const v = await viewer(deps, hh);
         if (!v) return { content: [{ type: 'text', text: T.whoAreYou }], structuredContent: { say: T.whoAreYou } };
         const mine = v.role !== 'adult'; // kids see only their own things
+        if (a.view === 'my_rules') {
+          const r = await myRules(deps, hh);
+          return { content: [{ type: 'text', text: r.say }], structuredContent: { view: a.view, say: r.say, html: `<!doctype html><meta charset="utf-8"><p style="font:16px system-ui">${r.say}</p>` } };
+        }
+        if (a.view === 'rules') {
+          const h = await loadHousehold(deps.store, hh);
+          return { content: [{ type: 'text', text: 'Here are the house rules.' }], structuredContent: { view: a.view, html: rulesHtml(h.rules, h.people) } };
+        }
         const html =
           a.view === 'approvals'
             ? approvalsHtml((await openApprovals(deps, hh)).filter((x) => !mine || x.personId === v.id))
@@ -120,6 +130,34 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       } catch {
         return { content: [{ type: 'text', text: T.oops }], structuredContent: { say: T.oops } };
       }
+    },
+  );
+  server.registerTool(
+    'set_rule',
+    {
+      description: 'An adult changes a house rule (or undoes the last change). The adult must then confirm on their own phone.',
+      inputSchema: {
+        template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'floor']).optional(),
+        person: z.string().optional(),
+        dollars: z.number().optional(),
+        actions: z.array(z.string()).optional(),
+        services: z.array(z.string()).optional(),
+        bag_included: z.boolean().optional(),
+        arrive_by_hour: z.number().nullable().optional(),
+        which: z.enum(['childrenNoUnlock', 'guestsNoBuy']).optional(),
+        enabled: z.boolean().optional(),
+        undo: z.boolean().optional().describe('Undo the newest change (within 24 hours)'),
+      },
+    },
+    async (a) => {
+      let change: RuleChange | undefined;
+      if (a.template === 'weekly_limit') change = { template: 'weekly_limit', person: String(a.person ?? '').toLowerCase(), cents: Math.round(Number(a.dollars) * 100) };
+      else if (a.template === 'adults_only') change = { template: 'adults_only', actions: a.actions ?? [] };
+      else if (a.template === 'allowed_apps') change = { template: 'allowed_apps', services: a.services ?? [] };
+      else if (a.template === 'must_haves') change = { template: 'must_haves', bagIncluded: a.bag_included, arriveByHour: a.arrive_by_hour };
+      else if (a.template === 'floor') change = { template: 'floor', which: a.which as 'childrenNoUnlock', enabled: !!a.enabled };
+      const r = !change && !a.undo ? { status: 'invalid', say: "I don't know that rule." } : await proposeRule(deps, hh, { change, undo: a.undo });
+      return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
     },
   );
   server.registerTool(

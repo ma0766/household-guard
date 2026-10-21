@@ -302,3 +302,11 @@ describe('S6 review fixes', () => {
     expect(r).toMatchObject({ outcome: 'allowed', done: true });
   });
 });
+
+describe('S6 hash ignores key order', () => {
+  it('data whose keys are not alphabetical still verifies after a round trip through the table', async () => {
+    const ctx = await newHousehold();
+    await appendAudit(ctx.deps, ctx.hh, tz, { kind: 'ask', category: 'cart', person: 'maya', personName: 'Maya', text: 'x.', data: { zebra: 1, apple: { z: 2, a: 1 }, mid: [{ y: 1, b: 2 }] } });
+    expect((await verifyAudit(ctx.store, ctx.hh)).ok).toBe(true);
+  });
+});

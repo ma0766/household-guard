@@ -26,9 +26,14 @@ export const GENESIS = 'GENESIS';
 export const AUDIT_TTL_DAYS = 90; // privacy: entries expire after 90 days; daily checkpoints keep the chain checkable
 const auditKey = (seq: number) => `AUDIT#${String(seq).padStart(10, '0')}`;
 
+// keys sorted at every level: the table hands maps back in its own order, and the hash must not care
+function stable(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(stable);
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v as Record<string, unknown>).sort(([a], [b]) => (a < b ? -1 : 1)).map(([k, x]) => [k, stable(x)]));
+  return v;
+}
 function canonical(e: Omit<AuditEntry, 'hash'>): string {
-  // fixed field order → the same bytes every time
-  return JSON.stringify([e.seq, e.ts, e.day, e.kind, e.category, e.person, e.personName, e.text, e.data ?? null, e.prev]);
+  return JSON.stringify(stable([e.seq, e.ts, e.day, e.kind, e.category, e.person, e.personName, e.text, e.data ?? null, e.prev]));
 }
 // keyed hash (HMAC): someone who can only write to the table cannot recompute a believable chain
 const auditKeyBytes = () => process.env.HG_AUDIT_KEY || process.env.HG_TOKEN_SECRET || 'local-dev-audit-key-not-for-prod';

@@ -185,7 +185,20 @@ async function refreshTimeline() {
   const frame = $('timeline') as HTMLIFrameElement;
   if (out.html && frame.srcdoc !== out.html) frame.srcdoc = out.html;
 }
-async function refresh() { await Promise.all([refreshPhones(), refreshTimeline()]); }
+async function refreshRules() {
+  if (!connected) return;
+  const out = await callTool('show_on_screen', { view: 'rules' });
+  const frame = $('rules-frame') as HTMLIFrameElement;
+  if (out.html && frame.srcdoc !== out.html) frame.srcdoc = out.html;
+}
+async function ruleCall(args: Record<string, unknown>) {
+  const r = await callTool('set_rule', args);
+  says(r.say, r.status === 'waiting' ? 'held' : 'denied');
+  if (r.status === 'waiting') void waitJob(r.challenge_id);
+}
+$('rule-save-maya').onclick = () => void ruleCall({ template: 'weekly_limit', person: 'maya', dollars: Number(($('rule-maya-limit') as HTMLInputElement).value) });
+$('rule-undo').onclick = () => void ruleCall({ undo: true });
+async function refresh() { await Promise.all([refreshPhones(), refreshTimeline(), refreshRules()]); }
 setInterval(() => void refresh().catch(() => undefined), 1000);
 ($('tl-person') as HTMLSelectElement).onchange = () => void refreshTimeline();
 ($('tl-day') as HTMLSelectElement).onchange = () => void refreshTimeline();

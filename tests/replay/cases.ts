@@ -1,5 +1,6 @@
 import type { Who } from '../helpers.js';
 import type { Outcome } from '../../src/core/types.js';
+import type { RulesConfig } from '../../src/policy/rules.js';
 
 // Scripted requests with fixed expected answers. Grows to 30 by S7; runs on every change.
 export interface ReplayCase {
@@ -9,6 +10,7 @@ export interface ReplayCase {
   method?: 'phone' | 'pin';
   args: { service: string; action: string; item?: string; value?: string | number; option_id?: string };
   expect: { outcome: Outcome; done?: boolean };
+  rules?: Partial<RulesConfig>; // an adult's rule edit, applied before the request
 }
 
 const buy = (service: string, item: string, option_id?: string) => ({ service, action: 'purchase', item, option_id });
@@ -36,4 +38,15 @@ export const CASES: ReplayCase[] = [
   { id: 'teen-unknown-store-held', slice: 3, who: 'maya', args: buy('mock-food', 'pizza'), expect: { outcome: 'held' } },
   { id: 'adult-lights-by-pin-done', slice: 3, who: 'mom', method: 'pin', args: home('light', 'lights', 'off'), expect: { outcome: 'allowed', done: true } },
   { id: 'adult-unlock-by-pin-held', slice: 3, who: 'mom', method: 'pin', args: home('unlock', 'front door'), expect: { outcome: 'held' } },
+  // S7: rules an adult has edited — the next decision must follow them
+  { id: 'limit-raised-teen-airport-38-still-held', slice: 7, who: 'maya', rules: { weeklyCapCents: { mom: 50000, maya: 3000 }, perRequestCapCents: { mom: 20000, maya: 3000 } }, args: buy('mock-ride', 'ride to the airport'), expect: { outcome: 'held' } },
+  { id: 'limit-raised-teen-airport-economy-24-allowed', slice: 7, who: 'maya', rules: { weeklyCapCents: { mom: 50000, maya: 3000 }, perRequestCapCents: { mom: 20000, maya: 3000 } }, args: buy('mock-ride', 'ride to the airport', 'economy'), expect: { outcome: 'allowed' } },
+  { id: 'limit-lowered-teen-mall-15-held', slice: 7, who: 'maya', rules: { weeklyCapCents: { mom: 50000, maya: 1000 }, perRequestCapCents: { mom: 20000, maya: 1000 } }, args: buy('mock-ride', 'ride to the mall'), expect: { outcome: 'held' } },
+  { id: 'adults-only-thermostat-teen-denied', slice: 7, who: 'maya', rules: { adultsOnlyActions: ['garage', 'thermostat', 'unlock'] }, args: home('thermostat', 'thermostat', 72), expect: { outcome: 'denied' } },
+  { id: 'apps-without-shop-teen-gift-card-held', slice: 7, who: 'maya', rules: { allowedServices: ['mock-ride', 'sim-home'] }, args: buy('mock-shop', 'gift card'), expect: { outcome: 'held' } },
+  { id: 'guest-buy-floor-off-still-denied', slice: 7, who: 'guest', rules: { floor: { childrenNoUnlock: true, guestsNoBuy: false } }, args: buy('mock-ride', 'ride to the mall'), expect: { outcome: 'denied' } },
+  { id: 'child-unlock-floor-off-still-denied', slice: 7, who: 'leo', method: 'pin', rules: { floor: { childrenNoUnlock: false, guestsNoBuy: true } }, args: home('unlock', 'front door'), expect: { outcome: 'denied' } },
+  { id: 'needs-approval-teen-lights-held', slice: 7, who: 'maya', rules: { needsApproval: [{ role: 'teen', action: 'light' }] }, args: home('light', 'lights', 'on'), expect: { outcome: 'held' } },
+  { id: 'deny-adult-lights-denied', slice: 7, who: 'mom', rules: { deny: [{ role: 'adult', action: 'light' }] }, args: home('light', 'lights', 'on'), expect: { outcome: 'denied' } },
+  { id: 'must-have-bag-teen-airport-held', slice: 7, who: 'maya', rules: { mustHaves: { bagIncluded: true } }, args: buy('mock-ride', 'ride to the airport'), expect: { outcome: 'held' } },
 ];

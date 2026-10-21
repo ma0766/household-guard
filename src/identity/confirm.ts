@@ -54,7 +54,7 @@ export async function phoneInbox(deps: Deps, hh: string, personId: string) {
   const me = people.find((p) => p.id === personId);
   const open = await openChallengesFor(deps, hh, personId);
   const challenges = open.map((c) => {
-    const text = c.kind === 'login' ? 'Is this you? Tap the number Alexa said.' : `${me?.name ?? 'Someone'} asked: ${describe(c.args)}. Tap the number Alexa said.`;
+    const text = c.kind === 'login' ? 'Is this you? Tap the number Alexa said.' : c.kind === 'rule' ? `${me?.name ?? 'Someone'} wants to change a rule. ${(c.meta as any)?.text ?? ''} Tap the number Alexa said.` : `${me?.name ?? 'Someone'} asked: ${describe(c.args)}. Tap the number Alexa said.`;
     return { id: c.id, kind: c.kind, text, options: c.options };
   });
   const notices = me?.role === 'adult' ? (await deps.store.query(Store.hk(hh), 'NOTICE#', { reverse: true, limit: 5 })).filter((n) => now - n.at < 3600_000).map((n) => ({ text: n.text as string, at: n.at as number })) : [];

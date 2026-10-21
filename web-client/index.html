@@ -35,6 +35,17 @@
       <iframe id="timeline" data-testid="timeline" sandbox="" title="What happened" style="width:100%;height:420px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
       <p id="summary" data-testid="summary" class="says" hidden></p>
     </section>
+    <section id="rules-panel" aria-label="House rules">
+      <h2>House rules</h2>
+      <p class="hint">Adults can change these. Kids can only look.</p>
+      <div class="row">
+        <label for="rule-maya-limit">Maya's limit ($ a week)</label>
+        <input id="rule-maya-limit" data-testid="rule-maya-limit" inputmode="numeric" value="20" style="max-width:80px" />
+        <button id="rule-save-maya" data-testid="rule-save-maya">Save</button>
+        <button id="rule-undo" data-testid="rule-undo" class="secondary">Undo last change</button>
+      </div>
+      <iframe id="rules-frame" data-testid="rules-frame" sandbox="" title="House rules" style="width:100%;height:300px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
+    </section>
     <section id="log-panel" aria-label="Message log">
       <h2>Message log</h2>
       <div class="row">

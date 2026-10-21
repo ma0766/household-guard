@@ -6,6 +6,7 @@ import { executeAction } from '../core/execute.js';
 import { beginAttempt, clearWrong, failAttempt, recordPush, isLocked } from '../identity/guard.js';
 import { setSession } from '../core/household.js';
 import { categoryOf, doneHome, emit } from '../audit/emit.js';
+import { completeRule } from '../rules/change.js';
 
 // "Confirm on your phone: 47". Alexa SAYS the number; the person's own phone SHOWS three numbers; they tap the match.
 // Number matching defeats blind "yes" taps — the push-fatigue attack.
@@ -13,7 +14,7 @@ export const CHALLENGE_MS = 10 * 60 * 1000;
 
 export interface Challenge {
   id: string;
-  kind: 'login' | 'action';
+  kind: 'login' | 'action' | 'rule';
   personId: string;
   number: number;
   options: number[];
@@ -84,6 +85,12 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
     await setSession(deps.store, hh, personId, 'phone', now);
     result = { done: true, reason: `${name} is confirmed.` };
     await emit(deps, hh, { kind: 'who', category: 'who', person: personId, personName: name, text: (t) => `${name} confirmed on their phone at ${t}.` });
+  } else if (c.kind === 'rule') {
+    try {
+      result = await completeRule(deps, hh, personId, c);
+    } catch {
+      result = { done: false, reason: 'Something went wrong. Ask an adult.' };
+    }
   } else {
     try {
       result = await executeAction(deps, hh, personId, c.args!, c.meta);
