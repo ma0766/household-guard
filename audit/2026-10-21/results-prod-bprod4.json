@@ -1,0 +1,221 @@
+{
+  "config": {
+    "argv": [
+      "/home/madman/.nvm/versions/node/v22.23.3/bin/node",
+      "/home/madman/household-guard/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "playwright.audit.config.ts",
+      "tests/audit/demo.spec.ts"
+    ],
+    "configFile": "/home/madman/household-guard/playwright.audit.config.ts",
+    "rootDir": "/home/madman/household-guard/tests/audit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/bprod4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/madman/household-guard/audit/2026-10-21/pw-prod/bprod4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/madman/household-guard/tests/audit",
+        "snapshotDir": "/home/madman/household-guard/tests/audit",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws",
+          "video": "on",
+          "trace": "on",
+          "screenshot": "on",
+          "viewport": {
+            "width": 1400,
+            "height": 1000
+          },
+          "browserName": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "audit/2026-10-21/results-prod-bprod4.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "demo.spec.ts",
+      "file": "demo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B: the 2:45 demo, start to finish",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 400000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 80619,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "[demo] start 1 hook: teen $38 ride held, parent card pops up\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the airport (says now: \"Hi Maya. You are confirmed.\")\n"
+                    },
+                    {
+                      "text": "[demo] start 2 the problem (a slide in the real video; not in the app)\n"
+                    },
+                    {
+                      "text": "[demo] start 3 three speakers, the same three requests\n"
+                    },
+                    {
+                      "text": "[demo]   ask Turn off the lights (says now: \"Hi. I do not know you yet.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Unlock the front door (says now: \"Done. The lights are off.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the airport (says now: \"Tell me who you are first.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Turn off the lights (says now: \"Hi Maya. You are confirmed.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Unlock the front door (says now: \"Done. The lights are off.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the airport (says now: \"Only adults can do that.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Turn off the lights (says now: \"Hi Mom. You are confirmed.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Unlock the front door (says now: \"Done. The lights are off.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the airport (says now: \"Done. The front door is unlocked.\")\n"
+                    },
+                    {
+                      "text": "[demo] start 4 gift card: allowed by the rules, held by the AI check\n"
+                    },
+                    {
+                      "text": "[demo]   ask Buy a gift card (says now: \"Hi Dad. You are confirmed.\")\n"
+                    },
+                    {
+                      "text": "[demo] start 5 self-healing: break, check, repaired, next ride needs one yes\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the mall (says now: \"The ride service shipped a new version.\")\n"
+                    },
+                    {
+                      "text": "[demo]   ask Book a ride to the mall (says now: \"The ride service changed. We fixed it. The next buy needs a yes.\")\n"
+                    },
+                    {
+                      "text": "[demo] start 6 audit timeline + proof\n"
+                    },
+                    {
+                      "text": "[demo] start 7 architecture diagram\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-21T22:20:39.599Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/madman/household-guard/audit/2026-10-21/pw-prod/bprod4/demo-B-the-2-45-demo-start-to-finish/test-finished-1.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "05384557491ebd602dd7-8b7b47809d6828c1e358",
+          "file": "demo.spec.ts",
+          "line": 15,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-21T22:20:39.199Z",
+    "duration": 81128.17300000001,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

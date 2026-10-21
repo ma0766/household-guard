@@ -3,21 +3,21 @@ FAILED  no child may unlock a door (done at once)
         principal: Person::"", action: Action::"unlock", resource: Service::""
         context: {amount_cents: 0, local_hour: 0, service_known: false, session: "", value: 0, week_spent_cents: 0}
         entities: [
+          Person::"" in [Role::"child"],
+          Action::"garage",
           Role::"guest",
-          Action::"use_app",
+          Action::"unlock",
+          Role::"child",
           Action::"light",
           Role::"adult",
-          Action::"unlock",
-          Person::"" in [Role::"child"],
+          Action::"purchase",
+          Action::"thermostat",
+          Role::"teen",
           Service::"",
           Action::"build_site",
-          Action::"purchase",
           Person::"maya" in [Role::"child"],
           Person::"mom" in [Role::"child"],
-          Role::"teen",
-          Role::"child",
-          Action::"thermostat",
-          Action::"garage",
+          Action::"use_app",
         ]
 PROVEN  no child may unlock a door (or held for an adult)
 PROVEN  no child may open the garage (done at once)

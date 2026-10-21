@@ -2,11 +2,12 @@
   "teenText": "That's new here. An adult must say yes.",
   "guestText": "Tell me who you are first.",
   "seen": [
-    "Working on it. 20 percent."
+    "Confirm on your phone: 20",
+    "Your site is ready. Sunny Bakery."
   ],
-  "screenText": "Your site is ready: Sunny Bakery\n\nScan the code, or open the link, on your phone.\n\nhttps://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/preview/Y4fO3qav6w182kZv",
+  "screenText": "Your site is ready: Sunny Bakery\n\nScan the code, or open the link, on your phone.\n\nhttps://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/preview/8vgXhHePNItK5tw-",
   "previewText": "Sunny Bakery\n\nFresh and local.\n\nWelcome to Sunny Bakery.\n\nA one-page site for Sunny Bakery.\n\nCome by and say hello.\n\nPractice site made by the demo's stand-in site builder.",
-  "link": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/preview/Y4fO3qav6w182kZv",
-  "answerMs": 1354,
+  "link": "https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/preview/8vgXhHePNItK5tw-",
+  "answerMs": 242,
   "errs": []
 }

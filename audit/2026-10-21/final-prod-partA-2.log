@@ -1,0 +1,36 @@
+
+Running 20 tests using 1 worker
+
+  ✓   1 tests/audit/s0.spec.ts:7:1 › S0 browser: connect, list tools, ask status; log shows raw answers (911ms)
+  ✓   2 tests/audit/s0.spec.ts:21:1 › S0 browser: no console errors on first load and tool list (3.8s)
+  ✓   3 tests/audit/s0.spec.ts:32:1 › S0 http: both protocol versions initialize; bad Origin 403; no token 401; bad token 401 (620ms)
+  ✓   4 tests/audit/s0.spec.ts:56:1 › S0 http: tools/list over raw HTTP has exactly the fixed ten tools and no person field on request_action (193ms)
+  ✓   5 tests/audit/s13.spec.ts:7:3 › S13 connect any app, per person › teen connects an app: held until an adult allows, then Maya connects, Mom stays unconnected (17.2s)
+  ✓   6 tests/audit/s13.spec.ts:68:3 › S13 connect any app, per person › stand-in hub is CLEARLY LABELLED to a judge in the UI (3.6s)
+  ✓   7 tests/audit/s13.spec.ts:77:3 › S13 connect any app, per person › stand-in hub is labelled on the app sign-in page and connect screen (8.0s)
+  ✓   8 tests/audit/s13.spec.ts:93:3 › S13 connect any app, per person › the app sign-in page itself says it is a stand-in (not only the URL host) (7.7s)
+  ✓   9 tests/audit/s13.spec.ts:108:3 › S13 connect any app, per person › README labels the app hub (Composio) as a stand-in (2ms)
+  ✓  10 tests/audit/s15.spec.ts:7:3 › S15 long jobs + site building › Mom taps -> job runs -> preview link + code -> preview page opens; teen held; guest denied (14.7s)
+  ✓  11 tests/audit/s15.spec.ts:51:3 › S15 long jobs + site building › stand-in site builder is CLEARLY LABELLED to a judge (UI button/panel) (423ms)
+  ✓  12 tests/audit/s15.spec.ts:57:3 › S15 long jobs + site building › stand-in site builder is labelled on the finished screen and the preview page (7.2s)
+  ✓  13 tests/audit/s15.spec.ts:71:3 › S15 long jobs + site building › README labels the site builder (Wix) as a stand-in (2ms)
+  ✓  14 tests/audit/s4.spec.ts:6:1 › S4a teen $38 ride held, $14 shared offered, accepted with no adult, $24 saving shown (7.1s)
+  ✓  15 tests/audit/s4.spec.ts:24:1 › S4b Mom matches the number on her phone and a $38 ride is booked (5.8s)
+  ✓  16 tests/audit/s4.spec.ts:52:1 › S4c price surge after approval -> held again, nothing booked (6.2s)
+  ✓  17 tests/audit/s8.spec.ts:9:1 › S8 token is checked on every call (401) and the signed-in page still works (3.3s)
+  ✓  18 tests/audit/s8.spec.ts:53:1 › S8 UX: the page opens and lists tools with zero console errors (3.8s)
+PRIVACY TEXT:
+Household Guard privacy note
+
+We do not store audio. Alexa turns speech into text; we only see the text.
+Profiles for children are created only by an adult.
+The log of what happened is kept for 90 days, then it is deleted.
+PINs are stored scrambled. We never store a PIN as typed.
+We keep what we need to apply your house rules: names, roles, limits, and the log.
+We never sell or share it. This note is not legal advice.
+/.well-known/household-guard.json {"name":"Household Guard","mcp":"/mcp","protocol_versions":["2025-11-25","2025-03-26"],"tools":"tools/list","privacy":"/privacy","source":"MIT licensed, see LICENSE"}
+/.well-known/oauth-protected-resource {"resource":"https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/mcp","bearer_methods_supported":["header"],"resource_documentation":"https://6z6ifslupw2yinjuezyu4xqfee0coblv.lambda-url.us-east-1.on.aws/privacy","authorization_servers":["https://cognito-idp.us-east-1.amazonaws.com/us-east-1_pHMvPUdWp"]}
+  ✓  19 tests/audit/s8.spec.ts:62:1 › S8 privacy page and well-known pages load (467ms)
+  ✓  20 tests/audit/s8.spec.ts:82:1 › S8 submission files exist (CLI evidence) (3ms)
+
+  20 passed (1.5m)
