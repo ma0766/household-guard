@@ -60,7 +60,7 @@ export async function phoneInbox(deps: Deps, hh: string, personId: string, opts:
   });
   const notices = me?.role === 'adult' ? (await deps.store.query(Store.hk(hh), 'NOTICE#', { reverse: true, limit: 5 })).filter((n) => now - n.at < 3600_000).map((n) => ({ text: n.text as string, at: n.at as number })) : [];
   // an adult's phone also shows held requests: who, what, how much, why — plus the number Alexa said (among 3)
-  const approvals = me?.role === 'adult' && (me.hasPhone || opts.link) ? (await openApprovals(deps, hh)).map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, amount: money(a.amountCents), why: a.reason, rule: a.rule ? T.why(a.rule) : undefined, options: a.options, text: `${a.personName} wants: ${a.itemText ?? a.itemKey}. ${money(a.amountCents)}. ${a.reason}` })) : [];
+  const approvals = me?.role === 'adult' && (me.hasPhone || opts.link) ? (await openApprovals(deps, hh)).filter((a) => !(a.scam && a.personId === me.id)).map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, amount: money(a.amountCents), why: a.reason, rule: a.rule ? T.why(a.rule) : undefined, options: a.options, text: `${a.personName} wants: ${a.itemText ?? a.itemKey}. ${money(a.amountCents)}. ${a.reason}` })) : [];
   const links = (await deps.store.query(Store.hk(hh), `PHONELINK#${personId}#`, { reverse: true, limit: 3 })).filter((l) => now - (l.at as number) < 86400_000).map((l) => ({ text: String(l.text), url: String(l.url) })); // a link made for THIS person only
   const suggestions = me?.role === 'adult' && me.hasPhone ? await openSuggestions(deps, hh) : [];
   return { person: personId, has_phone: !!me?.hasPhone, challenges, notices, approvals, suggestions, links };

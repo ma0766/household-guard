@@ -18,7 +18,9 @@ import { handleHubWebhook } from './hub/capability.js';
 import { defaultHub, type StandInHub } from './hub/hub.js';
 import { localOutbox } from './notify/notify.js';
 import { setRideState } from './connectors/mock-ride.js';
-import { getSession, loadHousehold } from './core/household.js';
+import { ensureSeeded, getSession, loadHousehold } from './core/household.js';
+import { setVacuumStatus } from './devices/vacuum.js';
+import { checkDevices } from './devices/health.js';
 import { planPage } from './projects/projects.js';
 
 const WEB_ROOT = process.env.HG_WEB_ROOT ?? join(fileURLToPath(new URL('..', import.meta.url)), 'dist', 'web');
@@ -31,11 +33,12 @@ const TYPES: Record<string, string> = {
 };
 
 // demo sign-in: one voice-side token, plus one token per simulated phone (each phone only speaks for its own person)
+let clockOffsetMs = 0; // local demo and tests only
 function demoTokens(url: URL) {
   const want = url.searchParams.get('hh') ?? '';
   // 'service' and 'gateway' belong to the service sign-in and the gateway door: the open demo sign-in can never mint a key for them
   const hh = /^[a-z0-9-]{1,32}$/.test(want) && !['service', 'gateway'].includes(want) ? want : 'demo';
-  return { token: mintToken('demo', 86400, hh), phones: Object.fromEntries(['mom', 'dad', 'maya'].map((p) => [p, mintToken(p, 86400, hh, 'phone')])) };
+  return { token: mintToken('demo', 86400, hh), phones: Object.fromEntries(['mom', 'dad', 'maya', 'grandma'].map((p) => [p, mintToken(p, 86400, hh, 'phone')])) };
 }
 
 async function serveStatic(req: IncomingMessage, res: ServerResponse) {
@@ -87,7 +90,14 @@ function protectedResource(req: IncomingMessage) {
 
 export function createApp(given?: Deps) {
   let deps = given;
-  const getDeps = (): Deps => (deps ??= makeDeps());
+  const getDeps = (): Deps => {
+    if (!deps) {
+      deps = makeDeps();
+      // the local demo and tests can move the clock (a visitor's window, a 5-minute tap): the deployed stack never can
+      if (process.env.HG_LOCAL === '1') deps.now ??= () => Date.now() + clockOffsetMs;
+    }
+    return deps;
+  };
   return createServer((req, res) => {
     const url = new URL(req.url ?? '/', 'http://x');
     void (async () => {
@@ -171,6 +181,30 @@ export function createApp(given?: Deps) {
           if ('detail' in full && full.detail) console.error('health check detail:', full.detail); // the cause stays in our logs; the page gets only a plain sentence (it once showed a cloud role name)
           const { detail: _detail, ...out } = full as Record<string, unknown>;
           return void res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(out));
+        }
+        // local demo and tests only (never on the deployed stack): add Grandma, move the clock, force the vacuum's own status, run the device check
+        const dm = url.pathname.match(/^\/demo\/(grandma|clock|vacuum|check-devices)$/);
+        if (dm && req.method === 'POST' && process.env.HG_LOCAL === '1') {
+          const claims = await authenticate(req);
+          if (!claims) return void res.writeHead(401).end();
+          if (claims.aud !== 'alexa' || claims.ap || claims.kind === 'service') return void res.writeHead(403).end();
+          const d = getDeps();
+          let raw = '';
+          for await (const c of req) raw += c;
+          const body = JSON.parse(raw || '{}');
+          await ensureSeeded(d.store, claims.hh);
+          if (dm[1] === 'grandma') {
+            const { rules } = await loadHousehold(d.store, claims.hh);
+            await d.store.put({ pk: Store.hk(claims.hh), sk: 'PERSON#grandma', id: 'grandma', name: 'Grandma', role: 'adult', hasPhone: true });
+            await d.store.put({ pk: Store.hk(claims.hh), sk: 'RULES#current', config: { ...rules, weeklyCapCents: { ...rules.weeklyCapCents, grandma: 50000 }, perRequestCapCents: { ...rules.perRequestCapCents, grandma: 20000 } } });
+          } else if (dm[1] === 'clock') {
+            clockOffsetMs = Number.isFinite(Number(body.at)) ? Number(body.at) - Date.now() : 0; // {at: epoch ms}; {} puts the clock back
+          } else if (dm[1] === 'vacuum') {
+            await setVacuumStatus(d.store, claims.hh, ['idle', 'cleaning', 'stuck', 'error'].includes(body.status) ? body.status : 'idle');
+          } else {
+            await checkDevices(d, claims.hh);
+          }
+          return void res.writeHead(200, { 'content-type': 'application/json' }).end('{"ok":true}');
         }
         // demo only: "nobody has confirmed" — so a guest can speak after a family member's turn ended
         if (url.pathname === '/demo/guest' && req.method === 'POST' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {

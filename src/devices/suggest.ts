@@ -19,7 +19,7 @@ export async function answerSuggestion(deps: Deps, hh: string, personId: string,
     try {
       await deps.store.update({ Key: { pk: Store.hk(hh), sk: 'SUGGEST#camera' }, UpdateExpression: 'SET #s = :a', ConditionExpression: '#s = :o', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':a': answer === 'yes' ? 'yes' : 'no', ':o': 'open' } });
     } catch {
-      return { status: 'refused', say: 'That is already answered.' };
+      return { status: 'refused', say: 'It is done.' };
     }
     if (answer === 'no') return { status: 'no', say: 'Okay. The camera stays off.' };
     const r = await applyNow(deps, hh, personId, { template: 'camera', enabled: true });

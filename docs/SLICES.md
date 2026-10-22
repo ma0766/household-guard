@@ -144,6 +144,11 @@ In this order — each one is visible in the video and strengthens the "provably
 - **Builds:** one limit per person (forbid rules); typed rules read back and saved after the adult's own tap; "try it first" (the last 7 days of logged requests asked again under the new rule); taps only for what matters (no tap for everyday things and the garage for adults and teens; a tap for any buy, door or rule change; one tap covers a person's buys for 5 minutes inside limits; an optional per-person no-tap list); guests (an everyday-things switch, named guests with a PIN, a list and a last day); adults mark gifts; "why?" names the rule.
 - **Done when:** `npm run verify` exits 0 with S20 PASS; the Chromium tests in `e2e/s20-levelup.spec.ts` pass; screenshots are in `docs/screens/`.
 
+## S21 · Kinds of action
+
+- **Builds:** six kinds (info, control, money, access, act in your name, add new powers); services and devices declare their kinds, undeclared is held; rules can aim at a kind; a safe way to add a new device (robot vacuum stand-in, camera suggested once, health alerts); the scam guard; visitors with a time window; "start a project" with a written plan and an adult tap to publish.
+- **Done when:** `npm run verify` exits 0 with S21 PASS, the Chromium tests in `e2e/s21-kinds.spec.ts` pass, replay is 34 of 34, and the screenshots are in `docs/screens/`.
+
 ## After-Friday slices (S13–S18)
 
 Every "later" item from the Build spec lands in one of these.

@@ -29,7 +29,7 @@ import { handlePurchase } from './purchase.js';
 import { auditAsk } from '../audit/emit.js';
 import type { RuleParser } from '../rules/sentence.js';
 import type { Planner } from '../projects/planner.js';
-import { findProject, publishProject, startProject } from '../projects/projects.js';
+import { findProject, startProject } from '../projects/projects.js';
 import { handleOrders } from '../orders/orders.js';
 
 export interface Deps {
