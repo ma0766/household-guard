@@ -57,6 +57,7 @@ export async function auditAsk(deps: Deps, hh: string, a: ActionArgs, r: ActionR
 async function auditAskInner(deps: Deps, hh: string, a: ActionArgs, r: ActionResult): Promise<void> {
   const name = (r.person_name as string) ?? 'Someone';
   const amount = r.amount_cents as number | undefined;
+  const rule = typeof r.rule === 'string' && r.rule ? ` ${r.rule}` : ''; // which rule decided, in plain words
   const outcome =
     r.outcome === 'allowed' ? (r.done ? 'Done.' : r.next === 'confirm_on_phone' ? `Waiting for ${name}'s phone.` : 'Okay.') : r.outcome === 'held' ? (String(r.reason).startsWith('Held') ? r.reason : `Held. ${r.reason}`) : `No. ${r.reason}`;
   await emit(deps, hh, {
@@ -64,8 +65,8 @@ async function auditAskInner(deps: Deps, hh: string, a: ActionArgs, r: ActionRes
     category: categoryOf(a.action),
     person: (r.person as string) ?? 'guest',
     personName: name,
-    text: (t) => (a.action === 'purchase' ? `${name} asked for ${purchaseWhat(a, amount)} at ${t}. ${outcome}` : `${name} asked to ${what(a)} at ${t}. ${outcome}`),
-    data: { outcome: r.outcome, service: a.service, action: a.action, amount_cents: amount ?? null },
+    text: (t) => (a.action === 'purchase' ? `${name} asked for ${purchaseWhat(a, amount)} at ${t}. ${outcome}${rule}` : `${name} asked to ${what(a)} at ${t}. ${outcome}${rule}`),
+    data: { outcome: r.outcome, service: a.service, action: a.action, amount_cents: amount ?? null, rule: r.rule ?? null },
   });
 }
 

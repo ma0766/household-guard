@@ -51,33 +51,48 @@ export function generatePolicies(c: RulesConfig): PolicySets {
     approvable[id] = text;
   };
 
+  // RESTRICTIONS ARE FORBIDS. A permit only says what an action is; every limit below is a forbid, and a forbid always beats a permit,
+  // so no later permit (a stray one, a newer one) can loosen a limit. A limit is ONE setting per person (see the caps below), never a stack.
+  // Forbids in `auto` only push an ask from "do it" to "hold for an adult"; forbids in `both` mean no.
+
+  // an app or service the house has not allowed: hold for an adult. (The site builder is the house's own tool: no allowed-app list applies.)
+  auto.service_unknown = `forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" };`;
+
   // low risk: anyone, known service
-  auto.light = `permit(principal, action == Action::"light", resource) when { context.service_known };`;
-  auto.thermostat = `permit(principal, action == Action::"thermostat", resource) when { context.service_known && context.value >= 60 && context.value <= 78 };`;
+  auto.light = `permit(principal, action == Action::"light", resource);`;
+  auto.thermostat = `permit(principal, action == Action::"thermostat", resource);`;
+  auto.thermostat_range = `forbid(principal, action == Action::"thermostat", resource) when { context.value < 60 || context.value > 78 };`;
 
   // a connected app (S13): anyone signed in may use an app the house has allowed; guests never
-  auto.use_app = `permit(principal, action == Action::"use_app", resource) when { context.service_known } unless { principal in Role::"guest" };`;
+  auto.use_app = `permit(principal, action == Action::"use_app", resource);`;
+  auto.use_app_not_guests = `forbid(principal in Role::"guest", action == Action::"use_app", resource);`;
 
   // building and publishing a site: an adult with her own phone tap. Everyone else is held for an adult.
-  auto.build_site = `permit(principal in Role::"adult", action == Action::"build_site", resource) when { context.session == "phone" };`; // the site builder is the house's own tool: no allowed-app list applies
+  auto.build_site = `permit(principal in Role::"adult", action == Action::"build_site", resource);`;
+  auto.build_site_needs_phone = `forbid(principal, action == Action::"build_site", resource) when { context.session != "phone" };`;
 
   // device class: adults only
   for (const a of c.adultsOnlyActions) {
     both(`adults_only_${a}`, `forbid(principal, action == Action::${q(a)}, resource) unless { principal in Role::"adult" };`);
-    auto[`adult_${a}`] = `permit(principal in Role::"adult", action == Action::${q(a)}, resource) when { context.service_known && context.session == "phone" };`;
+    auto[`adult_${a}`] = `permit(principal in Role::"adult", action == Action::${q(a)}, resource);`;
+    auto[`${a}_needs_phone`] = `forbid(principal, action == Action::${q(a)}, resource) when { context.session != "phone" };`;
   }
 
-  // spend caps: per person, per request and per week
+  // spend caps: ONE setting per person (a new limit replaces the old one in the config, so there is never a second rule to stack).
+  // Buying is allowed, and a forbid holds it for an adult when it is over the person's limit, or the person has no limit at all.
+  auto.purchase = `permit(principal, action == Action::"purchase", resource);`;
+  const capped = Object.keys(c.weeklyCapCents);
+  auto.purchase_needs_a_limit = capped.length ? `forbid(principal, action == Action::"purchase", resource) unless { [${capped.map((id) => `Person::${q(id)}`).join(', ')}].contains(principal) };` : `forbid(principal, action == Action::"purchase", resource);`;
   for (const [id, week] of Object.entries(c.weeklyCapCents)) {
     const per = c.perRequestCapCents[id] ?? week;
-    auto[`cap_${id}`] = `permit(principal == Person::${q(id)}, action == Action::"purchase", resource) when { context.service_known && context.amount_cents <= ${per} && context.week_spent_cents + context.amount_cents <= ${week} };`;
+    auto[`cap_${id}`] = `forbid(principal == Person::${q(id)}, action == Action::"purchase", resource) when { context.amount_cents > ${per} || context.week_spent_cents + context.amount_cents > ${week} };`;
   }
 
   // private orders (S19): who may hear order history, delivery status and the cart. Adults always; others only if a card says so.
   const readers = [...new Set(['adult', ...(c.orderRoles ?? [])])];
-  readers.forEach((r) => (auto[`orders_${r}`] = `permit(principal in Role::${q(r)}, action in [Action::"order_history", Action::"order_status", Action::"cart"], resource) when { context.service_known };`));
+  readers.forEach((r) => (auto[`orders_${r}`] = `permit(principal in Role::${q(r)}, action in [Action::"order_history", Action::"order_status", Action::"cart"], resource);`));
   // a gift is never read aloud or shown to a child, a teen or a guest. A forbid in BOTH sets, and no card can switch it off.
-  auto.gifts_adults = `permit(principal in Role::"adult", action == Action::"order_gift", resource) when { context.service_known };`;
+  auto.gifts_adults = `permit(principal in Role::"adult", action == Action::"order_gift", resource);`;
   both('gifts_private', `forbid(principal, action == Action::"order_gift", resource) unless { principal in Role::"adult" };`);
 
   // locked floor
@@ -96,6 +111,7 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   c.needsApproval.forEach((r, i) => (auto[`needs_approval_${i}`] = `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));
 
   // anything a known person may ask for, but wasn't automatic, can be held for an adult. Unknown action → no permit → deny.
-  approvable.hold_known = `permit(principal, action, resource) when { !(principal in Role::"guest") && [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
+  approvable.hold_known = `permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
+  approvable.guests_are_never_held = `forbid(principal in Role::"guest", action, resource);`;
   return { auto, approvable };
 }

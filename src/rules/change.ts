@@ -5,6 +5,7 @@ import { openChallenge, type Challenge } from '../approvals/challenge.js';
 import { previewChange } from './preview.js';
 import { applyChange, isFloorLoosening, type RuleChange } from './templates.js';
 import type { RulesConfig } from '../policy/rules.js';
+import type { Person } from '../core/types.js';
 import { emit } from '../audit/emit.js';
 import { spentThisWeek } from '../spend/spend.js';
 import { weekKey } from '../core/time.js';
@@ -25,24 +26,34 @@ export interface RuleReply {
 }
 
 // An adult asks for a change (card or voice). Nothing is saved until THAT adult taps the number on their own phone.
-export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleChange; undo?: boolean }): Promise<RuleReply> {
+// Who may edit: a confirmed adult who tapped on their own phone. Anyone else gets a plain no (and the log says so).
+export async function ruleEditor(deps: Deps, hh: string): Promise<{ refuse: RuleReply } | { refuse?: undefined; me: Person; people: Person[]; rules: RulesConfig }> {
+  const now = (deps.now ?? Date.now)();
+  const { people, rules } = await loadHousehold(deps.store, hh);
+  const s = await getSession(deps.store, hh, now);
+  const me = s && people.find((p) => p.id === s.personId);
+  if (!me || me.role === 'guest') {
+    await emit(deps, hh, { kind: 'rule', category: 'rule', person: 'guest', personName: 'Someone', text: (t) => `Someone tried to change a rule at ${t}. No. Nobody was confirmed.`, data: { refused: 'no_session' } });
+    return { refuse: { status: 'denied', say: T.whoAreYou } };
+  }
+  if (me.role !== 'adult') {
+    await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. No. Only adults can.`, data: { refused: 'not_adult' } });
+    return { refuse: { status: 'denied', say: 'Ask an adult to change rules.' } };
+  }
+  if (s!.method !== 'phone') {
+    await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. Needs their phone first.`, data: { refused: 'needs_phone' } });
+    return { refuse: { status: 'denied', say: T.confirmPhone } };
+  }
+  return { me, people, rules };
+}
+
+export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleChange; undo?: boolean }, asPerson?: string): Promise<RuleReply> {
   const now = (deps.now ?? Date.now)();
   try {
-    const { people, rules, meta } = await loadHousehold(deps.store, hh);
-    const s = await getSession(deps.store, hh, now);
-    const me = s && people.find((p) => p.id === s.personId);
-    if (!me || me.role === 'guest') {
-      await emit(deps, hh, { kind: 'rule', category: 'rule', person: 'guest', personName: 'Someone', text: (t) => `Someone tried to change a rule at ${t}. No. Nobody was confirmed.`, data: { refused: 'no_session' } });
-      return { status: 'denied', say: T.whoAreYou };
-    }
-    if (me.role !== 'adult') {
-      await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. No. Only adults can.`, data: { refused: 'not_adult' } });
-      return { status: 'denied', say: 'Ask an adult to change rules.' };
-    }
-    if (s!.method !== 'phone') {
-      await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} tried to change a rule at ${t}. Needs their phone first.`, data: { refused: 'needs_phone' } });
-      return { status: 'denied', say: T.confirmPhone };
-    }
+    const ed = await ruleEditor(deps, hh);
+    if (ed.refuse) return ed.refuse;
+    const { me, people, rules } = ed;
+    if (asPerson && me.id !== asPerson) return { status: 'denied', say: T.whoAreYou }; // a typed rule belongs to the adult who typed it, not to whoever spoke last
 
     let meta2: Record<string, unknown>;
     let sentence: string;
@@ -64,7 +75,6 @@ export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleCh
       preview = previewChange(rules, a.config, people).join(' ');
       meta2 = { change: req.change, baseVersion: rules.version, text: `${a.sentence}${a.warning ? ' ' + a.warning : ''} ${preview}`, stage: isFloorLoosening(req.change!) ? 1 : 'final' };
     }
-    void meta;
     const { challenge, locked } = await openChallenge(deps, hh, me, 'rule', undefined, meta2);
     if (locked || !challenge) return { status: 'locked', say: T.locked };
     return { status: 'waiting', say: T.confirmOnPhone(challenge.number), number: challenge.number, challenge_id: challenge.id, sentence, warning, preview };

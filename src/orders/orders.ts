@@ -3,6 +3,7 @@ import type { Deps } from '../core/request-action.js';
 import { result } from '../core/request-action.js';
 import { hourOf } from '../core/time.js';
 import { decide } from '../policy/evaluator.js';
+import { explainDecision } from '../policy/explain.js';
 import type { RulesConfig } from '../policy/rules.js';
 import type { ActionArgs, ActionResult, Person, SessionMethod } from '../core/types.js';
 import { T } from '../text.js';
@@ -43,10 +44,11 @@ interface Ctx { person: Person; method: SessionMethod; rules: RulesConfig; tz: s
 
 export async function handleOrders(deps: Deps, hh: string, c: Ctx): Promise<ActionResult> {
   const { person, rules, tz, now, args } = c;
-  const base = { person: person.id, person_name: person.name, service: args.service, action: args.action };
   const input = { person: { id: person.id, role: person.role }, action: args.action, service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: 0, weekSpentCents: 0, value: 0, session: c.method, localHour: hourOf(now, tz) };
   // nobody confirmed, a child, a guest, or a teen the card has not opened it to: one short plain answer, nothing else
-  if (decide(rules, input).answer !== 'allow') return result({ outcome: 'denied', reason: T.private, done: false }, tz, now, base);
+  const first = decide(rules, input);
+  const base = { person: person.id, person_name: person.name, service: args.service, action: args.action, rule: first.answer === 'allow' ? explainDecision(first, rules, person.name) : 'Rule: orders are private.' };
+  if (first.answer !== 'allow') return result({ outcome: 'denied', reason: T.private, done: false }, tz, now, base);
 
   const all = await rows(deps.store, hh, args.action === 'cart' ? 'CART#' : 'ORDER#'); // a storage error throws → the caller holds
   const mayHearGifts = decide(rules, { ...input, action: 'order_gift' }).answer === 'allow';

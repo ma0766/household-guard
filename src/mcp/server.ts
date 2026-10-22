@@ -15,6 +15,7 @@ import { householdStatus, voiceSummary, recentOrders } from '../audit/report.js'
 import { readAudit } from '../audit/audit.js';
 import { approvalsHtml, ordersHtml, timelineHtml } from '../audit/views.js';
 import { openApprovals } from '../approvals/approvals.js';
+import { startRuleSentence } from '../rules/sentence.js';
 import { myRules, proposeRule, rulesHtml } from '../rules/change.js';
 import type { RuleChange } from '../rules/templates.js';
 import { ensureSeeded, loadHousehold } from '../core/household.js';
@@ -183,10 +184,15 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
         quiet_to_hour: z.number().optional().describe('Quiet hours end (0-23)'),
         which: z.enum(['childrenNoUnlock', 'guestsNoBuy']).optional(),
         enabled: z.boolean().optional(),
+        sentence: z.string().max(300).optional().describe('A rule in plain words, e.g. Maya can spend 30 dollars a week. It is read back, and saved only after the adult confirms on their own phone.'),
         undo: z.boolean().optional().describe('Undo the newest change (within 24 hours)'),
       },
     },
     async (a) => {
+      if (a.sentence) {
+        const r = await startRuleSentence(deps, hh, a.sentence);
+        return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+      }
       let change: RuleChange | undefined;
       if (a.template === 'weekly_limit') change = { template: 'weekly_limit', person: String(a.person ?? '').toLowerCase(), cents: Math.round(Number(a.dollars) * 100) };
       else if (a.template === 'adults_only') change = { template: 'adults_only', actions: a.actions ?? [] };

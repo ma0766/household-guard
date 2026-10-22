@@ -6,6 +6,7 @@ import type { Store } from './store.js';
 import { getSession, loadHousehold, ensureSeeded } from './household.js';
 import { formatLocal, hourOf } from './time.js';
 import { decide, type DecisionInput } from '../policy/evaluator.js';
+import { explainDecision } from '../policy/explain.js';
 import { KNOWN_ACTIONS, ORDER_ACTIONS } from '../policy/rules.js';
 import { SIM_HOME } from '../connectors/sim-home.js';
 import { handleAppAction, tellAdultsAboutApp } from './app-action.js';
@@ -18,6 +19,7 @@ import type { JobQueue } from '../queue/queue.js';
 import type { RiskChecker } from '../risk/risk.js';
 import { handlePurchase } from './purchase.js';
 import { auditAsk } from '../audit/emit.js';
+import type { RuleParser } from '../rules/sentence.js';
 import { handleOrders } from '../orders/orders.js';
 
 export interface Deps {
@@ -29,6 +31,7 @@ export interface Deps {
   home?: HomeBackend; // a real smart home (Home Assistant); without it the simulated home answers
   hub?: ConnectorHub; // the apps a person has connected (Composio, or the stand-in)
   notifier?: Notifier; // how adults hear about held requests (email)
+  ruleParser?: RuleParser; // turns a typed rule sentence into one known setting (Bedrock, or a stand-in); never used to decide a request
   hooks?: { beforeReserve?: () => Promise<void> }; // tests only: line two requests up at the same instant
 }
 
@@ -70,7 +73,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       localHour: hourOf(now, tz),
     };
     const d = decide(rules, input);
-    const base = { person: person.id, person_name: person.name, service: args.service, action: args.action };
+    const base = { person: person.id, person_name: person.name, service: args.service, action: args.action, rule: explainDecision(d, rules, person.name) };
 
     if (d.answer === 'allow') {
       if (args.action === 'build_site') {

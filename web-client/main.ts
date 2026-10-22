@@ -122,6 +122,7 @@ async function waitJob(id: string) {
     await new Promise((r) => setTimeout(r, 500));
     if (mine !== watch) return;
     const r = await callTool('job_status', { job_id: id });
+    if (mine !== watch) return; // a newer question started while this answer was on its way: its line must not be overwritten
     if (r.status && r.status !== 'waiting') {
       says(r.say, r.done ? 'allowed' : 'held');
       void refresh(true);
@@ -255,6 +256,30 @@ async function ruleCall(args: Record<string, unknown>) {
   $('rule-preview').textContent = r.preview ?? '';
   if (r.status === 'waiting') void waitJob(r.challenge_id);
 }
+// A rule typed in plain words: the house reads it (in the background), says it back, and waits for the adult's own phone.
+async function typedRule(sentence: string) {
+  const text = sentence.trim();
+  if (!text) return says('Type a rule first.', 'held');
+  $('rule-typed').textContent = `You typed: ${text}`;
+  $('rule-readback').textContent = '';
+  const r = await callTool('set_rule', { sentence: text });
+  if (!r.job_id) return says(r.say, 'denied');
+  says('Working on it.', 'held');
+  for (let i = 0; i < 60; i++) {
+    await new Promise((res) => setTimeout(res, 400));
+    const j = await callTool('job_status', { job_id: r.job_id });
+    if (j.status === 'running') continue;
+    if (j.status === 'waiting' && j.challenge_id) {
+      $('rule-readback').textContent = j.readback ?? '';
+      says(j.say, 'held');
+      return void waitJob(j.challenge_id);
+    }
+    return says(j.say, j.question ? 'held' : 'denied'); // an unclear sentence gets a question, and nothing changes
+  }
+  says('That took too long. Try again.', 'denied');
+}
+$('rule-sentence-go').onclick = () => void typedRule(($('rule-sentence') as HTMLInputElement).value);
+$('rule-sentence').addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') void typedRule(($('rule-sentence') as HTMLInputElement).value); });
 $('rule-save-maya').onclick = () => void ruleCall({ template: 'weekly_limit', person: 'maya', dollars: Number(($('rule-maya-limit') as HTMLInputElement).value) });
 $('rule-quiet-on').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: 21, quiet_to_hour: 6 });
 $('rule-quiet-off').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: null });
@@ -388,6 +413,7 @@ function showAlt(a?: { args: Record<string, unknown>; alt: { option_id: string; 
   b.textContent = `Yes, the ${a.alt.label.toLowerCase()} ($${(a.alt.total_cents / 100).toFixed(0)})`;
   b.onclick = async () => {
     altEl.innerHTML = '';
+    watch++; // taking the cheaper ride closes the held one: stop listening to it before its "closed" can be said
     const r = await callTool('request_action', { ...a.args, option_id: a.alt.option_id, replaces: a.approval, request_id: crypto.randomUUID() });
     says(r.say ?? r.reason, r.outcome === 'allowed' && !r.done ? 'held' : r.outcome);
     if (r.next === 'confirm_on_phone' && r.job_id) void waitJob(r.job_id);
@@ -397,6 +423,7 @@ function showAlt(a?: { args: Record<string, unknown>; alt: { option_id: string; 
 
 async function say(text: string) {
   const args = parse(text);
+  if (!args && /\b(spend|limit|rule|quiet hours|hear orders)\b/i.test(text)) { $('rule-sentence').scrollIntoView?.({ block: 'nearest' }); ($('rule-sentence') as HTMLInputElement).value = text; return void typedRule(text); } // a rule said in the question box goes the same way
   if (!args) return says("Sorry, I didn't get that. Try: turn off the lights, or book a ride.", 'held');
   const r = await callTool('request_action', { ...args, request_id: crypto.randomUUID() }); // one id per utterance; a retry of the same call reuses it
   says(r.say ?? r.reason, r.outcome === 'allowed' && !r.done ? 'held' : r.outcome);

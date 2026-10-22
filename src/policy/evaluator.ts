@@ -21,6 +21,7 @@ export interface PolicyDecision {
   answer: Answer;
   determining: string[]; // policy ids that decided it
   stage: 'auto' | 'approvable' | 'none';
+  blockedBy: string[]; // the forbid rules that stopped "do it" (and sent the ask to an adult, or to no)
 }
 
 const uid = (type: string, id: string) => ({ type, id });
@@ -46,12 +47,16 @@ function ask(policies: Record<string, string>, i: DecisionInput) {
 }
 
 export function decide(config: RulesConfig, i: DecisionInput): PolicyDecision {
-  const sets = generatePolicies(config);
+  return decideWith(generatePolicies(config), i);
+}
+
+// The same three answers from ready-made rule sets (tests use this to show that a stray extra permit cannot loosen a forbid).
+export function decideWith(sets: { auto: Record<string, string>; approvable: Record<string, string> }, i: DecisionInput): PolicyDecision {
   const a = ask(sets.auto, i);
-  if (a.allowed) return { answer: 'allow', determining: a.ids, stage: 'auto' };
+  if (a.allowed) return { answer: 'allow', determining: a.ids, stage: 'auto', blockedBy: [] };
   const b = ask(sets.approvable, i);
-  if (b.allowed) return { answer: 'hold', determining: b.ids, stage: 'approvable' };
-  return { answer: 'deny', determining: b.ids, stage: b.ids.length ? 'approvable' : 'none' };
+  if (b.allowed) return { answer: 'hold', determining: b.ids, stage: 'approvable', blockedBy: a.ids };
+  return { answer: 'deny', determining: b.ids, stage: b.ids.length ? 'approvable' : 'none', blockedBy: [...new Set([...a.ids, ...b.ids])] };
 }
 
 // Checked before any rule set goes live: bad rules never get saved.

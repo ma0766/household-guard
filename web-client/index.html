@@ -80,6 +80,13 @@
         <button id="rule-orders-adults" class="secondary" data-testid="rule-orders-adults">Only adults hear orders</button>
         <button id="rule-undo" data-testid="rule-undo" class="secondary">Undo last change</button>
       </div>
+      <div class="row">
+        <label for="rule-sentence">Type a rule</label>
+        <input id="rule-sentence" data-testid="rule-sentence" placeholder="Maya can spend 30 dollars a week" maxlength="300" style="flex:1 1 100%" />
+        <button id="rule-sentence-go" data-testid="rule-sentence-go">Add rule</button>
+      </div>
+      <p id="rule-typed" data-testid="rule-typed" class="hint" style="min-height:1.4em"></p>
+      <p id="rule-readback" data-testid="rule-readback" class="hint" aria-live="polite" style="min-height:1.4em"></p>
       <p id="rule-preview" data-testid="rule-preview" class="hint" aria-live="polite"></p>
       <iframe id="rules-frame" srcdoc='<!doctype html><html lang="en"><title>House rules</title><p style="font:16px system-ui">Nothing to show yet.</p>' data-testid="rules-frame" sandbox="" title="House rules" style="width:100%;height:300px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
     </section>

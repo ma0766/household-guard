@@ -1,3 +1,4 @@
+import { explainDecision } from '../policy/explain.js';
 import { randomUUID } from 'node:crypto';
 import type { Deps } from './request-action.js';
 import { result } from './request-action.js';
@@ -65,7 +66,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
   const week = weekKey(now, tz);
   const spent = await spentThisWeek(deps.store, hh, week, person.id);
   const d = decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
-  const extra = { ...base, amount_cents: amount, option_id: optionId };
+  const extra = { ...base, amount_cents: amount, option_id: optionId, rule: explainDecision(d, rules, person.name) };
 
   if (d.answer === 'deny') {
     const reason = d.determining.includes('quiet_hours') && rules.quietHours ? T.quietHours(rules.quietHours.fromHour, rules.quietHours.toHour) : d.determining.includes('floor_guests_no_buy') ? T.guestNoBuy : person.role === 'guest' ? T.whoAreYou : T.cantDo;
@@ -113,7 +114,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
     const reason = heldReason(rules, person, amount, spentNow);
     const alt = owed ? undefined : bestValue(rules, person, method, args.service, rideOptions, amount, spentNow, now, tz);
     const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason });
-    const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, why: 'cap_race', approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
+    const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, rule: "Rule: the limit ran out first.", why: 'cap_race', approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
     out.say = [reason, alt ? `${T.altOffer(alt.label.toLowerCase(), alt.total_cents)} ${T.wantThat}` : '', T.adultCanTap(a.number)].filter(Boolean).join(' ');
     return out;
   }
