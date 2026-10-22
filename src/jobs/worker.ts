@@ -98,7 +98,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       const q = await quoteRide(deps.store, hh, j.item);
       const opt = q?.options.find((o) => o.id === (j.optionId ?? 'standard'));
       if (q && opt) service = { destination: q.destination, itemKey: `${q.destination}/${opt.id}`, amount: opt.total_cents, optionId: opt.id, opt, note: q.note };
-    } else if (j.service === MOCK_SHOP) {
+    } else if (j.service === MOCK_SHOP || j.service === 'robot-vacuum') {
       const q = quoteItem(j.item);
       if (q) service = { itemKey: q.item, amount: q.total_cents, payee: q.payee };
     }

@@ -11,11 +11,17 @@ import { KNOWN_ACTIONS, ORDER_ACTIONS, type RulesConfig } from '../policy/rules.
 import { SIM_HOME } from '../connectors/sim-home.js';
 import { handleAppAction, tellAdultsAboutApp } from './app-action.js';
 import { serviceKnownFor } from '../policy/kinds.js';
+import { kindOf } from '../policy/kinds.js';
+import { deviceByWords } from '../devices/catalog.js';
+import { runVacuum, VACUUM } from '../devices/vacuum.js';
+import { deviceKey } from '../devices/vault.js';
+import { checkDevices } from '../devices/health.js';
+import { proposeRule } from '../rules/change.js';
 import { tierOf } from './tiers.js';
 import { executeAction } from './execute.js';
 import { openChallenge } from '../approvals/challenge.js';
 import { T } from '../text.js';
-import type { ActionArgs, ActionResult, Outcome } from './types.js';
+import type { ActionArgs, ActionResult, Outcome, Person } from './types.js';
 import type { JobQueue } from '../queue/queue.js';
 import type { RiskChecker } from '../risk/risk.js';
 import { handlePurchase } from './purchase.js';
@@ -86,6 +92,8 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
 
     if (d.answer === 'allow') {
       if (args.action === 'timer' && !(Number.isInteger(value) && value >= 1 && value <= 1440)) return result({ outcome: 'denied', reason: T.howLong, done: false }, tz, now, base);
+      if (args.action === 'connect_device') return await handleConnectDevice(deps, hh, { person, rules, tz, now, args, base });
+      if (args.service === VACUUM && args.action === 'vacuum') return await handleVacuum(deps, hh, { tz, now, args, base });
       if (args.action === 'build_site') {
         // a long job: nothing is built until THIS person taps her own phone; then it is queued and the work happens in the worker
         const { challenge, locked } = await openChallenge(deps, hh, person, 'action', args, { site: { item: args.item } });
@@ -112,8 +120,8 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       const reason = !input.serviceKnown ? T.newService : (args.action === 'unlock' || args.action === 'garage') && method === 'pin' ? T.confirmPhone : args.action === 'thermostat' ? T.bigChange : T.needsAdult;
       return result({ outcome: 'held', reason, done: false }, tz, now, base);
     }
-    const known = (KNOWN_ACTIONS as readonly string[]).includes(args.action);
-    const reason = !known ? T.cantDo : d.determining.some((x) => x === 'everyday_needs_a_person') ? T.everydayOff : d.determining.some((x) => x === 'floor_guests_no_buy') ? T.guestNoBuy : isGuest ? T.whoAreYou : d.determining.some((x) => x.startsWith('adults_only_') || x === 'floor_children_no_unlock') ? T.onlyAdults : T.cantDo;
+    const known = !!kindOf(args.action) || (KNOWN_ACTIONS as readonly string[]).includes(args.action);
+    const reason = !known ? T.cantDo : d.determining.some((x) => x === 'everyday_needs_a_person') ? T.everydayOff : args.action === 'camera' && person.role === 'adult' && !rules.cameraOn ? T.cameraOff : args.action === 'connect_device' && !isGuest ? T.onlyAdults : d.determining.some((x) => x === 'floor_guests_no_buy') ? T.guestNoBuy : isGuest ? T.whoAreYou : d.determining.some((x) => x.startsWith('adults_only_') || x === 'floor_children_no_unlock') ? T.onlyAdults : T.cantDo;
     return result({ outcome: 'denied', reason, done: false }, tz, now, base);
   } catch {
     return result({ outcome: 'held', reason: T.oops, done: false }, tz, now);
@@ -145,4 +153,26 @@ async function handleWhy(deps: Deps, hh: string, personId: string, tz: string, n
   const last = await deps.store.get(Store.hk(hh), `LASTASK#${personId}`);
   const rule = typeof last?.rule === 'string' ? last.rule : '';
   return result({ outcome: 'allowed', reason: rule ? T.why(rule) : T.noWhy, done: true }, tz, now, { person: personId, rule });
+}
+
+// "Connect my new robot vacuum": the reply is quick (no key, no network). It starts a card on the adult's own phone, where the key is typed.
+// Only an adult with a phone confirmation gets here (the rules said so); the device's kinds come from its own declaration.
+async function handleConnectDevice(deps: Deps, hh: string, c: { person: Person; rules: RulesConfig; tz: string; now: number; args: ActionArgs; base: Record<string, unknown> }): Promise<ActionResult> {
+  const { person, rules, tz, now, args, base } = c;
+  const dev = deviceByWords(String(args.item ?? ''));
+  if (!dev) return result({ outcome: 'denied', reason: T.noDevice, done: false }, tz, now, base);
+  if (rules.serviceKinds?.[dev.service]) return result({ outcome: 'denied', reason: T.deviceAlready, done: false }, tz, now, base);
+  const r = await proposeRule(deps, hh, { change: { template: 'declare_service', service: dev.service } }, person.id, { needsKey: true });
+  if (r.status !== 'waiting') return result({ outcome: 'held', reason: r.say, done: false }, tz, now, base);
+  return result({ outcome: 'allowed', reason: `${T.addOnPhone} ${r.say}`, done: false }, tz, now, { ...base, next: 'finish_on_phone', number: r.number, job_id: r.challenge_id, tier: 'high' });
+}
+
+async function handleVacuum(deps: Deps, hh: string, c: { tz: string; now: number; args: ActionArgs; base: Record<string, unknown> }): Promise<ActionResult> {
+  const { tz, now, args, base } = c;
+  if (!(await deviceKey(deps.store, hh, VACUUM))) return result({ outcome: 'held', reason: T.notReady, done: false }, tz, now, base);
+  const what = String(args.value ?? 'start') === 'stop' ? 'stop' : 'start';
+  const r = await runVacuum(deps.store, hh, what); // a failure throws, and the caller holds
+  await checkDevices(deps, hh); // the device's own status: stuck or error tells the adults
+  if (!r.ok) return result({ outcome: 'held', reason: r.status === 'stuck' ? T.vacuumStuck : T.vacuumError, done: false }, tz, now, base);
+  return result({ outcome: 'allowed', reason: what === 'start' ? T.vacuumStarted : T.vacuumStopped, done: true }, tz, now, base);
 }

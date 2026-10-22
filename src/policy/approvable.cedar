@@ -14,7 +14,7 @@ forbid(principal in Role::"guest", action == Action::"purchase", resource);
 forbid(principal in Role::"child", action == Action::"unlock", resource);
 
 @id("hold_known")
-permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };
+permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"vacuum", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };
 
 @id("guests_are_never_held")
 forbid(principal in Role::"guest", action, resource);

@@ -29,7 +29,7 @@ export async function emit(deps: Deps, hh: string, e: { kind: string; category: 
 }
 
 // words from a caller are never copied into a sentence as they are
-const KNOWN = ['light', 'thermostat', 'music', 'weather', 'timer', 'unlock', 'garage', 'purchase'];
+const KNOWN = ['light', 'thermostat', 'music', 'weather', 'timer', 'unlock', 'garage', 'purchase', 'vacuum', 'camera'];
 const safeWord = (v: unknown, max = 12) => String(v ?? '').toLowerCase().replace(/[^a-z0-9 ]/g, '').slice(0, max).trim();
 
 function what(a: ActionArgs): string {
@@ -44,6 +44,11 @@ function what(a: ActionArgs): string {
     case 'music': return 'play music';
     case 'weather': return 'ask about the weather';
     case 'timer': return 'set a timer';
+    case 'vacuum': return 'run the vacuum';
+    case 'camera': return 'look at the hallway camera';
+    case 'connect_device': return 'add a device';
+    case 'start_project': return 'start a project';
+    case 'publish_project': return 'publish a project';
     case 'thermostat': return `set the heat to ${safeWord(a.value, 3) || 'something'}`;
     default: return KNOWN.includes(a.action) ? a.action : 'do something I do not know';
   }

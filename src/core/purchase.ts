@@ -58,7 +58,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
     optionId = opt.id;
     itemKey = `${q.destination}/${opt.id}`;
     rideOptions = q.options;
-  } else if (args.service === MOCK_SHOP) {
+  } else if (args.service === MOCK_SHOP || args.service === 'robot-vacuum') {
     const q = quoteItem(args.item);
     if (!q) return result({ outcome: 'denied', reason: T.cantFind, done: false }, tz, now, base);
     amount = q.total_cents;

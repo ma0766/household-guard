@@ -2,10 +2,12 @@ import { randomInt, randomUUID } from 'node:crypto';
 import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
 import type { ActionArgs } from '../core/types.js';
+import { T } from '../text.js';
 import { executeAction } from '../core/execute.js';
 import { beginAttempt, clearWrong, failAttempt, recordPush, isLocked } from '../identity/guard.js';
 import { setSession } from '../core/household.js';
 import { categoryOf, doneHome, emit } from '../audit/emit.js';
+import { storeDeviceKey, removeDeviceKey } from '../devices/vault.js';
 import { completeRule } from '../rules/change.js';
 import { openTapWindow } from '../identity/tapwindow.js';
 
@@ -59,7 +61,7 @@ export async function openChallengesFor(deps: Deps, hh: string, personId: string
 export type TapResult = { status: 'confirmed' | 'wrong' | 'locked' | 'expired' | 'not_yours' | 'unknown'; say: string; result?: Challenge['result'] };
 
 // The person taps a number on THEIR OWN phone. Wrong person, wrong number, or too late → nothing happens.
-export async function tapNumber(deps: Deps, hh: string, personId: string, name: string, challengeId: string, number: number): Promise<TapResult> {
+export async function tapNumber(deps: Deps, hh: string, personId: string, name: string, challengeId: string, number: number, secret?: string): Promise<TapResult> {
   const now = (deps.now ?? Date.now)();
   const c = await getChallenge(deps, hh, challengeId);
   if (!c) return { status: 'unknown', say: "I can't find that." };
@@ -68,6 +70,7 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
     return { status: 'not_yours', say: 'That is not for you.' };
   }
   if (c.status !== 'open' || c.expiresAt <= now) return { status: 'expired', say: 'That one ran out of time.' };
+  if (c.kind === 'rule' && c.meta?.needsKey && !(typeof secret === 'string' && secret.length >= 4 && secret.length <= 120)) return { status: 'wrong', say: T.keyFirst }; // no number is counted until the key is typed
   if (await isLocked(deps.store, hh, personId, now)) return { status: 'locked', say: 'Too many tries. Wait 10 minutes.' };
   if ((await beginAttempt(deps.store, hh, personId, now)) === 'locked') return { status: 'locked', say: 'Too many tries. Wait 10 minutes.' };
   if (number !== c.number) {
@@ -89,9 +92,12 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
     await emit(deps, hh, { kind: 'who', category: 'who', person: personId, personName: name, text: (t) => `${name} confirmed on their phone at ${t}.` });
   } else if (c.kind === 'rule') {
     try {
-      const { private: secret, ...r } = await completeRule(deps, hh, personId, c);
+      const svc = (c.meta?.change as { service?: string } | undefined)?.service;
+      if (c.meta?.needsKey && svc) await storeDeviceKey(deps.store, hh, svc, secret!, personId); // encrypted; the key is in no log, no answer, no record but this one
+      const { private: priv, ...r } = await completeRule(deps, hh, personId, c);
+      if (c.meta?.needsKey && svc && !r.done) await removeDeviceKey(deps.store, hh, svc);
       result = r;
-      privateLine = secret;
+      privateLine = priv;
     } catch {
       result = { done: false, reason: 'Something went wrong. Ask an adult.' };
     }

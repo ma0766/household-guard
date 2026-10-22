@@ -15,6 +15,7 @@ export interface RulesConfig {
   quietHours?: { fromHour: number; toHour: number }; // no buying for non-adults, in the house's own time zone (S10)
   serviceKinds?: Record<string, Kind[]>; // what each added service or device says it offers (the shipped ones are in kinds.ts)
   kindRules?: { role: Role; kind: Kind; effect: 'deny' | 'needs_approval' }[]; // a rule aimed at a whole kind of action
+  cameraOn?: boolean; // the hallway camera: off until an adult says yes
   guestEveryday?: boolean; // "Everyday things for anyone at home" (default on). Off = anyone not confirmed (PIN or phone tap) can do nothing.
   guests?: NamedGuest[]; // named guests: a PIN of their own, their own allowed list, an end date
   noTapBuyCents?: Record<string, number>; // per person: small buys up to this amount skip the phone tap (off by default)
@@ -70,7 +71,7 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // Forbids in `auto` only push an ask from "do it" to "hold for an adult"; forbids in `both` mean no.
 
   // an app or service the house has not allowed: hold for an adult. (The site builder is the house's own tool: no allowed-app list applies.)
-  auto.service_unknown = `forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" };`;
+  auto.service_unknown = `forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" && action != Action::"connect_device" };`;
 
   // low risk: anyone, known service
   for (const a of EVERYDAY_ACTIONS) auto[a] = `permit(principal, action == Action::${q(a)}, resource);`;
@@ -79,6 +80,19 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // a connected app (S13): anyone signed in may use an app the house has allowed; guests never
   auto.use_app = `permit(principal, action == Action::"use_app", resource);`;
   auto.use_app_not_guests = `forbid(principal in Role::"guest", action == Action::"use_app", resource);`;
+
+  // a device that was added (a robot vacuum): anyone may control it (its kinds come from its own declaration, checked above)
+  auto.vacuum = `permit(principal, action == Action::"vacuum", resource);`;
+
+  // adding a device: an adult, with her own phone. Everyone else is refused.
+  auto.connect_device = `permit(principal in Role::"adult", action == Action::"connect_device", resource);`;
+  auto.connect_device_needs_phone = `forbid(principal, action == Action::"connect_device", resource) when { context.session != "phone" };`;
+
+  // the hallway camera: access. Off until an adult says yes; then adults only, with a tap.
+  if (c.cameraOn) {
+    auto.camera = `permit(principal in Role::"adult", action == Action::"camera", resource);`;
+    auto.camera_needs_phone = `forbid(principal, action == Action::"camera", resource) when { context.session != "phone" };`;
+  }
 
   // building and publishing a site: an adult with her own phone tap. Everyone else is held for an adult.
   auto.build_site = `permit(principal in Role::"adult", action == Action::"build_site", resource);`;
@@ -146,7 +160,7 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   c.needsApproval.forEach((r, i) => (auto[`needs_approval_${i}`] = `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));
 
   // anything a known person may ask for, but wasn't automatic, can be held for an adult. Unknown action → no permit → deny.
-  approvable.hold_known = `permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
+  approvable.hold_known = `permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"vacuum", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
   approvable.guests_are_never_held = `forbid(principal in Role::"guest", action, resource);`;
   return { auto, approvable };
 }

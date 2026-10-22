@@ -5,6 +5,7 @@ import { beginAttempt, clearWrong, failAttempt, isLocked } from './guard.js';
 import { verifyPin } from './pin.js';
 import { T } from '../text.js';
 import { Store } from '../core/store.js';
+import { openSuggestions } from '../devices/suggest.js';
 import { openApprovals } from '../approvals/approvals.js';
 import { money } from '../text.js';
 
@@ -55,12 +56,13 @@ export async function phoneInbox(deps: Deps, hh: string, personId: string, opts:
   const open = await openChallengesFor(deps, hh, personId);
   const challenges = open.map((c) => {
     const text = c.kind === 'login' ? 'Is this you? Tap the number Alexa said.' : c.kind === 'rule' ? `${me?.name ?? 'Someone'} wants to change a rule. ${(c.meta as any)?.text ?? ''} Tap the number Alexa said.` : `${me?.name ?? 'Someone'} asked: ${describe(c.args)}. Tap the number Alexa said.`;
-    return { id: c.id, kind: c.kind, text, options: c.options };
+    return { id: c.id, kind: c.kind, text, options: c.options, ...((c.meta as any)?.needsKey ? { needs_key: true } : {}) };
   });
   const notices = me?.role === 'adult' ? (await deps.store.query(Store.hk(hh), 'NOTICE#', { reverse: true, limit: 5 })).filter((n) => now - n.at < 3600_000).map((n) => ({ text: n.text as string, at: n.at as number })) : [];
   // an adult's phone also shows held requests: who, what, how much, why — plus the number Alexa said (among 3)
   const approvals = me?.role === 'adult' && (me.hasPhone || opts.link) ? (await openApprovals(deps, hh)).map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, amount: money(a.amountCents), why: a.reason, rule: a.rule ? T.why(a.rule) : undefined, options: a.options, text: `${a.personName} wants: ${a.itemText ?? a.itemKey}. ${money(a.amountCents)}. ${a.reason}` })) : [];
-  return { person: personId, has_phone: !!me?.hasPhone, challenges, notices, approvals };
+  const suggestions = me?.role === 'adult' && me.hasPhone ? await openSuggestions(deps, hh) : [];
+  return { person: personId, has_phone: !!me?.hasPhone, challenges, notices, approvals, suggestions };
 }
 
 function describe(a?: { action: string; item?: string; value?: string | number }): string {
@@ -70,9 +72,9 @@ function describe(a?: { action: string; item?: string; value?: string | number }
   return `${a.action} ${a.item ?? ''}`.trim();
 }
 
-export async function phoneConfirm(deps: Deps, hh: string, personId: string, body: { challenge_id: string; number: number }) {
+export async function phoneConfirm(deps: Deps, hh: string, personId: string, body: { challenge_id: string; number: number; key?: string }) {
   const { people } = await loadHousehold(deps.store, hh);
   const me = people.find((p) => p.id === personId);
   if (!me || !me.hasPhone) return { status: 'not_yours' as const, say: 'That is not for you.' };
-  return tapNumber(deps, hh, personId, me.name, body.challenge_id, Number(body.number));
+  return tapNumber(deps, hh, personId, me.name, body.challenge_id, Number(body.number), typeof body.key === 'string' ? body.key : undefined);
 }

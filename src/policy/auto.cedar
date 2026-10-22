@@ -1,5 +1,5 @@
 @id("service_unknown")
-forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" };
+forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" && action != Action::"connect_device" };
 
 @id("light")
 permit(principal, action == Action::"light", resource);
@@ -24,6 +24,15 @@ permit(principal, action == Action::"use_app", resource);
 
 @id("use_app_not_guests")
 forbid(principal in Role::"guest", action == Action::"use_app", resource);
+
+@id("vacuum")
+permit(principal, action == Action::"vacuum", resource);
+
+@id("connect_device")
+permit(principal in Role::"adult", action == Action::"connect_device", resource);
+
+@id("connect_device_needs_phone")
+forbid(principal, action == Action::"connect_device", resource) when { context.session != "phone" };
 
 @id("build_site")
 permit(principal in Role::"adult", action == Action::"build_site", resource);

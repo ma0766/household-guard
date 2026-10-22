@@ -1,4 +1,5 @@
 import type { Person } from '../core/types.js';
+import { deviceByService } from '../devices/catalog.js';
 import { KINDS, KIND_WORDS, type Kind } from '../policy/kinds.js';
 import { EVERYDAY_ACTIONS, KNOWN_ACTIONS, type RulesConfig } from '../policy/rules.js';
 import { validateRules } from '../policy/evaluator.js';
@@ -14,6 +15,8 @@ export type RuleChange =
   | { template: 'private_orders'; roles: ('teen' | 'child')[] }
   | { template: 'quiet_hours'; fromHour: number | null; toHour?: number }
   | { template: 'kind_rule'; role: 'teen' | 'child' | 'guest'; kind: Kind; effect: 'deny' | 'needs_approval' | null } // aim a rule at a whole kind of action; null removes it
+  | { template: 'declare_service'; service: string } // add a device: its kinds come from its own declaration (src/devices/catalog.ts)
+  | { template: 'camera'; enabled: boolean }
   | { template: 'guest_switch'; enabled: boolean }
   | { template: 'add_guest'; name: string; allowed: string[]; until: string } // until = a date, YYYY-MM-DD, in the house's own zone (end of that day)
   | { template: 'end_guest'; id: string }
@@ -99,6 +102,20 @@ export function applyChange(before: RulesConfig, change: RuleChange, people: Per
       const words = KIND_WORDS[change.kind];
       sentence = change.effect === 'deny' ? `No ${words} for ${who[change.role]}.` : change.effect === 'needs_approval' ? `${who[change.role][0].toUpperCase()}${who[change.role].slice(1)} need an adult's yes for ${words}.` : `No special rule for ${who[change.role]} and ${words}.`;
       if (!change.effect && (before.kindRules ?? []).some((r) => r.role === change.role && r.kind === change.kind)) warning = `This lets ${who[change.role]} use ${words} again.`;
+      break;
+    }
+    case 'declare_service': {
+      const d = deviceByService(String(change.service));
+      if (!d) return { ok: false, error: "I don't know that device." };
+      next.allowedServices = [...new Set([...before.allowedServices, d.service])].sort();
+      next.serviceKinds = { ...(before.serviceKinds ?? {}), [d.service]: [...d.kinds] };
+      sentence = `${d.name[0].toUpperCase()}${d.name.slice(1)} is added.`;
+      break;
+    }
+    case 'camera': {
+      next.cameraOn = !!change.enabled;
+      sentence = change.enabled ? 'The hallway camera is on.' : 'The hallway camera is off.';
+      if (change.enabled) warning = 'This lets adults look at the hallway camera.';
       break;
     }
     case 'guest_switch': {

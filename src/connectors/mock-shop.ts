@@ -3,13 +3,13 @@ import { Store } from '../core/store.js';
 
 // Mock shop: one place to buy things that are risky in a way the rules alone cannot see (gift cards).
 export const MOCK_SHOP = 'mock-shop';
-const CATALOG: Record<string, number> = { 'gift card': 1500, headphones: 1200, book: 900, voucher: 1500, crypto: 10000, 'wire transfer': 20000, 'send money': 5000 };
+const CATALOG: Record<string, number> = { 'gift card': 1500, headphones: 1200, book: 900, voucher: 1500, 'vacuum bag': 1200, crypto: 10000, 'wire transfer': 20000, 'send money': 5000 };
 const MAX_CENTS = 100_000; // $1,000: nothing in this demo shop costs more
 
 // "a $200 gift card", "wire transfer of $500", "send $50 to Dana": the amount and the payee are read from the words, then checked.
 // The words never decide a rule: the price and the kind of thing come back, and the rules (and the scam guard) judge them.
 export function quoteItem(item: string | undefined): { item: string; total_cents: number; payee?: string } | undefined {
-  const t = (item ?? '').toLowerCase().replace(/[-_]/g, ' ');
+  const t = (item ?? '').toLowerCase().replace(/[-_]/g, ' ').replace(/\bbags?\b/, 'vacuum bag').replace(/vacuum vacuum/, 'vacuum');
   const key = Object.keys(CATALOG).find((k) => t.includes(k)) ?? (/\b(bitcoin|ethereum|btc)\b/.test(t) ? 'crypto' : /\bwire\b/.test(t) ? 'wire transfer' : /\b(send|pay)\b.*\bto\b/.test(t) ? 'send money' : undefined);
   if (!key) return undefined;
   const m = t.match(/\$\s*(\d{1,4})(?:\.(\d{2}))?/);
