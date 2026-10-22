@@ -1,6 +1,6 @@
 import { Store } from '../core/store.js';
 import type { Deps } from '../core/request-action.js';
-import { result } from '../core/request-action.js';
+import { result, decideTraced } from '../core/request-action.js';
 import { hourOf } from '../core/time.js';
 import { decide } from '../policy/evaluator.js';
 import { explainDecision } from '../policy/explain.js';
@@ -46,9 +46,27 @@ export async function handleOrders(deps: Deps, hh: string, c: Ctx): Promise<Acti
   const { person, rules, tz, now, args } = c;
   const input = { person: { id: person.id, role: person.role }, action: args.action, service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: 0, weekSpentCents: 0, value: 0, session: c.method, localHour: hourOf(now, tz) };
   // nobody confirmed, a child, a guest, or a teen the card has not opened it to: one short plain answer, nothing else
-  const first = decide(rules, input);
+  const first = decideTraced(deps, rules, input);
   const base = { person: person.id, person_name: person.name, service: args.service, action: args.action, rule: first.answer === 'allow' ? explainDecision(first, rules, person.name) : 'Rule: orders are private.' };
-  if (first.answer !== 'allow') return result({ outcome: 'denied', reason: T.private, done: false }, tz, now, base);
+  if (first.answer !== 'allow') return result({ outcome: 'denied', reason: args.action === 'mark_gift' ? T.onlyAdults : T.private, done: false }, tz, now, base);
+
+  // an adult marks an order as a gift: from then on it is never spoken or shown to a child, a teen or a guest (a forbid no card can remove)
+  if (args.action === 'mark_gift') {
+    const needle = String(args.item ?? '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().slice(0, 40);
+    const rawFor = String(args.value ?? '').replace(/[^A-Za-z ]/g, '').trim().slice(0, 20);
+    const forWho = rawFor ? rawFor[0].toUpperCase() + rawFor.slice(1).toLowerCase() : '';
+    if (needle.length < 3) return result({ outcome: 'denied', reason: T.noGiftFound, done: false }, tz, now, base);
+    let marked = 0;
+    for (const prefix of ['ORDER#', 'CART#'] as const) {
+      for (const r of await rows(deps.store, hh, prefix)) {
+        if (!r.item.toLowerCase().includes(needle)) continue;
+        await deps.store.update({ Key: { pk: Store.hk(hh), sk: `${prefix}${r.id}` }, UpdateExpression: forWho ? 'SET gift = :t, giftFor = :f' : 'SET gift = :t', ExpressionAttributeValues: forWho ? { ':t': true, ':f': forWho } : { ':t': true } });
+        marked++;
+      }
+    }
+    if (!marked) return result({ outcome: 'denied', reason: T.noGiftFound, done: false }, tz, now, base);
+    return result({ outcome: 'allowed', reason: T.giftMarked, done: true }, tz, now, base);
+  }
 
   const all = await rows(deps.store, hh, args.action === 'cart' ? 'CART#' : 'ORDER#'); // a storage error throws → the caller holds
   const mayHearGifts = decide(rules, { ...input, action: 'order_gift' }).answer === 'allow';

@@ -1,6 +1,7 @@
 import type { ActionArgs } from './types.js';
 
-// Risk tiers: low = just do it. medium = confirm on your own phone. high = confirm + (for kids) an adult.
+// Risk tiers: low = just do it (lights, music, weather, timers, the heat in range, the garage for adults and teens: no tap).
+// medium = confirm on your own phone (any purchase). high = your own phone tap, always (unlocking, changing a rule).
 export type Tier = 'low' | 'medium' | 'high';
 
 export function tierOf(args: ActionArgs, overCap = false): Tier {
@@ -9,8 +10,6 @@ export function tierOf(args: ActionArgs, overCap = false): Tier {
     case 'build_site':
     case 'set_rule':
       return 'high';
-    case 'garage':
-      return 'medium';
     case 'purchase':
       return overCap ? 'high' : 'medium';
     default:

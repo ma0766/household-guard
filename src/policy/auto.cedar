@@ -7,6 +7,15 @@ permit(principal, action == Action::"light", resource);
 @id("thermostat")
 permit(principal, action == Action::"thermostat", resource);
 
+@id("music")
+permit(principal, action == Action::"music", resource);
+
+@id("weather")
+permit(principal, action == Action::"weather", resource);
+
+@id("timer")
+permit(principal, action == Action::"timer", resource);
+
 @id("thermostat_range")
 forbid(principal, action == Action::"thermostat", resource) when { context.value < 60 || context.value > 78 };
 
@@ -31,14 +40,11 @@ permit(principal in Role::"adult", action == Action::"unlock", resource);
 @id("unlock_needs_phone")
 forbid(principal, action == Action::"unlock", resource) when { context.session != "phone" };
 
-@id("adults_only_garage")
-forbid(principal, action == Action::"garage", resource) unless { principal in Role::"adult" };
+@id("garage_open")
+permit(principal, action == Action::"garage", resource) when { principal in Role::"adult" || principal in Role::"teen" };
 
-@id("adult_garage")
-permit(principal in Role::"adult", action == Action::"garage", resource);
-
-@id("garage_needs_phone")
-forbid(principal, action == Action::"garage", resource) when { context.session != "phone" };
+@id("garage_not_for_kids")
+forbid(principal, action == Action::"garage", resource) when { principal in Role::"child" || principal in Role::"guest" };
 
 @id("purchase")
 permit(principal, action == Action::"purchase", resource);
@@ -51,6 +57,9 @@ forbid(principal == Person::"mom", action == Action::"purchase", resource) when 
 
 @id("cap_maya")
 forbid(principal == Person::"maya", action == Action::"purchase", resource) when { context.amount_cents > 2000 || context.week_spent_cents + context.amount_cents > 2000 };
+
+@id("gift_mark")
+permit(principal in Role::"adult", action == Action::"mark_gift", resource);
 
 @id("orders_adult")
 permit(principal in Role::"adult", action in [Action::"order_history", Action::"order_status", Action::"cart"], resource);

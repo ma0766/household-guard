@@ -85,6 +85,7 @@ describe('S14 the same rules, a real home', () => {
     const ctx = await house();
     await speakAs(ctx.store, ctx.hh, 'maya');
     expect((await requestAction(ctx.deps, ctx.hh, home('unlock', 'front door'))).outcome).toBe('denied');
+    await speakAs(ctx.store, ctx.hh, 'leo', 'pin'); // levelup: teens may open the garage now; children never
     expect((await requestAction(ctx.deps, ctx.hh, home('garage', 'garage'))).outcome).toBe('denied');
     expect(calls).toHaveLength(0);
   });

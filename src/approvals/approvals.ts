@@ -39,6 +39,7 @@ export interface Approval {
   amountCents: number;
   hash: string;
   reason: string;
+  rule?: string; // which rule held it, in plain words ("Rule: Maya's $20 a week."): the card's Why? answer
   number: number; // Alexa says it; the adult's phone must tap it
   options: number[];
   status: 'open' | 'approved' | 'rejected' | 'expired' | 'superseded' | 'done';
@@ -55,7 +56,7 @@ async function supersedeDuplicates(deps: Deps, hh: string, personId: string, ser
   for (const o of await openApprovals(deps, hh)) if (o.personId === personId && o.service === service && o.itemKey === itemKey) await supersede(deps, hh, o.id);
 }
 
-export async function createApproval(deps: Deps, hh: string, a: { personId: string; personName: string; service: string; itemText?: string; itemKey: string; optionId?: string; amountCents: number; reason: string }): Promise<Approval> {
+export async function createApproval(deps: Deps, hh: string, a: { personId: string; personName: string; service: string; itemText?: string; itemKey: string; optionId?: string; amountCents: number; reason: string; rule?: string }): Promise<Approval> {
   const now = (deps.now ?? Date.now)();
   await supersedeDuplicates(deps, hh, a.personId, a.service, a.itemKey);
   const number = randomInt(10, 100);

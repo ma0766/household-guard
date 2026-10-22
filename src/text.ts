@@ -12,11 +12,20 @@ export const T = {
     switch (action) {
       case 'light': return `Done. The ${item || 'lights'} ${/s$/.test(item || 'lights') ? 'are' : 'is'} ${value ?? 'changed'}.`;
       case 'unlock': return `Done. The ${item || 'door'} is unlocked.`;
-      case 'garage': return 'Done. The garage is open.';
+      case 'garage': return 'Heads up. The garage is opening.';
+      case 'music': return `Done. Playing ${item || 'music'}.`;
+      case 'weather': return 'It is 72 degrees and sunny.';
+      case 'timer': return `Done. Timer set for ${value} ${Number(value) === 1 ? 'minute' : 'minutes'}.`;
       case 'thermostat': return `Done. It is set to ${value} degrees.`;
       default: return 'Done.';
     }
   },
+  howLong: 'For how long?',
+  everydayOff: 'Tell me who you are first. Say your PIN or tap your phone.',
+  why: (rule: unknown) => `Because of this rule: ${String(rule).replace(/^Rule: /, '').replace(/\.$/, '')}.`,
+  noWhy: 'I have not said no or yes to you yet.',
+  giftMarked: 'Okay. It is marked as a gift. Only adults hear it.',
+  noGiftFound: "I couldn't find that order.",
   notReady: "That isn't set up yet.",
   private: "That's private. Ask a grown-up.",
   someHidden: 'Some are private.',

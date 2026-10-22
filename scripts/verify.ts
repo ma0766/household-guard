@@ -21,6 +21,7 @@ const SLICES: Record<string, string> = {
   S15: 'Long jobs + site building (Wix: stand-in)',
   S16: 'AgentCore Gateway + Policy (switch OFF by default)',
   S19: 'Private things stay private (orders, gifts)',
+  S20: 'Level up: try it first, fewer taps, guests, why',
 };
 mkdirSync('test-results', { recursive: true });
 const run = (label: string, cmd: string, args: string[]) => {

@@ -59,6 +59,7 @@
     "ha:up": "tsx scripts/ha-up.ts",
     "ha:down": "docker rm -f hg-ha",
     "ha:test": "vitest run -c vitest.ha.config.ts",
-    "bench:reply": "tsx scripts/bench-reply.ts"
+    "bench:reply": "tsx scripts/bench-reply.ts",
+    "smoke:s0": "tsx scripts/smoke-s0.ts"
   }
 }

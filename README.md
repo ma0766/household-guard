@@ -14,7 +14,10 @@ Built for the Amazon Developer Hackathon (Alexa+ track, AWS Builder and Open Sou
 3. A parent can instead say yes to the $38 ride by tapping the number on **their** phone. The approval is tied to that exact ride and price and dies in 10 minutes. If the price jumps before booking, it goes back to hold.
 4. A gift card passes the rules, but the **AI risk check** (Claude on Amazon Bedrock) holds it. The AI can only make a decision *stricter*.
 5. "What did the kids buy this week?" → totals first, in three short sentences.
-6. A parent changes Maya's limit from a rule card; the next decision follows it; one more tap undoes it for 24 hours.
+6. A parent changes Maya's limit from a rule card, or types it ("Maya can spend 30 dollars a week"). The house reads it back, shows **"With this rule, 1 of Maya's 2 requests would change"** from the last 7 days, and saves only after the parent taps on their own phone. A new limit replaces the old one; one more tap undoes it for 24 hours.
+7. Taps only for what matters: lights, music, weather, timers and the garage (adults and teens) need none. A buy, a door and a rule change do. One tap covers that person's next buys for 5 minutes, inside their limits.
+8. Guests: a switch for everyday things, and named guests with their own PIN, list and last day. They never buy, unlock, change rules or hear orders.
+9. Ask **"why?"** after any answer: one sentence names the rule that decided.
 
 ## Hard rules (these are the product)
 
@@ -59,6 +62,24 @@ Lambda + Function URL (Lambda Web Adapter, response streaming), DynamoDB single 
 ## The ten tools (a fixed facade)
 
 `household_status`, `request_action`, `confirm_identity`, `approve_request`, `job_status`, `audit_log`, `show_on_screen`, `set_rule`, `find_capability`, `connect_service`. Tools never change, so nothing behind them needs a redeploy to Alexa. Anything slow returns a job id in under 500 ms.
+
+## Where the code is
+
+| What | File |
+|---|---|
+| The MCP server (ten fixed tools, `set_rule` and `request_action` included) | [`src/mcp/server.ts`](src/mcp/server.ts), screens in [`src/mcp/apps.ts`](src/mcp/apps.ts), HTTP entry [`src/server.ts`](src/server.ts), Lambda entry [`src/lambda-web.ts`](src/lambda-web.ts) |
+| The decision engine: who is asking, then the rules, then act | [`src/core/request-action.ts`](src/core/request-action.ts) (every request), [`src/core/purchase.ts`](src/core/purchase.ts) (money), [`src/orders/orders.ts`](src/orders/orders.ts) (private orders and gifts) |
+| The rules: cards turn into Cedar, three answers, one limit per person, restrictions are `forbid` | [`src/policy/rules.ts`](src/policy/rules.ts), [`src/policy/evaluator.ts`](src/policy/evaluator.ts), generated [`src/policy/auto.cedar`](src/policy/auto.cedar) and [`src/policy/approvable.cedar`](src/policy/approvable.cedar), [`src/policy/schema.cedarschema`](src/policy/schema.cedarschema) |
+| "Why?": the rule that decided, in one sentence | [`src/policy/explain.ts`](src/policy/explain.ts) |
+| Which things need a tap, and the 5-minute tap window | [`src/core/tiers.ts`](src/core/tiers.ts), [`src/identity/tapwindow.ts`](src/identity/tapwindow.ts), [`src/approvals/challenge.ts`](src/approvals/challenge.ts) |
+| Who is speaking: phone tap, PIN, named guests | [`src/identity/confirm.ts`](src/identity/confirm.ts), [`src/core/household.ts`](src/core/household.ts) |
+| Changing rules: cards, undo, typed sentences, try it first | [`src/rules/change.ts`](src/rules/change.ts), [`src/rules/templates.ts`](src/rules/templates.ts), [`src/rules/sentence.ts`](src/rules/sentence.ts), [`src/rules/tryfirst.ts`](src/rules/tryfirst.ts), [`src/rules/preview.ts`](src/rules/preview.ts) |
+| The plain-language log | [`src/audit/emit.ts`](src/audit/emit.ts), [`src/audit/audit.ts`](src/audit/audit.ts) |
+| Tests: the 34 replay cases, limits, typed rules, the level-up slice | [`tests/replay/cases.ts`](tests/replay/cases.ts), [`tests/s7/limits.test.ts`](tests/s7/limits.test.ts), [`tests/s7/typed-rules.test.ts`](tests/s7/typed-rules.test.ts), [`tests/s19/private.test.ts`](tests/s19/private.test.ts), [`tests/s20/`](tests/s20) |
+| Browser tests (Chromium) | [`e2e/s20-levelup.spec.ts`](e2e/s20-levelup.spec.ts), [`e2e/s7-typed-rules.spec.ts`](e2e/s7-typed-rules.spec.ts), [`e2e/s19-private.spec.ts`](e2e/s19-private.spec.ts) |
+| The proofs for all requests | [`scripts/prove.ts`](scripts/prove.ts) |
+
+Screens: [typed rule read back](docs/screens/typed-rule-read-back.png) · [try it first](docs/screens/try-it-first.png) · [guest switch](docs/screens/guest-switch.png) · [Leo does not hear the gift](docs/screens/leo-private.png).
 
 ## Layout
 

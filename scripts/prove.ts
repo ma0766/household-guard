@@ -68,6 +68,8 @@ const PROMISES = [
   { name: 'no teen may hear a gift order', action: 'order_gift', bad: 'permit(principal in Role::"teen", action == Action::"order_gift", resource);' },
   { name: 'no guest may hear a gift order', action: 'order_gift', bad: 'permit(principal in Role::"guest", action == Action::"order_gift", resource);' },
   { name: 'no guest may hear order history', action: 'order_history', bad: 'permit(principal in Role::"guest", action == Action::"order_history", resource);' },
+  { name: 'no guest may unlock a door', action: 'unlock', bad: 'permit(principal in Role::"guest", action == Action::"unlock", resource);' },
+  { name: 'no guest may open the garage', action: 'garage', bad: 'permit(principal in Role::"guest", action == Action::"garage", resource);' },
   { name: 'no guest may buy', action: 'purchase', bad: 'permit(principal in Role::"guest", action == Action::"purchase", resource);' },
 ];
 const lines: string[] = [];

@@ -24,7 +24,9 @@ describe('S10 plain-language preview of a rule change', () => {
     expect(prev(edit((c) => { c.floor.childrenNoUnlock = false; }))).toEqual(['This changes nothing for now.']);
   });
   it('letting a teen use the garage says so', () => {
-    expect(prev(edit((c) => { c.adultsOnlyActions = ['unlock']; }))).toContain('This change lets a teen open the garage. Are you sure?');
+    // levelup: the garage is open to teens by default now, so this starts from a house that made it adults-only
+    const adultsOnlyGarage = edit((c) => { c.adultsOnlyActions = ['unlock', 'garage']; });
+    expect(prev(edit((c) => { c.adultsOnlyActions = ['unlock']; }), adultsOnlyGarage)).toContain('This change lets a teen open the garage. Are you sure?');
   });
   it('letting a guest buy says so', () => {
     expect(prev(edit((c) => { c.floor.guestsNoBuy = false; c.weeklyCapCents.guest = 2000; c.perRequestCapCents.guest = 2000; }))).toEqual(['This change lets a guest buy things. Are you sure?']);

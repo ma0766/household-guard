@@ -7,6 +7,7 @@ import { beginAttempt, clearWrong, failAttempt, recordPush, isLocked } from '../
 import { setSession } from '../core/household.js';
 import { categoryOf, doneHome, emit } from '../audit/emit.js';
 import { completeRule } from '../rules/change.js';
+import { openTapWindow } from '../identity/tapwindow.js';
 
 // "Confirm on your phone: 47". Alexa SAYS the number; the person's own phone SHOWS three numbers; they tap the match.
 // Number matching defeats blind "yes" taps — the push-fatigue attack.
@@ -81,24 +82,32 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
     return { status: 'expired', say: 'That one is already done.' };
   }
   let result: Challenge['result'];
+  let privateLine: string | undefined; // said only on the phone that tapped (a new guest's PIN): never stored, never in the log
   if (c.kind === 'login') {
     await setSession(deps.store, hh, personId, 'phone', now);
     result = { done: true, reason: `Hi ${name}. You are confirmed.` };
     await emit(deps, hh, { kind: 'who', category: 'who', person: personId, personName: name, text: (t) => `${name} confirmed on their phone at ${t}.` });
   } else if (c.kind === 'rule') {
     try {
-      result = await completeRule(deps, hh, personId, c);
+      const { private: secret, ...r } = await completeRule(deps, hh, personId, c);
+      result = r;
+      privateLine = secret;
     } catch {
       result = { done: false, reason: 'Something went wrong. Ask an adult.' };
     }
   } else {
     try {
       result = await executeAction(deps, hh, personId, c.args!, c.meta);
+      if (c.meta?.purchase && result.jobId) {
+        // this person just proved, on their own phone, that they are here: their next buys inside their limits need no new tap for 5 minutes
+        await setSession(deps.store, hh, personId, 'phone', now);
+        await openTapWindow(deps.store, hh, personId, now);
+      }
       if (result.done) await emit(deps, hh, { kind: 'done', category: categoryOf(c.args!.action), person: personId, personName: name, text: (t) => doneHome(name, c.args!, t), data: { action: c.args!.action } });
     } catch {
       result = { done: false, reason: 'Something went wrong. Ask an adult.' };
     }
   }
   await deps.store.update({ Key: { pk: Store.hk(hh), sk: key(c.id) }, UpdateExpression: 'SET #r = :r', ExpressionAttributeNames: { '#r': 'result' }, ExpressionAttributeValues: { ':r': result } });
-  return { status: 'confirmed', say: result.reason, result };
+  return { status: 'confirmed', say: privateLine ? `${result.reason} ${privateLine}` : result.reason, result };
 }

@@ -8,12 +8,12 @@ export const APP_URI = 'ui://household-guard/screen';
 export const APP_MIME = 'text/html;profile=mcp-app';
 export const APP_META = { ui: { resourceUri: APP_URI }, 'ui/resourceUri': APP_URI };
 
-export interface Card { id: string; who: string; what: string; price_cents: number; why: string; number?: number }
+export interface Card { id: string; who: string; what: string; price_cents: number; why: string; rule?: string; number?: number }
 export interface Row { icon: string; text: string; day: string }
 export type ScreenData = { view: 'approvals'; cards: Card[] } | { view: 'orders' | 'timeline'; rows: Row[] } | { view: 'preview'; name: string; link: string; qr: { size: number; rows: string[] } } | { view: 'connect'; name: string; link: string; qr: { size: number; rows: string[] } };
 
 export const cardsOf = (list: Approval[], viewerIsAdult: boolean): Card[] =>
-  list.map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, price_cents: a.amountCents, why: a.reason, ...(viewerIsAdult ? { number: a.number } : {}) }));
+  list.map((a) => ({ id: a.id, who: a.personName, what: a.itemText ?? a.itemKey, price_cents: a.amountCents, why: a.reason, ...(a.rule ? { rule: a.rule } : {}), ...(viewerIsAdult ? { number: a.number } : {}) }));
 export const rowsOf = (entries: AuditEntry[]): Row[] => entries.map((e) => ({ icon: ICON[e.category] ?? '•', text: e.text, day: e.day }));
 
 // Self-contained: no outside addresses, text goes in with textContent only, and the content rule shuts everything else.
@@ -65,6 +65,12 @@ export const APP_HTML = `<!doctype html>
       box.appendChild(el('div', '', c.who + ' wants: ' + c.what));
       box.appendChild(el('div', '', money(c.price_cents)));
       box.appendChild(el('div', 'm', c.why));
+      if (c.rule) {
+        var whyBtn = el('button', 'no', label('Why?')); whyBtn.setAttribute('data-testid', 'app-why');
+        var whyText = el('div', 'm', ''); whyText.setAttribute('data-testid', 'app-why-text');
+        whyBtn.onclick = function () { whyText.textContent = c.rule.replace(/^Rule: /, 'Because of this rule: '); };
+        box.appendChild(whyBtn); box.appendChild(whyText);
+      }
       if (c.number !== undefined) {
         var yes = el('button', 'yes', label('Yes')); yes.setAttribute('data-testid', 'app-yes');
         var no = el('button', 'no', label('No')); no.setAttribute('data-testid', 'app-no');

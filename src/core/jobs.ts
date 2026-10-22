@@ -18,6 +18,7 @@ export interface JobView {
   challenge_id?: string; // a typed rule that is read back and now waits for the adult's own phone
   number?: number;
   readback?: string;
+  try_first?: unknown; // the last 7 days, asked again under the new rule
   question?: boolean;
 }
 
@@ -44,7 +45,7 @@ export async function jobStatus(deps: Deps, hh: string, id: string): Promise<Job
     if (rp) {
       if (!rp.mine) return { job_id: id, status: 'unknown', say: "I can't find that.", done: false };
       if (rp.status === 'queued' || rp.status === 'running') return { job_id: id, status: 'running', say: 'Working on it.', done: false };
-      if (rp.status === 'ready') return { job_id: id, status: 'waiting', say: rp.say ?? '', done: false, challenge_id: rp.challengeId, number: rp.number, readback: rp.readback } as JobView;
+      if (rp.status === 'ready') return { job_id: id, status: 'waiting', say: rp.say ?? '', done: false, challenge_id: rp.challengeId, number: rp.number, readback: rp.readback, try_first: rp.tryFirst ?? undefined } as JobView;
       return { job_id: id, status: rp.status === 'question' ? 'held' : 'failed', say: rp.say ?? '', done: false, ...(rp.status === 'question' ? { question: true } : {}) } as JobView;
     }
     const site = await getSiteJob(deps, hh, id);

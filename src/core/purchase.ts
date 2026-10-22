@@ -1,7 +1,7 @@
 import { explainDecision } from '../policy/explain.js';
 import { randomUUID } from 'node:crypto';
 import type { Deps } from './request-action.js';
-import { result } from './request-action.js';
+import { result, decideTraced } from './request-action.js';
 import type { ActionArgs, ActionResult, Person } from './types.js';
 import type { SessionMethod } from './types.js';
 import type { RulesConfig } from '../policy/rules.js';
@@ -15,6 +15,7 @@ import { MOCK_SHOP, quoteItem } from '../connectors/mock-shop.js';
 import { openChallenge } from '../approvals/challenge.js';
 import { createJob } from '../jobs/worker.js';
 import { T } from '../text.js';
+import { tapCovers } from '../identity/tapwindow.js';
 
 export interface PurchaseCtx {
   person: Person;
@@ -65,7 +66,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
 
   const week = weekKey(now, tz);
   const spent = await spentThisWeek(deps.store, hh, week, person.id);
-  const d = decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
+  const d = decideTraced(deps, rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
   const extra = { ...base, amount_cents: amount, option_id: optionId, rule: explainDecision(d, rules, person.name) };
 
   if (d.answer === 'deny') {
@@ -76,7 +77,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
     // Held for an adult. Offer the lowest total that the rules allow and that meets the person's must-haves.
     const reason = d.answer === 'allow' ? T.afterRepair : heldReason(rules, person, amount, spent);
     const alt = owed ? undefined : bestValue(rules, person, method, args.service, rideOptions, amount, spent, now, tz);
-    const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason });
+    const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason, rule: extra.rule });
     const say = [reason, alt ? `${T.altOffer(alt.label.toLowerCase(), alt.total_cents)} ${T.wantThat}` : '', T.adultCanTap(a.number)].filter(Boolean).join(' ');
     const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
     out.say = say;
@@ -113,7 +114,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
     const spentNow = Math.max(spent, cap - amount + 1);
     const reason = heldReason(rules, person, amount, spentNow);
     const alt = owed ? undefined : bestValue(rules, person, method, args.service, rideOptions, amount, spentNow, now, tz);
-    const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason });
+    const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason, rule: 'Rule: the limit ran out first.' });
     const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, rule: "Rule: the limit ran out first.", why: 'cap_race', approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
     out.say = [reason, alt ? `${T.altOffer(alt.label.toLowerCase(), alt.total_cents)} ${T.wantThat}` : '', T.adultCanTap(a.number)].filter(Boolean).join(' ');
     return out;
@@ -121,9 +122,13 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
 
   const meta = { purchase: { jobId, reservationId, amountCents: amount, optionId, replacesApprovalId, savedCents } };
   try {
-    if (method === 'pin') {
+    // A tap is needed for a buy, except: a PIN (no phone), a small buy the adult put on this person's no-tap list, or a buy inside the
+    // 5 minutes after this person's own tap. The rules (limits, quiet hours) already said yes to this exact buy.
+    const small = method === 'phone' && amount <= (rules.noTapBuyCents?.[person.id] ?? -1);
+    const covered = method === 'phone' && !small && (await tapCovers(deps.store, hh, person.id, now));
+    if (method === 'pin' || small || covered) {
       await createJob(deps, hh, { id: jobId, personId: person.id, service: args.service, item: args.item, optionId, amountCents: amount, reservationId, replacesApprovalId, savedCents });
-      return result({ outcome: 'allowed', reason: T.booking, done: false }, tz, now, { ...extra, job_id: jobId });
+      return result({ outcome: 'allowed', reason: T.booking, done: false }, tz, now, { ...extra, job_id: jobId, ...(small || covered ? { tap: small ? 'not_needed_small' : 'not_needed_covered' } : {}) });
     }
     const { challenge, locked } = await openChallenge(deps, hh, person, 'action', args, meta);
     if (locked || !challenge) {

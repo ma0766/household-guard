@@ -16,6 +16,9 @@ const BLOCKERS: [RegExp, (name: string, r: RulesConfig, id: string) => string][]
   [/^thermostat_range$/, () => 'Rule: the heat stays 60 to 78.'],
   [/_needs_phone$/, () => 'Rule: it needs your own phone.'],
   [/^use_app_not_guests$/, () => "Rule: guests can't use apps."],
+  [/^everyday_needs_a_person$/, () => 'Rule: everyday things need a PIN or a tap.'],
+  [/^garage_not_for_kids$/, () => "Rule: children and guests can't use the garage."],
+  [/^guest_(.+)_list$/, (_n, r, id) => `Rule: ${r.guests?.find((g) => `guest_${g.id}_list` === id)?.name ?? 'the guest'}'s list does not have that.`],
   [/^guests_are_never_held$/, () => "Rule: guests can't do that."],
   [/^(deny|needs_approval)_\d+$/, () => 'Rule: a rule set by an adult.'],
 ];
@@ -28,6 +31,11 @@ const PERMITS: Record<string, string> = {
   adult_unlock: 'Rule: adults can unlock.',
   adult_garage: 'Rule: adults can open the garage.',
   gifts_adults: 'Rule: adults hear gifts.',
+  gift_mark: 'Rule: adults mark gifts.',
+  music: 'Rule: music is open to all.',
+  weather: 'Rule: the weather is open to all.',
+  timer: 'Rule: timers are open to all.',
+  garage_open: 'Rule: adults and teens use the garage.',
 };
 
 export function explainDecision(d: PolicyDecision, rules: RulesConfig, name: string): string {

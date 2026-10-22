@@ -37,6 +37,14 @@ export function previewChange(before: RulesConfig, after: RulesConfig, people: P
     else if (a !== undefined && b === undefined) stricter.push(`${p.name} now needs a yes for every buy.`);
   }
 
+  // small buys with no tap
+  for (const p of people.filter((x) => x.role !== 'guest')) {
+    const a = before.noTapBuyCents?.[p.id];
+    const b = after.noTapBuyCents?.[p.id];
+    if (b !== undefined && (a === undefined || b > a)) spendLines.push(`This lets ${p.name} buy up to ${money(b)} with no tap.`);
+    else if (a !== undefined && (b === undefined || b < a)) stricter.push(b === undefined ? `${p.name} taps for every buy.` : `${p.name} taps for buys over ${money(b)}.`);
+  }
+
   // quiet hours are a rule of the house, so they are read straight from the rule
   const qa = JSON.stringify(before.quietHours ?? null);
   const qb = JSON.stringify(after.quietHours ?? null);
