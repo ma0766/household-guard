@@ -2,6 +2,7 @@ import type { Deps } from './request-action.js';
 import { Store } from './store.js';
 import { getChallenge } from '../approvals/challenge.js';
 import { getSession, loadHousehold } from './household.js';
+import { getRuleParse } from '../rules/sentence.js';
 import { getSiteJob } from '../sites/job.js';
 import { T } from '../text.js';
 import { getApproval } from '../approvals/approvals.js';
@@ -14,6 +15,11 @@ export interface JobView {
   progress?: number; // long jobs (a site): how far along, 0 to 100
   preview_url?: string;
   name?: string;
+  challenge_id?: string; // a typed rule that is read back and now waits for the adult's own phone
+  number?: number;
+  readback?: string;
+  try_first?: unknown; // the last 7 days, asked again under the new rule
+  question?: boolean;
 }
 
 // Anything slow or waiting on a person has a job id. Alexa asks again later instead of holding the line open (500 ms rule).
@@ -34,6 +40,13 @@ export async function jobStatus(deps: Deps, hh: string, id: string): Promise<Job
       if (ap.status === 'approved') return ap.jobId ? jobStatus(deps, hh, ap.jobId) : { job_id: id, status: 'waiting', say: 'Working on it.', done: false }; // the yes was just saved and the job is still being made: not "closed"
       if (ap.status === 'rejected') return { job_id: id, status: 'failed', say: 'An adult said no.', done: false };
       return { job_id: id, status: 'failed', say: 'Okay. That one is closed.', done: false };
+    }
+    const rp = await getRuleParse(deps, hh, id);
+    if (rp) {
+      if (!rp.mine) return { job_id: id, status: 'unknown', say: "I can't find that.", done: false };
+      if (rp.status === 'queued' || rp.status === 'running') return { job_id: id, status: 'running', say: 'Working on it.', done: false };
+      if (rp.status === 'ready') return { job_id: id, status: 'waiting', say: rp.say ?? '', done: false, challenge_id: rp.challengeId, number: rp.number, readback: rp.readback, try_first: rp.tryFirst ?? undefined } as JobView;
+      return { job_id: id, status: rp.status === 'question' ? 'held' : 'failed', say: rp.say ?? '', done: false, ...(rp.status === 'question' ? { question: true } : {}) } as JobView;
     }
     const site = await getSiteJob(deps, hh, id);
     if (site) {

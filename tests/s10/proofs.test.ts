@@ -23,7 +23,7 @@ describe('S10 proofs: the rules that ship keep the promises', () => {
   it('no child may unlock, no child may open the garage, no guest may use an app or buy — for every possible request', () => {
     const r = prove([]);
     expect(r.code).toBe(0);
-    expect(r.out.match(/^PROVEN /gm)).toHaveLength(16); // eight promises (door, garage, app, buying, and S19: no child, teen or guest hears a gift, no guest hears order history), each for the do-it and the hold set
+    expect(r.out.match(/^PROVEN /gm)).toHaveLength(20); // ten promises (levelup added: no guest may unlock a door, no guest may open the garage); before that, eight promises (door, garage, app, buying, and S19: no child, teen or guest hears a gift, no guest hears order history), each for the do-it and the hold set
     expect(r.out).not.toMatch(/FAILED/);
   });
   it('the default rule card config proves too (the cards generate the same rules)', () => {
@@ -88,18 +88,19 @@ describe('S10 proofs: new rules compared with old rules', () => {
 
 describe('S10 the plain-language preview and the proof agree', () => {
   const people = DEMO_PEOPLE;
-  const cases: { name: string; change: RulesConfig; looser: boolean }[] = [
+  const adultsOnlyGarage = edit((c) => { c.adultsOnlyActions = ['unlock', 'garage']; }); // levelup: the garage is open to teens by default now
+  const cases: { name: string; change: RulesConfig; looser: boolean; from?: RulesConfig }[] = [
     { name: 'turning off the child-unlock rule alone (adults-only still blocks)', change: edit((c) => { c.floor.childrenNoUnlock = false; }), looser: false },
     { name: 'opening unlock to everyone and turning the rule off', change: edit((c) => { c.adultsOnlyActions = ['garage']; c.floor.childrenNoUnlock = false; }), looser: true },
-    { name: 'opening the garage to everyone', change: edit((c) => { c.adultsOnlyActions = ['unlock']; }), looser: true },
+    { name: 'opening the garage to teens (it was adults-only)', change: edit((c) => { c.adultsOnlyActions = ['unlock']; }), looser: true, from: adultsOnlyGarage },
     { name: 'a higher limit', change: edit((c) => { c.weeklyCapCents.maya = 3000; c.perRequestCapCents.maya = 3000; }), looser: true },
     { name: 'quiet hours', change: edit((c) => { c.quietHours = { fromHour: 21, toHour: 6 }; }), looser: false },
   ];
   for (const k of cases) {
     it(`${k.name}: the preview ${k.looser ? 'warns' : 'does not warn'} and the proof ${k.looser ? 'finds it more permissive' : 'does not'}`, () => {
-      const lines = previewChange(defaultRules(), k.change, people);
+      const lines = previewChange(k.from ?? defaultRules(), k.change, people);
       const warns = lines.some((l) => /lets|Are you sure/.test(l));
-      const out = prove(['--rules', rulesFile(k.change), '--base-rules', rulesFile(defaultRules())]).out;
+      const out = prove(['--rules', rulesFile(k.change), '--base-rules', rulesFile(k.from ?? defaultRules())]).out;
       const moreAnywhere = /: (more permissive|different)/.test(out);
       expect(warns, lines.join(' | ')).toBe(k.looser);
       expect(moreAnywhere, out).toBe(k.looser);

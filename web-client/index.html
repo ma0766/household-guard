@@ -25,6 +25,7 @@
       </div>
       <div class="row" id="quick"></div>
       <div id="alexa-says" data-testid="alexa-says" class="says" aria-live="polite">Alexa is listening.</div>
+      <div class="row"><button id="btn-why" class="secondary" data-testid="btn-why" title="Which rule decided the last answer?">Why?</button></div>
     </section>
     <section id="phones-panel" aria-label="Phones">
       <h2>Phones</h2>
@@ -80,7 +81,36 @@
         <button id="rule-orders-adults" class="secondary" data-testid="rule-orders-adults">Only adults hear orders</button>
         <button id="rule-undo" data-testid="rule-undo" class="secondary">Undo last change</button>
       </div>
+      <div class="row">
+        <label for="rule-sentence">Type a rule</label>
+        <input id="rule-sentence" data-testid="rule-sentence" placeholder="Maya can spend 30 dollars a week" maxlength="300" style="flex:1 1 100%" />
+        <button id="rule-sentence-go" data-testid="rule-sentence-go">Add rule</button>
+      </div>
+      <p id="rule-typed" data-testid="rule-typed" class="hint" style="min-height:1.4em"></p>
+      <p id="rule-readback" data-testid="rule-readback" class="hint" aria-live="polite" style="min-height:1.4em"></p>
       <p id="rule-preview" data-testid="rule-preview" class="hint" aria-live="polite"></p>
+      <p id="rule-tryfirst" data-testid="rule-tryfirst" class="hint" aria-live="polite" style="font-weight:600"></p>
+      <ul id="rule-tryfirst-list" data-testid="rule-tryfirst-list" class="hint"></ul>
+      <div class="row">
+        <label for="guest-switch">Everyday things for anyone at home</label>
+        <input type="checkbox" id="guest-switch" data-testid="guest-switch" checked />
+        <label for="notap-amount">Maya's no-tap buys (up to $)</label>
+        <input id="notap-amount" data-testid="notap-amount" inputmode="numeric" value="10" style="max-width:70px" />
+        <button id="notap-save" class="secondary" data-testid="notap-save">Save</button>
+        <button id="notap-off" class="secondary" data-testid="notap-off">Off</button>
+      </div>
+      <div class="row">
+        <label for="guest-name">Guest name</label>
+        <input id="guest-name" data-testid="guest-name" maxlength="20" style="max-width:120px" />
+        <label for="guest-until">Last day</label>
+        <input id="guest-until" data-testid="guest-until" type="date" />
+        <label><input type="checkbox" class="guest-allow" value="light" checked /> lights</label>
+        <label><input type="checkbox" class="guest-allow" value="music" checked /> music</label>
+        <label><input type="checkbox" class="guest-allow" value="weather" /> weather</label>
+        <label><input type="checkbox" class="guest-allow" value="timer" /> timers</label>
+        <label><input type="checkbox" class="guest-allow" value="thermostat" /> heat</label>
+        <button id="guest-add" data-testid="guest-add">Add guest</button>
+      </div>
       <iframe id="rules-frame" srcdoc='<!doctype html><html lang="en"><title>House rules</title><p style="font:16px system-ui">Nothing to show yet.</p>' data-testid="rules-frame" sandbox="" title="House rules" style="width:100%;height:300px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>
     </section>
     <section id="log-panel" aria-label="Message log">

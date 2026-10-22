@@ -36,8 +36,8 @@ describe('S6 audit: plain sentences, stored once', () => {
     await savedStory(ctx);
     const t = await texts(ctx);
     expect(t).toEqual([
-      expect.stringMatching(/^Maya asked for a \$38 ride at \d{1,2}:\d\d [AP]M\. Held: over Maya's \$20 a week\.$/),
-      expect.stringMatching(/^Maya asked for a \$14 ride at \d{1,2}:\d\d [AP]M\. Waiting for Maya's phone\.$/),
+      expect.stringMatching(/^Maya asked for a \$38 ride at \d{1,2}:\d\d [AP]M\. Held: over Maya's \$20 a week\. Rule: Maya's \$20 a week\.$/), // the sentence names the rule that decided
+      expect.stringMatching(/^Maya asked for a \$14 ride at \d{1,2}:\d\d [AP]M\. Waiting for Maya's phone\. Rule: within Maya's limit\.$/),
       expect.stringMatching(/^Ride booked for Maya: \$14 at \d{1,2}:\d\d [AP]M\.$/),
       'Maya took a shared ride for $14, not $38. Saved $24.',
     ]);

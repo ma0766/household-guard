@@ -139,6 +139,11 @@ In this order — each one is visible in the video and strengthens the "provably
 - **Why:** the Tom's Guide birthday story, cited in docs/SPEC.md.
 - **Done when:** Leo's ask gets the private reply with no item names in the response or the timeline; Mom hears the list; a guest is denied; replay shows 34 of 34.
 
+## S20 · Level up
+
+- **Builds:** one limit per person (forbid rules); typed rules read back and saved after the adult's own tap; "try it first" (the last 7 days of logged requests asked again under the new rule); taps only for what matters (no tap for everyday things and the garage for adults and teens; a tap for any buy, door or rule change; one tap covers a person's buys for 5 minutes inside limits; an optional per-person no-tap list); guests (an everyday-things switch, named guests with a PIN, a list and a last day); adults mark gifts; "why?" names the rule.
+- **Done when:** `npm run verify` exits 0 with S20 PASS; the Chromium tests in `e2e/s20-levelup.spec.ts` pass; screenshots are in `docs/screens/`.
+
 ## After-Friday slices (S13–S18)
 
 Every "later" item from the Build spec lands in one of these.

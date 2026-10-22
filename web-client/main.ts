@@ -122,6 +122,7 @@ async function waitJob(id: string) {
     await new Promise((r) => setTimeout(r, 500));
     if (mine !== watch) return;
     const r = await callTool('job_status', { job_id: id });
+    if (mine !== watch) return; // a newer question started while this answer was on its way: its line must not be overwritten
     if (r.status && r.status !== 'waiting') {
       says(r.say, r.done ? 'allowed' : 'held');
       void refresh(true);
@@ -170,9 +171,15 @@ for (const p of PEOPLE.filter((x) => x.id !== 'guest')) {
   const d = document.createElement('div');
   d.className = 'phone';
   d.setAttribute('data-testid', `phone-${p.id}`);
-  d.innerHTML = `<h3>${p.name}'s phone</h3><div class="body">${p.phone ? 'Nothing waiting.' : 'No phone. Uses a PIN.'}</div>`;
+  d.innerHTML = `<h3>${p.name}'s phone</h3><p class="secret" data-testid="phone-secret-${p.id}" hidden></p><div class="body">${p.phone ? 'Nothing waiting.' : 'No phone. Uses a PIN.'}</div>`;
   phonesEl.appendChild(d);
   phoneEls[p.id] = d.querySelector('.body') as HTMLElement;
+}
+function showSecret(id: string, text: string) {
+  const el = document.querySelector(`[data-testid="phone-secret-${id}"]`) as HTMLElement;
+  el.textContent = text;
+  el.hidden = false;
+  setTimeout(() => (el.hidden = true), 60_000);
 }
 async function refreshPhones() {
   if (!connected) return;
@@ -196,6 +203,7 @@ async function refreshPhones() {
         btn.onclick = async () => {
           const out = await (await fetch(`/phone/${p.id}/confirm`, { method: 'POST', headers: { authorization: `Bearer ${phoneTokens[p.id]}`, 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: c.id, number: n }) })).json();
           if (out.status !== 'confirmed') says(out.say, 'denied');
+          else if (/PIN is/.test(out.say ?? '')) showSecret(p.id, out.say); // a new guest's PIN: shown on this phone only, never said aloud
         };
         card.appendChild(btn);
       }
@@ -206,6 +214,17 @@ async function refreshPhones() {
       card.className = 'card approval';
       card.setAttribute('data-testid', `approval-${p.id}`);
       card.innerHTML = `<p><b>${ap.who}</b> wants: ${ap.what}</p><p>${ap.amount}</p><p>${ap.why}</p><p>Tap the number Alexa said:</p>`;
+      if (ap.rule) {
+        const why = document.createElement('button');
+        why.className = 'secondary';
+        why.textContent = 'Why?';
+        why.setAttribute('data-testid', `why-${p.id}`);
+        const line = document.createElement('p');
+        line.className = 'hint';
+        line.setAttribute('data-testid', `why-text-${p.id}`);
+        why.onclick = () => (line.textContent = ap.rule);
+        card.append(why, line);
+      }
       for (const n of ap.options) {
         const btn = document.createElement('button');
         btn.textContent = String(n);
@@ -249,18 +268,65 @@ async function refreshRules() {
   const frame = $('rules-frame') as HTMLIFrameElement;
   if (out.html && frame.srcdoc !== out.html) frame.srcdoc = out.html;
 }
+// "Try it first": what the last 7 days would have looked like under the new rule
+function showTryFirst(t?: { summary: string; lines: string[] }) {
+  $('rule-tryfirst').textContent = t?.summary ?? '';
+  const ul = $('rule-tryfirst-list');
+  ul.innerHTML = '';
+  for (const l of t?.lines ?? []) {
+    const li = document.createElement('li');
+    li.textContent = l;
+    ul.appendChild(li);
+  }
+}
 async function ruleCall(args: Record<string, unknown>) {
+  showTryFirst();
   const r = await callTool('set_rule', args);
   says(r.say, r.status === 'waiting' ? 'held' : 'denied');
   $('rule-preview').textContent = r.preview ?? '';
+  showTryFirst(r.try_first);
   if (r.status === 'waiting') void waitJob(r.challenge_id);
 }
+// A rule typed in plain words: the house reads it (in the background), says it back, and waits for the adult's own phone.
+async function typedRule(sentence: string) {
+  const text = sentence.trim();
+  if (!text) return says('Type a rule first.', 'held');
+  $('rule-typed').textContent = `You typed: ${text}`;
+  $('rule-readback').textContent = '';
+  showTryFirst();
+  const r = await callTool('set_rule', { sentence: text });
+  if (!r.job_id) return says(r.say, 'denied');
+  says('Working on it.', 'held');
+  for (let i = 0; i < 60; i++) {
+    await new Promise((res) => setTimeout(res, 400));
+    const j = await callTool('job_status', { job_id: r.job_id });
+    if (j.status === 'running') continue;
+    if (j.status === 'waiting' && j.challenge_id) {
+      $('rule-readback').textContent = j.readback ?? '';
+      showTryFirst(j.try_first);
+      says(j.say, 'held');
+      return void waitJob(j.challenge_id);
+    }
+    return says(j.say, j.question ? 'held' : 'denied'); // an unclear sentence gets a question, and nothing changes
+  }
+  says('That took too long. Try again.', 'denied');
+}
+$('rule-sentence-go').onclick = () => void typedRule(($('rule-sentence') as HTMLInputElement).value);
+$('rule-sentence').addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') void typedRule(($('rule-sentence') as HTMLInputElement).value); });
 $('rule-save-maya').onclick = () => void ruleCall({ template: 'weekly_limit', person: 'maya', dollars: Number(($('rule-maya-limit') as HTMLInputElement).value) });
 $('rule-quiet-on').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: 21, quiet_to_hour: 6 });
 $('rule-quiet-off').onclick = () => void ruleCall({ template: 'quiet_hours', quiet_from_hour: null });
 $('rule-orders-teens').onclick = () => void ruleCall({ template: 'private_orders', roles: ['teen'] });
 $('rule-orders-adults').onclick = () => void ruleCall({ template: 'private_orders', roles: [] });
 $('rule-undo').onclick = () => void ruleCall({ undo: true });
+let everyday = true;
+$('guest-switch').onchange = (e) => { everyday = (e.target as HTMLInputElement).checked; void ruleCall({ template: 'guest_switch', enabled: everyday }); };
+$('guest-add').onclick = () => {
+  const allowed = [...document.querySelectorAll<HTMLInputElement>('.guest-allow:checked')].map((x) => x.value);
+  void ruleCall({ template: 'add_guest', guest_name: ($('guest-name') as HTMLInputElement).value, until: ($('guest-until') as HTMLInputElement).value, actions: allowed });
+};
+$('notap-save').onclick = () => void ruleCall({ template: 'no_tap_buys', person: 'maya', dollars: Number(($('notap-amount') as HTMLInputElement).value) });
+$('notap-off').onclick = () => void ruleCall({ template: 'no_tap_buys', person: 'maya' });
 async function refreshConn() {
   if (!connected) return;
   const c = (await callTool('household_status', {})).connectors?.ride;
@@ -364,6 +430,12 @@ $('btn-app-orders').onclick = () => void openApp('orders');
 function parse(text: string): Record<string, unknown> | undefined {
   const t = text.toLowerCase();
   const num = t.match(/(\d{2,3})/)?.[1];
+  if (/^\s*(why|why\?|why did|why was|why can't|why can)\b/.test(t) || /\bwhy\b.*\?$/.test(t)) return { service: 'sim-home', action: 'why' };
+  const gift = t.match(/\bmark (?:the |my |our )?(.{3,40}?) as a gift(?: for (\w+))?/);
+  if (gift) return { service: 'mock-shop', action: 'mark_gift', item: gift[1], ...(gift[2] ? { value: gift[2] } : {}) };
+  if (/\btimer\b/.test(t)) return { service: 'sim-home', action: 'timer', item: 'timer', value: Number(t.match(/(\d+)/)?.[1] ?? 5) };
+  if (/\bweather\b/.test(t)) return { service: 'sim-home', action: 'weather', item: 'weather' };
+  if (/\b(music|song|jazz|playlist)\b/.test(t) && !/spotify/.test(t)) return { service: 'sim-home', action: 'music', item: (t.match(/jazz|rock|pop|classical/) ?? ['music'])[0] };
   if (/delete .*account/.test(t)) return { service: 'sim-home', action: 'delete_account' };
   if (/unlock/.test(t)) return { service: 'sim-home', action: 'unlock', item: 'front door' };
   if (/garage/.test(t)) return { service: 'sim-home', action: 'garage', item: 'garage', value: 'open' };
@@ -388,6 +460,7 @@ function showAlt(a?: { args: Record<string, unknown>; alt: { option_id: string; 
   b.textContent = `Yes, the ${a.alt.label.toLowerCase()} ($${(a.alt.total_cents / 100).toFixed(0)})`;
   b.onclick = async () => {
     altEl.innerHTML = '';
+    watch++; // taking the cheaper ride closes the held one: stop listening to it before its "closed" can be said
     const r = await callTool('request_action', { ...a.args, option_id: a.alt.option_id, replaces: a.approval, request_id: crypto.randomUUID() });
     says(r.say ?? r.reason, r.outcome === 'allowed' && !r.done ? 'held' : r.outcome);
     if (r.next === 'confirm_on_phone' && r.job_id) void waitJob(r.job_id);
@@ -396,7 +469,13 @@ function showAlt(a?: { args: Record<string, unknown>; alt: { option_id: string; 
 }
 
 async function say(text: string) {
+  const who = text.match(/\bi(?:'m| am) (\w+),? (?:my )?pin(?: is)? (\d{4})\b/i); // a named guest says who they are with their own PIN
+  if (who) {
+    const r = await callTool('confirm_identity', { name: who[1], pin: who[2] });
+    return says(r.say, r.status === 'confirmed' ? 'allowed' : 'denied');
+  }
   const args = parse(text);
+  if (!args && /\b(spend|limit|rule|quiet hours|hear orders)\b/i.test(text)) { $('rule-sentence').scrollIntoView?.({ block: 'nearest' }); ($('rule-sentence') as HTMLInputElement).value = text; return void typedRule(text); } // a rule said in the question box goes the same way
   if (!args) return says("Sorry, I didn't get that. Try: turn off the lights, or book a ride.", 'held');
   const r = await callTool('request_action', { ...args, request_id: crypto.randomUUID() }); // one id per utterance; a retry of the same call reuses it
   says(r.say ?? r.reason, r.outcome === 'allowed' && !r.done ? 'held' : r.outcome);
@@ -406,7 +485,7 @@ async function say(text: string) {
   return r;
 }
 
-const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card', 'What did Mom order?'];
+const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card', 'What did Mom order?', 'What did we order?', 'Open the garage', 'Play some jazz', 'Set a timer for 5 minutes'];
 for (const q of QUICK) {
   const b = document.createElement('button');
   b.className = 'secondary';
@@ -414,6 +493,7 @@ for (const q of QUICK) {
   b.onclick = () => void say(q);
   $('quick').appendChild(b);
 }
+$('btn-why').onclick = () => void say('why?');
 $('btn-say').onclick = () => void say(($('say') as HTMLInputElement).value);
 $('say').addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') void say(($('say') as HTMLInputElement).value); }); // typing and pressing Enter works like Send
 $('btn-talk').onclick = () => {

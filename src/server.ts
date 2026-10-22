@@ -60,6 +60,7 @@ export const PRIVACY = [
   '',
   'We do not store audio. Alexa turns speech into text; we only see the text.',
   'Profiles for children are created only by an adult.',
+  'A guest profile is made only by an adult, with a tap on their own phone. It ends after the last day.',
   'The log of what happened is kept for 90 days, then it is deleted.',
   'PINs are stored scrambled. We never store a PIN as typed.',
   'We keep what we need to apply your house rules: names, roles, limits, and the log.',

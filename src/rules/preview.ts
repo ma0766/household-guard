@@ -1,6 +1,7 @@
 import type { Person, Role } from '../core/types.js';
 import type { RulesConfig } from '../policy/rules.js';
-import { decide, type Answer, type DecisionInput } from '../policy/evaluator.js';
+import { decidePrepared, prepareSets, type Answer, type DecisionInput } from '../policy/evaluator.js';
+import { generatePolicies } from '../policy/rules.js';
 import { hourWord, money } from '../text.js';
 
 // What would this change let people do? Asked of the same rules engine that decides real requests, over a fixed set of
@@ -23,6 +24,8 @@ function questions(p: Person, services: string[], known: (s: string) => boolean)
 }
 
 export function previewChange(before: RulesConfig, after: RulesConfig, people: Person[]): string[] {
+  const pBefore = prepareSets(generatePolicies(before)); // read the rules once, not once per question
+  const pAfter = prepareSets(generatePolicies(after));
   const looser = new Map<string, string>();
   const stricter: string[] = [];
   const spendLines: string[] = [];
@@ -35,6 +38,14 @@ export function previewChange(before: RulesConfig, after: RulesConfig, people: P
     else if (a !== undefined && b !== undefined && b < a) stricter.push(`${p.name} can spend ${money(a - b)} less a week.`);
     else if (a === undefined && b !== undefined) spendLines.push(`This lets ${p.name} buy up to ${money(b)} a week without asking.`);
     else if (a !== undefined && b === undefined) stricter.push(`${p.name} now needs a yes for every buy.`);
+  }
+
+  // small buys with no tap
+  for (const p of people.filter((x) => x.role !== 'guest')) {
+    const a = before.noTapBuyCents?.[p.id];
+    const b = after.noTapBuyCents?.[p.id];
+    if (b !== undefined && (a === undefined || b > a)) spendLines.push(`This lets ${p.name} buy up to ${money(b)} with no tap.`);
+    else if (a !== undefined && (b === undefined || b < a)) stricter.push(b === undefined ? `${p.name} taps for every buy.` : `${p.name} taps for buys over ${money(b)}.`);
   }
 
   // quiet hours are a rule of the house, so they are read straight from the rule
@@ -54,8 +65,8 @@ export function previewChange(before: RulesConfig, after: RulesConfig, people: P
   for (const p of people) {
     for (const q of questions(p, p.role === 'guest' ? ['mock-ride'] : flipped, () => true)) {
       const isMoney = q.action === 'purchase';
-      const was = RANK[decide(before, { ...q, serviceKnown: before.allowedServices.includes(q.service) }).answer];
-      const now = RANK[decide(after, { ...q, serviceKnown: after.allowedServices.includes(q.service) }).answer];
+      const was = RANK[decidePrepared(pBefore, { ...q, serviceKnown: before.allowedServices.includes(q.service) }).answer];
+      const now = RANK[decidePrepared(pAfter, { ...q, serviceKnown: after.allowedServices.includes(q.service) }).answer];
       if (isMoney && p.role !== 'guest' && !flipped.includes(q.service)) continue; // limits and quiet hours are said exactly above
       if (now > was) looser.set(`${p.role}-${q.action}`, `This change lets ${WHO[p.role]} ${WHAT[q.action]}. Are you sure?`);
       else if (now < was) stricter.push(`This is stricter for ${WHO[p.role]}: ${WHAT[q.action]}.`);

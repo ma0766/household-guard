@@ -2,11 +2,12 @@ import type { SiteBuilder } from '../sites/builder.js';
 import type { HomeBackend } from '../connectors/home-assistant.js';
 import type { ConnectorHub } from '../hub/hub.js';
 import type { Notifier } from '../notify/notify.js';
-import type { Store } from './store.js';
+import { Store } from './store.js';
 import { getSession, loadHousehold, ensureSeeded } from './household.js';
 import { formatLocal, hourOf } from './time.js';
-import { decide, type DecisionInput } from '../policy/evaluator.js';
-import { KNOWN_ACTIONS, ORDER_ACTIONS } from '../policy/rules.js';
+import { decide, type DecisionInput, type PolicyDecision } from '../policy/evaluator.js';
+import { explainDecision } from '../policy/explain.js';
+import { KNOWN_ACTIONS, ORDER_ACTIONS, type RulesConfig } from '../policy/rules.js';
 import { SIM_HOME } from '../connectors/sim-home.js';
 import { handleAppAction, tellAdultsAboutApp } from './app-action.js';
 import { tierOf } from './tiers.js';
@@ -18,6 +19,7 @@ import type { JobQueue } from '../queue/queue.js';
 import type { RiskChecker } from '../risk/risk.js';
 import { handlePurchase } from './purchase.js';
 import { auditAsk } from '../audit/emit.js';
+import type { RuleParser } from '../rules/sentence.js';
 import { handleOrders } from '../orders/orders.js';
 
 export interface Deps {
@@ -29,10 +31,18 @@ export interface Deps {
   home?: HomeBackend; // a real smart home (Home Assistant); without it the simulated home answers
   hub?: ConnectorHub; // the apps a person has connected (Composio, or the stand-in)
   notifier?: Notifier; // how adults hear about held requests (email)
+  ruleParser?: RuleParser; // turns a typed rule sentence into one known setting (Bedrock, or a stand-in); never used to decide a request
+  trace?: { input?: DecisionInput }; // set per request: the first decision's inputs, kept in the log so a new rule can be tried on the past week
   hooks?: { beforeReserve?: () => Promise<void> }; // tests only: line two requests up at the same instant
 }
 
 const GUEST_ID = 'guest';
+
+// The same decision as decide(), but the first one a request makes is remembered for the log (try-it-first replays it later).
+export function decideTraced(deps: Deps, rules: RulesConfig, input: DecisionInput): PolicyDecision {
+  if (deps.trace && !deps.trace.input) deps.trace.input = input;
+  return decide(rules, input);
+}
 
 export function result(base: { outcome: Outcome; reason: string; done: boolean }, tz: string, now: number, extra: Record<string, unknown> = {}): ActionResult {
   return { ...base, say: base.reason, at: new Date(now).toISOString(), at_local: formatLocal(now, tz), ...extra };
@@ -45,7 +55,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
   let tz = 'America/New_York';
   try {
     await ensureSeeded(deps.store, hh);
-    const { meta, people, rules } = await loadHousehold(deps.store, hh);
+    const { meta, people, rules } = await loadHousehold(deps.store, hh, now);
     tz = meta.timezone;
     // identity comes ONLY from a confirmed session — never from anything the caller typed
     const session = await getSession(deps.store, hh, now);
@@ -54,6 +64,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
     const isGuest = person.id === GUEST_ID;
     const method = isGuest || !session ? 'none' : session.method;
 
+    if (args.action === 'why') return await handleWhy(deps, hh, person.id, tz, now);
     if ((ORDER_ACTIONS as readonly string[]).includes(args.action)) return await handleOrders(deps, hh, { person, method, rules, tz, now, args });
     if (args.action === 'purchase') return await handlePurchase(deps, hh, { person, method, rules, tz, now, args });
 
@@ -69,10 +80,11 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       session: method,
       localHour: hourOf(now, tz),
     };
-    const d = decide(rules, input);
-    const base = { person: person.id, person_name: person.name, service: args.service, action: args.action };
+    const d = decideTraced(deps, rules, input);
+    const base = { person: person.id, person_name: person.name, service: args.service, action: args.action, rule: explainDecision(d, rules, person.name) };
 
     if (d.answer === 'allow') {
+      if (args.action === 'timer' && !(Number.isInteger(value) && value >= 1 && value <= 1440)) return result({ outcome: 'denied', reason: T.howLong, done: false }, tz, now, base);
       if (args.action === 'build_site') {
         // a long job: nothing is built until THIS person taps her own phone; then it is queued and the work happens in the worker
         const { challenge, locked } = await openChallenge(deps, hh, person, 'action', args, { site: { item: args.item } });
@@ -100,7 +112,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       return result({ outcome: 'held', reason, done: false }, tz, now, base);
     }
     const known = (KNOWN_ACTIONS as readonly string[]).includes(args.action);
-    const reason = !known ? T.cantDo : d.determining.some((x) => x === 'floor_guests_no_buy') ? T.guestNoBuy : isGuest ? T.whoAreYou : d.determining.some((x) => x.startsWith('adults_only_') || x === 'floor_children_no_unlock') ? T.onlyAdults : T.cantDo;
+    const reason = !known ? T.cantDo : d.determining.some((x) => x === 'everyday_needs_a_person') ? T.everydayOff : d.determining.some((x) => x === 'floor_guests_no_buy') ? T.guestNoBuy : isGuest ? T.whoAreYou : d.determining.some((x) => x.startsWith('adults_only_') || x === 'floor_children_no_unlock') ? T.onlyAdults : T.cantDo;
     return result({ outcome: 'denied', reason, done: false }, tz, now, base);
   } catch {
     return result({ outcome: 'held', reason: T.oops, done: false }, tz, now);
@@ -109,7 +121,27 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
 
 // The public entry: decide and act, then write what happened in the log. The log never changes the answer.
 export async function requestAction(deps: Deps, hh: string, args: ActionArgs): Promise<ActionResult> {
-  const r = await decideAndAct(deps, hh, args);
-  await auditAsk(deps, hh, args, r);
+  const d = { ...deps, trace: {} as NonNullable<Deps['trace']> };
+  const r = await decideAndAct(d, hh, args);
+  if (args.action === 'why') return r; // asking why is not itself a decision to remember or log
+  await auditAsk(deps, hh, args, r, d.trace.input);
+  await rememberDecision(deps, hh, r);
   return r;
+}
+
+// "Why?": one sentence naming the rule that decided this person's last answer.
+async function rememberDecision(deps: Deps, hh: string, r: ActionResult): Promise<void> {
+  try {
+    if (typeof r.rule !== 'string' || !r.rule) return;
+    const now = (deps.now ?? Date.now)();
+    await deps.store.put({ pk: Store.hk(hh), sk: `LASTASK#${r.person ?? GUEST_ID}`, rule: r.rule, at: now, ttl: Math.floor(now / 1000) + 3600 });
+  } catch {
+    /* remembering never changes an answer */
+  }
+}
+
+async function handleWhy(deps: Deps, hh: string, personId: string, tz: string, now: number): Promise<ActionResult> {
+  const last = await deps.store.get(Store.hk(hh), `LASTASK#${personId}`);
+  const rule = typeof last?.rule === 'string' ? last.rule : '';
+  return result({ outcome: 'allowed', reason: rule ? T.why(rule) : T.noWhy, done: true }, tz, now, { person: personId, rule });
 }

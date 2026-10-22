@@ -68,11 +68,15 @@ export interface HouseholdContext {
   rules: RulesConfig;
 }
 
-export async function loadHousehold(store: Store, hh: string): Promise<HouseholdContext> {
+// A named guest exists only while the rules list them and their end date has not passed (then they are switched off by themselves).
+export async function loadHousehold(store: Store, hh: string, now = Date.now()): Promise<HouseholdContext> {
   const pk = Store.hk(hh);
   const [meta, people, rules] = await Promise.all([store.get(pk, 'META'), store.query(pk, 'PERSON#'), store.get(pk, 'RULES#current')]);
   if (!meta || !rules) throw new Error('household not set up');
-  return { meta: meta as unknown as HouseholdMeta, people: people as unknown as Person[], rules: rules.config as RulesConfig };
+  const config = rules.config as RulesConfig;
+  const live = new Set((config.guests ?? []).filter((g) => g.untilMs > now).map((g) => g.id));
+  const alive = (people as unknown as Person[]).filter((p) => p.role !== 'guest' || p.id === 'guest' || live.has(p.id));
+  return { meta: meta as unknown as HouseholdMeta, people: alive, rules: config };
 }
 
 export interface ActiveSession {

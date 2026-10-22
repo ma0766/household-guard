@@ -88,3 +88,12 @@ Rule of thumb for every row: an error, a timeout or a doubt ends as **hold** or 
 - **Home Assistant is local only.** The deployed Lambda cannot reach a container on a laptop. Over a tunnel the key travels over HTTPS only (plain http to another machine is refused).
 - **The Composio and Wix connectors are stand-ins** here (no keys); their live behaviour is unverified.
 - **No penetration test and no formal COPPA review.** The privacy notes are basics, not legal advice.
+
+## Level up: taps, guests (2026-10-22)
+
+| Risk | What we do | Honest limit |
+|---|---|---|
+| Someone else speaks right after Mom's buy tap | The 5-minute tap window covers only that person's buys inside their own limits; the cap forbid, quiet hours and the database reservation still decide each buy. Doors and rule changes never use the window. | Alexa gives add-ons no speaker identity, so within 5 minutes another voice can buy as Mom, up to Mom's limits. Turn the no-tap window off by never tapping, or lower the limit. |
+| A guest PIN is overheard | Guest PINs only open a short list of everyday things (lights, heat, music, weather, timers). Guests never buy, unlock, use the garage, change rules or hear orders (proved for all requests). The PIN is shown once, on the adult's own phone, kept only as a scrypt hash, and the guest is switched off after the last day. | A guest who keeps the PIN has their list until the last day, or until an adult ends the stay. |
+| Teen on the garage | A teen may open the garage with a spoken heads-up (levelup decision); an adult can make it adults-only with one card. | The garage is no longer behind a tap. |
+| A typed rule or a model draft | The model only fills in one known setting; the answer is checked in code, against the Cedar schema, shown with the last 7 days replayed under it, and saved only after the adult's tap. The model never sees or decides a request. | A reader failure becomes a question; nothing changes. |

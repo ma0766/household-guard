@@ -15,6 +15,7 @@ import { householdStatus, voiceSummary, recentOrders } from '../audit/report.js'
 import { readAudit } from '../audit/audit.js';
 import { approvalsHtml, ordersHtml, timelineHtml } from '../audit/views.js';
 import { openApprovals } from '../approvals/approvals.js';
+import { startRuleSentence } from '../rules/sentence.js';
 import { myRules, proposeRule, rulesHtml } from '../rules/change.js';
 import type { RuleChange } from '../rules/templates.js';
 import { ensureSeeded, loadHousehold } from '../core/household.js';
@@ -171,7 +172,10 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
     {
       description: 'An adult changes a house rule (or undoes the last change). The adult must then confirm on their own phone.',
       inputSchema: {
-        template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'quiet_hours', 'floor', 'private_orders']).optional(),
+        template: z.enum(['weekly_limit', 'adults_only', 'allowed_apps', 'must_haves', 'quiet_hours', 'floor', 'private_orders', 'guest_switch', 'add_guest', 'end_guest', 'no_tap_buys']).optional(),
+        guest_name: z.string().max(40).optional().describe('add_guest: the guest\'s name'),
+        guest_id: z.string().max(60).optional().describe('end_guest: which guest'),
+        until: z.string().max(10).optional().describe('add_guest: the last day, YYYY-MM-DD'),
         roles: z.array(z.enum(['teen', 'child'])).max(2).optional().describe('private_orders: who besides adults may hear order history'),
         person: z.string().max(120).optional(),
         dollars: z.number().optional(),
@@ -183,10 +187,15 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
         quiet_to_hour: z.number().optional().describe('Quiet hours end (0-23)'),
         which: z.enum(['childrenNoUnlock', 'guestsNoBuy']).optional(),
         enabled: z.boolean().optional(),
+        sentence: z.string().max(300).optional().describe('A rule in plain words, e.g. Maya can spend 30 dollars a week. It is read back, and saved only after the adult confirms on their own phone.'),
         undo: z.boolean().optional().describe('Undo the newest change (within 24 hours)'),
       },
     },
     async (a) => {
+      if (a.sentence) {
+        const r = await startRuleSentence(deps, hh, a.sentence);
+        return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };
+      }
       let change: RuleChange | undefined;
       if (a.template === 'weekly_limit') change = { template: 'weekly_limit', person: String(a.person ?? '').toLowerCase(), cents: Math.round(Number(a.dollars) * 100) };
       else if (a.template === 'adults_only') change = { template: 'adults_only', actions: a.actions ?? [] };
@@ -194,6 +203,10 @@ export function buildMcpServer(deps: Deps, hh: string): McpServer {
       else if (a.template === 'must_haves') change = { template: 'must_haves', bagIncluded: a.bag_included, arriveByHour: a.arrive_by_hour };
       else if (a.template === 'quiet_hours' && a.quiet_from_hour !== undefined) change = { template: 'quiet_hours', fromHour: a.quiet_from_hour, toHour: a.quiet_to_hour };
       else if (a.template === 'private_orders') change = { template: 'private_orders', roles: a.roles ?? [] };
+      else if (a.template === 'guest_switch') change = { template: 'guest_switch', enabled: !!a.enabled };
+      else if (a.template === 'add_guest') change = { template: 'add_guest', name: String(a.guest_name ?? ''), allowed: a.actions ?? [], until: String(a.until ?? '') };
+      else if (a.template === 'end_guest') change = { template: 'end_guest', id: String(a.guest_id ?? '') };
+      else if (a.template === 'no_tap_buys') change = { template: 'no_tap_buys', person: String(a.person ?? '').toLowerCase(), cents: a.dollars === undefined || a.dollars === null ? null : Math.round(Number(a.dollars) * 100) };
       else if (a.template === 'floor') change = { template: 'floor', which: a.which as 'childrenNoUnlock', enabled: !!a.enabled };
       const r = !change && !a.undo ? { status: 'invalid', say: "I don't know that rule." } : await proposeRule(deps, hh, { change, undo: a.undo });
       return { content: [{ type: 'text', text: r.say }], structuredContent: r as unknown as Record<string, unknown> };

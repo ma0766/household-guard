@@ -3,7 +3,7 @@ export const SCHEMA_TEXT = `entity Role;
 entity Person in [Role];
 entity Service;
 
-action light, thermostat, unlock, garage, purchase, use_app, build_site, order_history, order_status, cart, order_gift appliesTo {
+action light, thermostat, music, weather, timer, unlock, garage, purchase, use_app, build_site, order_history, order_status, cart, order_gift, mark_gift appliesTo {
   principal: [Person],
   resource: [Service],
   context: {

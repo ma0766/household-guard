@@ -5,7 +5,7 @@ export const SIM_HOME = 'sim-home';
 
 export async function execSimHome(store: Store, hh: string, action: string, item: string | undefined, value: string | number | undefined) {
   const device = action === 'light' ? 'lights' : action === 'unlock' ? 'front door' : action === 'garage' ? 'garage' : action === 'thermostat' ? 'thermostat' : action;
-  const state = action === 'unlock' ? 'unlocked' : action === 'garage' ? 'open' : String(value ?? 'on');
+  const state = action === 'unlock' ? 'unlocked' : action === 'garage' ? 'open' : action === 'weather' ? 'asked' : String(value ?? 'on');
   await store.put({ pk: Store.hk(hh), sk: `DEVICE#${device}`, device, state, item: item ?? null, changedAt: Date.now() });
   return { device, state };
 }
