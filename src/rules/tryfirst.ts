@@ -1,6 +1,7 @@
 import type { Deps } from '../core/request-action.js';
 import { decidePrepared, prepareSets, type Answer, type PreparedSets } from '../policy/evaluator.js';
 import { generatePolicies, type RulesConfig } from '../policy/rules.js';
+import { serviceKnownFor } from '../policy/kinds.js';
 import { Store } from '../core/store.js';
 import type { AuditEntry } from '../audit/audit.js';
 import type { SessionMethod } from '../core/types.js';
@@ -26,7 +27,7 @@ interface Logged {
 
 // How a request would go, in words people use. A buy that is allowed still needs the person's tap unless they are on the no-tap list.
 export function way(c: RulesConfig, p: Person, r: Logged['replay'], sets: PreparedSets = prepareSets(generatePolicies(c))): string {
-  const d = decidePrepared(sets, { person: { id: p.id, role: p.role }, action: r.action, service: r.service, serviceKnown: c.allowedServices.includes(r.service), amountCents: r.amount_cents, weekSpentCents: r.week_spent_cents, value: r.value, session: r.session, localHour: r.hour });
+  const d = decidePrepared(sets, { person: { id: p.id, role: p.role }, action: r.action, service: r.service, serviceKnown: serviceKnownFor(c, r.service, r.action), amountCents: r.amount_cents, weekSpentCents: r.week_spent_cents, value: r.value, session: r.session, localHour: r.hour });
   const answer: Answer = d.answer;
   if (answer === 'deny') return 'refused';
   if (answer === 'hold') return 'held for an adult';

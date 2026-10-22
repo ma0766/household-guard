@@ -1,4 +1,5 @@
 import type { Person } from '../core/types.js';
+import { KINDS, KIND_WORDS, type Kind } from '../policy/kinds.js';
 import { EVERYDAY_ACTIONS, KNOWN_ACTIONS, type RulesConfig } from '../policy/rules.js';
 import { validateRules } from '../policy/evaluator.js';
 import { hourWord, money } from '../text.js';
@@ -12,6 +13,7 @@ export type RuleChange =
   | { template: 'must_haves'; bagIncluded?: boolean; arriveByHour?: number | null }
   | { template: 'private_orders'; roles: ('teen' | 'child')[] }
   | { template: 'quiet_hours'; fromHour: number | null; toHour?: number }
+  | { template: 'kind_rule'; role: 'teen' | 'child' | 'guest'; kind: Kind; effect: 'deny' | 'needs_approval' | null } // aim a rule at a whole kind of action; null removes it
   | { template: 'guest_switch'; enabled: boolean }
   | { template: 'add_guest'; name: string; allowed: string[]; until: string } // until = a date, YYYY-MM-DD, in the house's own zone (end of that day)
   | { template: 'end_guest'; id: string }
@@ -85,6 +87,18 @@ export function applyChange(before: RulesConfig, change: RuleChange, people: Per
       sentence = names.length ? `Adults and ${names.join(' and ')} hear orders. Gifts stay private.` : 'Only adults hear orders.';
       const added = names.filter((n) => !(before.orderRoles ?? []).map((r) => (r === 'teen' ? 'teens' : 'children')).includes(n));
       if (added.length) warning = `This lets ${added.join(' and ')} hear what the house ordered. Gifts stay private.`;
+      break;
+    }
+    case 'kind_rule': {
+      const who = { teen: 'teens', child: 'children', guest: 'guests' } as Record<string, string>;
+      if (!who[change.role] || !(KINDS as readonly string[]).includes(change.kind)) return { ok: false, error: 'I do not know that kind.' };
+      if (change.kind === 'info' && change.effect === 'deny' && change.role !== 'guest') return { ok: false, error: 'Looking things up stays open.' };
+      const rest = (before.kindRules ?? []).filter((r) => !(r.role === change.role && r.kind === change.kind));
+      next.kindRules = change.effect ? [...rest, { role: change.role, kind: change.kind, effect: change.effect }] : rest;
+      if (!next.kindRules.length) delete next.kindRules;
+      const words = KIND_WORDS[change.kind];
+      sentence = change.effect === 'deny' ? `No ${words} for ${who[change.role]}.` : change.effect === 'needs_approval' ? `${who[change.role][0].toUpperCase()}${who[change.role].slice(1)} need an adult's yes for ${words}.` : `No special rule for ${who[change.role]} and ${words}.`;
+      if (!change.effect && (before.kindRules ?? []).some((r) => r.role === change.role && r.kind === change.kind)) warning = `This lets ${who[change.role]} use ${words} again.`;
       break;
     }
     case 'guest_switch': {

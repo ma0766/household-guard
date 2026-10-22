@@ -1,6 +1,7 @@
 import type { Person, Role } from '../core/types.js';
 import type { RulesConfig } from '../policy/rules.js';
 import { decidePrepared, prepareSets, type Answer, type DecisionInput } from '../policy/evaluator.js';
+import { serviceKnownFor } from '../policy/kinds.js';
 import { generatePolicies } from '../policy/rules.js';
 import { hourWord, money } from '../text.js';
 
@@ -65,8 +66,8 @@ export function previewChange(before: RulesConfig, after: RulesConfig, people: P
   for (const p of people) {
     for (const q of questions(p, p.role === 'guest' ? ['mock-ride'] : flipped, () => true)) {
       const isMoney = q.action === 'purchase';
-      const was = RANK[decidePrepared(pBefore, { ...q, serviceKnown: before.allowedServices.includes(q.service) }).answer];
-      const now = RANK[decidePrepared(pAfter, { ...q, serviceKnown: after.allowedServices.includes(q.service) }).answer];
+      const was = RANK[decidePrepared(pBefore, { ...q, serviceKnown: serviceKnownFor(before, q.service, q.action) }).answer];
+      const now = RANK[decidePrepared(pAfter, { ...q, serviceKnown: serviceKnownFor(after, q.service, q.action) }).answer];
       if (isMoney && p.role !== 'guest' && !flipped.includes(q.service)) continue; // limits and quiet hours are said exactly above
       if (now > was) looser.set(`${p.role}-${q.action}`, `This change lets ${WHO[p.role]} ${WHAT[q.action]}. Are you sure?`);
       else if (now < was) stricter.push(`This is stricter for ${WHO[p.role]}: ${WHAT[q.action]}.`);

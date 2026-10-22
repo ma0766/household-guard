@@ -15,6 +15,7 @@ import { MOCK_SHOP, quoteItem } from '../connectors/mock-shop.js';
 import { openChallenge } from '../approvals/challenge.js';
 import { createJob } from '../jobs/worker.js';
 import { T } from '../text.js';
+import { serviceKnownFor } from '../policy/kinds.js';
 import { tapCovers } from '../identity/tapwindow.js';
 
 export interface PurchaseCtx {
@@ -66,7 +67,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
 
   const week = weekKey(now, tz);
   const spent = await spentThisWeek(deps.store, hh, week, person.id);
-  const d = decideTraced(deps, rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
+  const d = decideTraced(deps, rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: serviceKnownFor(rules, args.service, 'purchase'), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
   const extra = { ...base, amount_cents: amount, option_id: optionId, rule: explainDecision(d, rules, person.name) };
 
   if (d.answer === 'deny') {
@@ -158,7 +159,7 @@ function bestValue(rules: RulesConfig, person: Person, method: SessionMethod, se
       const [h, m] = formatLocal24(now + o.eta_minutes * 60_000, tz);
       if (h * 60 + m > rules.mustHaves.arriveByHour * 60) return false;
     }
-    return decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service, serviceKnown: rules.allowedServices.includes(service), amountCents: o.total_cents, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) }).answer === 'allow';
+    return decide(rules, { person: { id: person.id, role: person.role }, action: 'purchase', service, serviceKnown: serviceKnownFor(rules, service, 'purchase'), amountCents: o.total_cents, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) }).answer === 'allow';
   });
   return fits.sort((a, b) => a.total_cents - b.total_cents)[0];
 }

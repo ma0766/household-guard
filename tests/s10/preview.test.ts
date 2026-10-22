@@ -37,7 +37,8 @@ describe('S10 plain-language preview of a rule change', () => {
     expect(prev(base, on)).toEqual(['This lets kids buy at any hour.']);
   });
   it('allowed apps: adding a store lets a teen buy there without asking; removing the ride app puts rides on hold', () => {
-    expect(prev(edit((c) => { c.allowedServices = [...c.allowedServices, 'mock-food']; }))).toContain('This change lets a teen buy things. Are you sure?');
+    expect(prev(edit((c) => { c.allowedServices = [...c.allowedServices, 'mock-food']; c.serviceKinds = { 'mock-food': ['money'] }; })))  // kinds: a service that has not declared what it offers is held, so this store declares money
+      .toContain('This change lets a teen buy things. Are you sure?');
     expect(prev(edit((c) => { c.allowedServices = c.allowedServices.filter((x) => x !== 'mock-ride'); }))).toContain('This is stricter for a teen: buy things.');
   });
   it('a first weekly limit for someone with none says they can now buy up to it without asking', () => {

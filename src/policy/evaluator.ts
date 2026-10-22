@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import * as cedar from '@cedar-policy/cedar-wasm/nodejs';
 import type { Role, SessionMethod } from '../core/types.js';
+import { kindOf } from './kinds.js';
 import { generatePolicies, type RulesConfig } from './rules.js';
 
 import { SCHEMA_TEXT } from './schema.js';
@@ -31,7 +32,7 @@ const callOf = (i: DecisionInput) => ({
   principal: uid('Person', i.person.id),
   action: uid('Action', i.action),
   resource: uid('Service', i.service),
-  context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour },
+  context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour, kind: kindOf(i.action) ?? 'unknown' },
   entities: [
     { uid: uid('Person', i.person.id), attrs: {}, parents: [uid('Role', i.person.role)] },
     { uid: uid('Role', i.person.role), attrs: {}, parents: [] },
@@ -44,7 +45,7 @@ function ask(policies: Record<string, string>, i: DecisionInput) {
     principal: uid('Person', i.person.id),
     action: uid('Action', i.action),
     resource: uid('Service', i.service),
-    context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour },
+    context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour, kind: kindOf(i.action) ?? 'unknown' },
     policies: { staticPolicies: policies },
     entities: [
       { uid: uid('Person', i.person.id), attrs: {}, parents: [uid('Role', i.person.role)] },

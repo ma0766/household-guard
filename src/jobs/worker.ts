@@ -8,6 +8,7 @@ import { loadHousehold } from '../core/household.js';
 import { decide } from '../policy/evaluator.js';
 import { hourOf } from '../core/time.js';
 import { T, money } from '../text.js';
+import { serviceKnownFor } from '../policy/kinds.js';
 import { emit } from '../audit/emit.js';
 import { clearApprovalOwed, connectorState } from '../connectors/healing.js';
 
@@ -83,7 +84,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
     {
       const { people, rules, meta } = await loadHousehold(deps.store, hh);
       const who = people.find((p) => p.id === j.personId);
-      const again = who && decide(rules, { person: { id: who.id, role: who.role }, action: 'purchase', service: j.service, serviceKnown: rules.allowedServices.includes(j.service), amountCents: j.amountCents, weekSpentCents: 0, value: 0, session: 'phone', localHour: hourOf(now, meta.timezone) });
+      const again = who && decide(rules, { person: { id: who.id, role: who.role }, action: 'purchase', service: j.service, serviceKnown: serviceKnownFor(rules, j.service, 'purchase'), amountCents: j.amountCents, weekSpentCents: 0, value: 0, session: 'phone', localHour: hourOf(now, meta.timezone) });
       if (!who || again!.answer === 'deny') {
         const why = again?.determining.includes('quiet_hours') && rules.quietHours ? T.quietHours(rules.quietHours.fromHour, rules.quietHours.toHour) : T.cantDo;
         await release(deps.store, hh, j.reservationId);

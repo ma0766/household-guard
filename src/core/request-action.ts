@@ -10,6 +10,7 @@ import { explainDecision } from '../policy/explain.js';
 import { KNOWN_ACTIONS, ORDER_ACTIONS, type RulesConfig } from '../policy/rules.js';
 import { SIM_HOME } from '../connectors/sim-home.js';
 import { handleAppAction, tellAdultsAboutApp } from './app-action.js';
+import { serviceKnownFor } from '../policy/kinds.js';
 import { tierOf } from './tiers.js';
 import { executeAction } from './execute.js';
 import { openChallenge } from '../approvals/challenge.js';
@@ -73,7 +74,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       person: { id: person.id, role: person.role },
       action: args.action,
       service: args.service,
-      serviceKnown: rules.allowedServices.includes(args.service),
+      serviceKnown: serviceKnownFor(rules, args.service, args.action),
       amountCents: 0,
       weekSpentCents: 0,
       value: Number.isFinite(value) ? Math.trunc(value) : 0,

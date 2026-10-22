@@ -1,4 +1,5 @@
 import type { Role } from '../core/types.js';
+import type { Kind } from './kinds.js';
 
 // The rule card data. Nobody types Cedar: policies are generated from this and validated before use.
 export interface RulesConfig {
@@ -12,6 +13,8 @@ export interface RulesConfig {
   deny: { role: Role; action: string }[];
   mustHaves: { arriveByHour?: number; bagIncluded?: boolean };
   quietHours?: { fromHour: number; toHour: number }; // no buying for non-adults, in the house's own time zone (S10)
+  serviceKinds?: Record<string, Kind[]>; // what each added service or device says it offers (the shipped ones are in kinds.ts)
+  kindRules?: { role: Role; kind: Kind; effect: 'deny' | 'needs_approval' }[]; // a rule aimed at a whole kind of action
   guestEveryday?: boolean; // "Everyday things for anyone at home" (default on). Off = anyone not confirmed (PIN or phone tap) can do nothing.
   guests?: NamedGuest[]; // named guests: a PIN of their own, their own allowed list, an end date
   noTapBuyCents?: Record<string, number>; // per person: small buys up to this amount skip the phone tap (off by default)
@@ -128,6 +131,13 @@ export function generatePolicies(c: RulesConfig): PolicySets {
     const inside = f > t ? `context.local_hour >= ${f} || context.local_hour < ${t}` : `context.local_hour >= ${f} && context.local_hour < ${t}`;
     both('quiet_hours', `forbid(principal, action == Action::"purchase", resource) when { ${inside} } unless { principal in Role::"adult" };`);
   }
+
+  // rules aimed at a whole kind of action
+  (c.kindRules ?? []).forEach((r, i) => {
+    const text = `forbid(principal in Role::${q(r.role)}, action, resource) when { context.kind == ${q(r.kind)} };`;
+    if (r.effect === 'deny') both(`kind_deny_${i}`, text);
+    else auto[`kind_approval_${i}`] = text;
+  });
 
   // explicit rule types
   c.deny.forEach((r, i) => both(`deny_${i}`, `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));

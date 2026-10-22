@@ -3,6 +3,7 @@ import { Store } from '../core/store.js';
 import { getSession, loadHousehold } from '../core/household.js';
 import { openChallenge, type Challenge } from '../approvals/challenge.js';
 import { previewChange } from './preview.js';
+import { KIND_WORDS } from '../policy/kinds.js';
 import { tryFirst, type TryFirst } from './tryfirst.js';
 import { randomInt } from 'node:crypto';
 import { hashPin } from '../identity/pin.js';
@@ -204,6 +205,7 @@ export function rulesHtml(rules: RulesConfig, people: { id: string; name: string
     ...people.filter((p) => p.role !== 'guest').map((p) => row('🛒', rules.weeklyCapCents[p.id] === undefined ? `${p.name}: an adult says yes to buys.` : `${p.name}: ${money(rules.weeklyCapCents[p.id])} a week.`)),
     row('🔒', `Adults only: ${rules.adultsOnlyActions.join(', ') || 'nothing'}.`),
     row('🚗', rules.adultsOnlyActions.includes('garage') ? 'The garage is for adults only.' : 'Adults and teens use the garage. No tap.'),
+    ...(rules.kindRules ?? []).map((k) => row('🧩', `${k.role === 'child' ? 'Children' : k.role === 'teen' ? 'Teens' : 'Guests'}: ${k.effect === 'deny' ? 'no' : 'an adult says yes to'} ${KIND_WORDS[k.kind]}.`)),
     row('🏠', rules.guestEveryday === false ? 'Everyday things need a PIN or a tap.' : 'Everyday things are open to anyone at home.'),
     ...(rules.guests ?? []).map((g) => row('🧳', `Guest ${g.name}: ${g.allowed.join(', ') || 'nothing'}, until ${new Date(g.untilMs).toLocaleDateString('en-CA', { timeZone: 'America/New_York' })}.`)),
     ...Object.entries(rules.noTapBuyCents ?? {}).map(([id, c]) => row('👆', `${people.find((p) => p.id === id)?.name ?? id} buys up to ${money(c)} with no tap.`)),
