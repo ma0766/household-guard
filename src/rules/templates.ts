@@ -29,6 +29,8 @@ export type Applied = { ok: true; config: RulesConfig; sentence: string; warning
 export function applyChange(before: RulesConfig, change: RuleChange, people: Person[], ctx: { now?: number; tz?: string } = {}): Applied {
   const next: RulesConfig = JSON.parse(JSON.stringify(before));
   next.version = before.version + 1;
+  if (next.guests) next.guests = next.guests.filter((g) => g.untilMs > (ctx.now ?? Date.now())); // a guest past their last day leaves the rules at the next change
+  if (next.guests && !next.guests.length) delete next.guests;
   let sentence: string;
   let warning: string | undefined;
   switch (change.template) {
@@ -92,7 +94,7 @@ export function applyChange(before: RulesConfig, change: RuleChange, people: Per
       break;
     }
     case 'add_guest': {
-      const name = String(change.name ?? '').replace(/[^A-Za-z ]/g, '').trim().slice(0, 20);
+      const name = String(change.name ?? '').replace(/[^A-Za-z ]/g, '').trim().slice(0, 20).trim();
       const slug = name.toLowerCase().replace(/ +/g, '-');
       if (name.length < 2) return { ok: false, error: 'What is the guest called?' };
       if (people.some((p) => p.name.toLowerCase() === name.toLowerCase() && p.id !== `g-${slug}`)) return { ok: false, error: 'Someone has that name.' };

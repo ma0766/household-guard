@@ -165,11 +165,12 @@ export async function completeRule(deps: Deps, hh: string, personId: string, c: 
   // a new guest gets a PIN of their own. It is shown once, on this adult's phone, and kept only as a scrypt hash.
   let guestPin: string | undefined;
   if (m.change?.template === 'add_guest') {
-    const clean = String(m.change.name).replace(/[^A-Za-z ]/g, '').trim();
+    const clean = String(m.change.name).replace(/[^A-Za-z ]/g, '').trim().slice(0, 20).trim();
     const who = (next.guests ?? []).find((x) => x.id === `g-${clean.toLowerCase().replace(/ +/g, '-')}`);
     if (who) {
       guestPin = String(randomInt(1000, 10000));
-      await deps.store.put({ pk, sk: `PERSON#${who.id}`, id: who.id, name: who.name, role: 'guest', hasPhone: false, pinHash: hashPin(guestPin) });
+      // the record goes away by itself: 3 days after their last day (a day of undo, and slack for the table's own clock)
+      await deps.store.put({ pk, sk: `PERSON#${who.id}`, id: who.id, name: who.name, role: 'guest', hasPhone: false, pinHash: hashPin(guestPin), ttl: Math.floor((who.untilMs + 3 * 86400_000) / 1000) });
     }
   }
   const record =

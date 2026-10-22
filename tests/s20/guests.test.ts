@@ -73,6 +73,46 @@ describe('named guests: their own PIN, their own list, an end date', () => {
     expect(no.rule).toBe("Rule: Sam's list does not have that.");
     expect(no.person_name).toBe('Sam');
   });
+  it('the guest record expires by itself (3 days past the last day), and the privacy note says an adult makes it', async () => {
+    const ctx = await newHousehold();
+    const until = day(Date.now() + 3 * 86400_000);
+    await addSam(ctx, ['light'], until);
+    const row = await ctx.store.get(Store.hk(ctx.hh), 'PERSON#g-sam');
+    expect(row?.ttl).toBeGreaterThan(Math.floor((Date.now() + 5 * 86400_000) / 1000));
+    expect(row?.ttl).toBeLessThan(Math.floor((Date.now() + 8 * 86400_000) / 1000));
+    const { PRIVACY } = await import('../../src/server.js');
+    expect(PRIVACY).toMatch(/guest profile is made only by an adult/i);
+  });
+  it('a guest past their last day also leaves the rules at the next change', async () => {
+    let t = Date.now();
+    const ctx = await newHousehold({ now: () => t });
+    await speakAs(ctx.store, ctx.hh, 'mom', 'phone', t);
+    const r = await proposeRule(ctx.deps, ctx.hh, { change: { template: 'add_guest', name: 'Sam', allowed: ['light'], until: day(t + 86400_000) } });
+    await tap(ctx, 'mom', r.challenge_id!);
+    t += 4 * 86400_000;
+    await speakAs(ctx.store, ctx.hh, 'mom', 'phone', t);
+    const g = await proposeRule(ctx.deps, ctx.hh, { change: { template: 'guest_switch', enabled: false } });
+    await tap(ctx, 'mom', g.challenge_id!);
+    expect((await loadHousehold(ctx.store, ctx.hh, t)).rules.guests).toBeUndefined();
+  });
+  it('a very long name still gets a PIN (the name is cut the same way everywhere)', async () => {
+    const ctx = await newHousehold();
+    const out = await mom(ctx, { template: 'add_guest', name: 'Maximilianalexanderson', allowed: ['light'], until: day(Date.now() + 86400_000) });
+    const pin = /PIN is (\d{4})/.exec(out.say)?.[1];
+    expect(pin).toBeTruthy();
+    await ctx.store.delete(Store.hk(ctx.hh), 'SESSION#current');
+    expect((await confirmIdentity(ctx.deps, ctx.hh, { name: 'Maximilianalexanders', pin: pin! })).status).toBe('confirmed');
+  });
+  it('a late buy tap does not move who is speaking back to the tapper', async () => {
+    const ctx = await newHousehold();
+    await speakAs(ctx.store, ctx.hh, 'mom', 'phone');
+    const first = await requestAction(ctx.deps, ctx.hh, ride('mall'));
+    await speakAs(ctx.store, ctx.hh, 'maya', 'phone'); // Maya speaks after Mom
+    await tap(ctx, 'mom', first.job_id as string); // Mom's old tap lands late
+    const r = await requestAction(ctx.deps, ctx.hh, { service: 'mock-shop', action: 'order_history' });
+    expect(r.outcome).toBe('denied'); // still Maya speaking: no orders for a teen
+    expect(r.say).toBe("That's private. Ask a grown-up.");
+  });
   it('a wrong PIN does nothing, and three wrong tries lock', async () => {
     const ctx = await newHousehold();
     const { pin } = await addSam(ctx);

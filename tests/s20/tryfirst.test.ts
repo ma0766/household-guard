@@ -19,6 +19,23 @@ async function week() {
   return ctx;
 }
 
+describe('try it first stays fast on a busy house (the 500 ms rule)', () => {
+  it('about 500 logged asks: the reply still comes back in under 500 ms', async () => {
+    const ctx = await newHousehold();
+    const { appendAudit } = await import('../../src/audit/audit.js');
+    for (let i = 0; i < 500; i++) {
+      await appendAudit(ctx.deps, ctx.hh, 'America/New_York', { kind: 'ask', category: 'cart', person: i % 2 ? 'maya' : 'mom', personName: i % 2 ? 'Maya' : 'Mom', text: 'x', data: { replay: { action: 'purchase', service: 'mock-ride', amount_cents: 500 + (i % 40) * 100, week_spent_cents: (i % 10) * 100, value: 0, session: 'phone', hour: 12 } } });
+    }
+    await speakAs(ctx.store, ctx.hh, 'mom', 'phone');
+    const t0 = Date.now();
+    const r = await proposeRule(ctx.deps, ctx.hh, { change: { template: 'weekly_limit', person: 'maya', cents: 5000 } });
+    const took = Date.now() - t0;
+    expect(r.status).toBe('waiting');
+    expect(r.try_first!.total).toBeGreaterThan(100);
+    expect(took).toBeLessThan(500);
+  });
+});
+
 describe('try it first', () => {
   it('"With this rule, 1 of Maya\'s 3 requests would change." with the list; nothing is saved', async () => {
     const ctx = await week();
@@ -82,5 +99,21 @@ describe('try it first', () => {
     expect((await proposeRule(ctx.deps, ctx.hh, { change: { template: 'weekly_limit', person: 'maya', cents: 5000 } })).status).toBe('waiting');
     const u = await proposeRule(ctx.deps, ctx.hh, { undo: true });
     expect(u.status).toBe('invalid'); // nothing saved yet, so nothing to undo; the replay never saves
+  });
+});
+
+describe('the fast reader gives the same answers as the normal one', () => {
+  it('prepared rules and plain rules agree on a grid of questions, and many rule sets never break it', async () => {
+    const { decide, decidePrepared, prepareSets } = await import('../../src/policy/evaluator.js');
+    const { defaultRules, generatePolicies } = await import('../../src/policy/rules.js');
+    const base = defaultRules();
+    for (let n = 0; n < 40; n++) { // more rule sets than the engine keeps: the rest fall back to the slow way, same answers
+      const c = { ...base, weeklyCapCents: { ...base.weeklyCapCents, maya: 1000 + n * 100 } };
+      const p = prepareSets(generatePolicies(c));
+      for (const role of ['adult', 'teen', 'child', 'guest'] as const) for (const action of ['light', 'unlock', 'garage', 'purchase', 'order_history', 'order_gift', 'delete_account']) for (const amountCents of [0, 1500, 6000]) {
+        const q = { person: { id: role === 'teen' ? 'maya' : role, role }, action, service: 'mock-ride', serviceKnown: true, amountCents, weekSpentCents: 500, value: 70, session: 'phone' as const, localHour: 12 };
+        expect(decidePrepared(p, q).answer, `${n} ${role} ${action} ${amountCents}`).toBe(decide(c, q).answer);
+      }
+    }
   });
 });

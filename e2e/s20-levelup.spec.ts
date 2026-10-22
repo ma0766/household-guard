@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { existsSync, readFileSync } from 'node:fs';
 import { freshHouse, signIn, confirmOnPhone } from './helpers.js';
 
 // LEVEL UP: rule adding, typed rules, try it first, taps only for what matters, guests, private things, why?
@@ -206,4 +207,13 @@ test('4b no-tap list (off by default): Mom lets Maya buy small things with no ta
   await signIn(page, 'maya');
   await say(page, 'book a shared ride to the school');
   await expect(says).not.toContainText('Confirm on your phone');
+});
+
+test('8 README: "Where the code is" links the MCP server, the decision engine and the tests, and every link opens a real file', async () => {
+  const readme = readFileSync('README.md', 'utf8');
+  const section = readme.split('## Where the code is')[1]?.split('\n## ')[0] ?? '';
+  for (const must of ['src/mcp/server.ts', 'src/core/request-action.ts', 'src/policy/rules.ts', 'tests/s20', 'tests/replay/cases.ts']) expect(section, must).toContain(must);
+  const paths = [...section.matchAll(/\]\(([^)#]+)\)/g)].map((m) => m[1]);
+  expect(paths.length).toBeGreaterThan(20);
+  for (const p of paths) expect(existsSync(p), p).toBe(true);
 });

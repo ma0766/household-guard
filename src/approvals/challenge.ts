@@ -99,9 +99,9 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
     try {
       result = await executeAction(deps, hh, personId, c.args!, c.meta);
       if (c.meta?.purchase && result.jobId) {
-        // this person just proved, on their own phone, that they are here: their next buys inside their limits need no new tap for 5 minutes
-        await setSession(deps.store, hh, personId, 'phone', now);
-        await openTapWindow(deps.store, hh, personId, now);
+        // this person just proved, on their own phone, that they are here: their next buys inside their limits need no new tap for 5 minutes.
+        // (The session is NOT renewed: a late tap must never move "who is speaking" back to this person.) Best effort: the ride is already queued.
+        await openTapWindow(deps.store, hh, personId, now).catch(() => undefined);
       }
       if (result.done) await emit(deps, hh, { kind: 'done', category: categoryOf(c.args!.action), person: personId, personName: name, text: (t) => doneHome(name, c.args!, t), data: { action: c.args!.action } });
     } catch {

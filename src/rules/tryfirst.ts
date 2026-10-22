@@ -1,7 +1,9 @@
 import type { Deps } from '../core/request-action.js';
-import { readAudit } from '../audit/audit.js';
-import { decide, type Answer, type DecisionInput } from '../policy/evaluator.js';
-import type { RulesConfig } from '../policy/rules.js';
+import { decidePrepared, prepareSets, type Answer, type PreparedSets } from '../policy/evaluator.js';
+import { generatePolicies, type RulesConfig } from '../policy/rules.js';
+import { Store } from '../core/store.js';
+import type { AuditEntry } from '../audit/audit.js';
+import type { SessionMethod } from '../core/types.js';
 import type { Person } from '../core/types.js';
 import { money } from '../text.js';
 
@@ -19,12 +21,12 @@ export interface TryFirst {
 interface Logged {
   person: string;
   at: number;
-  replay: { action: string; service: string; amount_cents: number; week_spent_cents: number; value: number; session: DecisionInput['session']; hour: number };
+  replay: { action: string; service: string; amount_cents: number; week_spent_cents: number; value: number; session: SessionMethod; hour: number };
 }
 
 // How a request would go, in words people use. A buy that is allowed still needs the person's tap unless they are on the no-tap list.
-export function way(c: RulesConfig, p: Person, r: Logged['replay']): string {
-  const d = decide(c, { person: { id: p.id, role: p.role }, action: r.action, service: r.service, serviceKnown: c.allowedServices.includes(r.service), amountCents: r.amount_cents, weekSpentCents: r.week_spent_cents, value: r.value, session: r.session, localHour: r.hour });
+export function way(c: RulesConfig, p: Person, r: Logged['replay'], sets: PreparedSets = prepareSets(generatePolicies(c))): string {
+  const d = decidePrepared(sets, { person: { id: p.id, role: p.role }, action: r.action, service: r.service, serviceKnown: c.allowedServices.includes(r.service), amountCents: r.amount_cents, weekSpentCents: r.week_spent_cents, value: r.value, session: r.session, localHour: r.hour });
   const answer: Answer = d.answer;
   if (answer === 'deny') return 'refused';
   if (answer === 'hold') return 'held for an adult';
@@ -38,20 +40,27 @@ const what = (r: Logged['replay']) => (r.action === 'purchase' ? (r.service === 
 const when = (ms: number, tz: string) => new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(ms)).replace(',', '');
 
 export async function tryFirst(deps: Deps, hh: string, before: RulesConfig, after: RulesConfig, people: Person[], tz: string, now: number, focusPersonId?: string): Promise<TryFirst> {
-  const rows = await readAudit(deps.store, hh, { limit: 1000 });
+  // newest 1500 log rows at most: a busy house must not slow the reply down (the 500 ms rule)
+  const rows = (await deps.store.query(Store.hk(hh), 'AUDIT#', { reverse: true, limit: 1500 })) as unknown as AuditEntry[];
   const logged: Logged[] = rows
     .filter((e) => e.kind === 'ask' && e.ts >= now - REPLAY_DAYS * 86400_000 && (e.data as any)?.replay && (!focusPersonId || e.person === focusPersonId))
     .map((e) => ({ person: e.person, at: e.ts, replay: (e.data as any).replay }))
     .reverse(); // oldest first
   const lines: string[] = [];
-  for (const l of logged) {
+  const setsBefore = prepareSets(generatePolicies(before)); // read once, not once per request
+  const setsAfter = prepareSets(generatePolicies(after));
+  const memo = new Map<string, string>(); // the same question asked twice is answered once
+  for (const l of logged.slice(-250)) {
     const p = people.find((x) => x.id === l.person);
     if (!p) continue; // someone who has left the house cannot be asked again
-    const was = way(before, p, l.replay);
-    const will = way(after, p, l.replay);
+    const sig = JSON.stringify([p.id, p.role, l.replay]);
+    const was = memo.get(`b${sig}`) ?? way(before, p, l.replay, setsBefore);
+    const will = memo.get(`a${sig}`) ?? way(after, p, l.replay, setsAfter);
+    memo.set(`b${sig}`, was);
+    memo.set(`a${sig}`, will);
     if (was !== will) lines.push(`${when(l.at, tz)}: ${p.name} asked for ${what(l.replay)}. Was ${was}. Now ${will}.`);
   }
-  const total = logged.length;
+  const total = Math.min(logged.length, 250);
   const who = focusPersonId ? (people.find((x) => x.id === focusPersonId)?.name ?? 'the house') : '';
   const changed = lines.length;
   const noun = total === 1 ? 'request' : 'requests';
