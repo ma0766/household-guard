@@ -9,14 +9,19 @@ const MAX_CENTS = 100_000; // $1,000: nothing in this demo shop costs more
 // "a $200 gift card", "wire transfer of $500", "send $50 to Dana": the amount and the payee are read from the words, then checked.
 // The words never decide a rule: the price and the kind of thing come back, and the rules (and the scam guard) judge them.
 export function quoteItem(item: string | undefined): { item: string; total_cents: number; payee?: string } | undefined {
-  const t = (item ?? '').toLowerCase().replace(/[-_]/g, ' ').replace(/\bbags?\b/, 'vacuum bag').replace(/vacuum vacuum/, 'vacuum');
-  const key = Object.keys(CATALOG).find((k) => t.includes(k)) ?? (/\b(bitcoin|ethereum|btc)\b/.test(t) ? 'crypto' : /\bwire\b/.test(t) ? 'wire transfer' : /\b(send|pay)\b.*\bto\b/.test(t) ? 'send money' : undefined);
+  const t = (item ?? '').toLowerCase().normalize('NFKC').replace(/(\d),(\d{3})/g, '$1$2').replace(/(\d{1,4})\s*(dollars?|bucks)\b/g, '$$$1').replace(/[-_]/g, ' ').replace(/\bbags?\b/, 'vacuum bag').replace(/vacuum vacuum/, 'vacuum');
+  const SCAMMY = ['gift card', 'crypto', 'wire transfer', 'send money'];
+  // the risky words win: "headphones and a $500 wire transfer" is judged as the wire transfer
+  const key = [...SCAMMY, ...Object.keys(CATALOG)].find((k) => t.includes(k)) ?? (/\b(bitcoin|ethereum|btc)\b/.test(t) ? 'crypto' : /\bwire\b/.test(t) ? 'wire transfer' : /\b(send|pay)\b.*\bto\b/.test(t) ? 'send money' : undefined);
   if (!key) return undefined;
   const m = t.match(/\$\s*(\d{1,4})(?:\.(\d{2}))?/);
   const dollars = m ? Number(m[1]) * 100 + (m[2] ? Number(m[2]) : 0) : undefined;
   const amount = (['gift card', 'crypto', 'wire transfer', 'send money'].includes(key) && dollars !== undefined ? dollars : CATALOG[key]) ?? CATALOG[key];
   if (amount < 100 || amount > MAX_CENTS) return undefined;
-  const payee = key === 'send money' ? t.match(/\bto ([a-z]{2,20})\b/)?.[1] : undefined;
+  const FILLER = new Set(['my', 'our', 'the', 'a', 'an', 'new', 'old', 'some', 'this', 'that', 'friend', 'someone', 'person', 'guy', 'lady', 'him', 'her', 'them', 'me', 'family', 'cousin', 'uncle', 'aunt']);
+  // the payee is the NAME after "to", past filler words ("to my new friend Dana" is Dana; "to my friend" has no name, so it is not bought)
+  const after = (t.match(/\bto ((?:[a-z]{1,20} ?){1,5})/)?.[1] ?? '').trim().split(/\s+/).filter(Boolean);
+  const payee = key === 'send money' ? after.find((w) => w.length >= 2 && !FILLER.has(w)) : undefined;
   if (key === 'send money' && !payee) return undefined;
   return { item: payee ? `${key} to ${payee}` : key, total_cents: amount, ...(payee ? { payee } : {}) };
 }

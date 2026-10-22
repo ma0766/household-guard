@@ -186,10 +186,19 @@ describe('S5 live Bedrock (Claude Haiku on Amazon Bedrock, us-east-1)', () => {
     await speakAs(ctx.store, ctx.hh, 'maya');
     const r = await requestAction(ctx.deps, ctx.hh, giftCard);
     expect(r).toMatchObject({ outcome: 'held', amount_cents: 1500 });
-    const job = { status: 'held', done: false };
-    expect(job).toMatchObject({ status: 'held', done: false });
     expect(await countBookings(ctx.store, ctx.hh)).toBe(0);
     expect(await spentThisWeek(ctx.store, ctx.hh, week(), 'maya')).toBe(0);
+  }, 90000);
+
+  it('the whole flow with the real model: a teen voucher passes the rules; the live check decides; if it holds, nothing is bought and money is released', async () => {
+    const ctx = await newHousehold({ risk: new AskAgainOnOutage() });
+    const { r, job } = await requestAndTap(ctx, voucher);
+    expect(r).toMatchObject({ outcome: 'allowed', amount_cents: 1500 });
+    expect(['done', 'held']).toContain(job!.status); // the live model may judge a plain voucher either way; what it may never do is loosen a rule
+    if (job!.status === 'held') {
+      expect(await countBookings(ctx.store, ctx.hh)).toBe(0);
+      expect(await spentThisWeek(ctx.store, ctx.hh, week(), 'maya')).toBe(0);
+    }
   }, 90000);
 
   it('the whole flow with the real model: a plain ride to the mall is booked', async () => {

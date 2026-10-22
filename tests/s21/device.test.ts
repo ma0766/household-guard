@@ -174,3 +174,19 @@ describe('after connecting', () => {
     expect((await checkDevices(ctx.deps, ctx.hh))[0]).toMatchObject({ status: 'error', alerted: true });
   });
 });
+
+describe('review fixes', () => {
+  it('a second card for the same device cannot overwrite the first adult\'s key; nothing is left behind when a card fails', async () => {
+    const { deviceKey } = await import('../../src/devices/vault.js');
+    const ctx = await newHousehold();
+    await speakAs(ctx.store, ctx.hh, 'mom', 'phone');
+    const one = await requestAction(ctx.deps, ctx.hh, connect);
+    const two = await requestAction(ctx.deps, ctx.hh, { ...connect, request_id: 'again' });
+    const c1 = (await getChallenge(ctx.deps, ctx.hh, one.job_id as string))!;
+    const c2 = (await getChallenge(ctx.deps, ctx.hh, two.job_id as string))!;
+    expect((await phoneConfirm(ctx.deps, ctx.hh, 'mom', { challenge_id: c1.id, number: c1.number, key: KEY })).status).toBe('confirmed');
+    const second = await phoneConfirm(ctx.deps, ctx.hh, 'mom', { challenge_id: c2.id, number: c2.number, key: 'another-key-1234' });
+    expect(second.result?.done).not.toBe(true);
+    expect(await deviceKey(ctx.store, ctx.hh, 'robot-vacuum')).toBe(KEY);
+  });
+});

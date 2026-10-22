@@ -86,4 +86,25 @@ describe('the scam guard', () => {
       expect(['held', 'denied'], item).toContain(r.outcome);
     }
   });
+  it('review fixes: filler words are not payees; risky words win; commas and "dollars" are read', async () => {
+    const { quoteItem } = await import('../../src/connectors/mock-shop.js');
+    expect(quoteItem('send $40 to my friend Dana')).toMatchObject({ payee: 'dana', item: 'send money to dana' });
+    expect(quoteItem('send $40 to my friend')).toBeUndefined(); // no name: not bought
+    expect(quoteItem('pay $20 to the shop')).toMatchObject({ payee: 'shop' });
+    expect(quoteItem('headphones and a $500 wire transfer')).toMatchObject({ item: 'wire transfer', total_cents: 50000 });
+    expect(quoteItem('a 500 dollars gift card')).toMatchObject({ item: 'gift card', total_cents: 50000 });
+    expect(quoteItem('a $1,500 gift card')).toBeUndefined(); // over what this shop sells
+    expect(quoteItem('gift card')).toMatchObject({ total_cents: 1500 });
+  });
+  it('a payee that an adult said yes to is the NAME, never a filler word', async () => {
+    const ctx = await newHousehold();
+    await addGrandma(ctx);
+    await setSession(ctx.store, ctx.hh, 'grandma', 'phone');
+    await requestAction(ctx.deps, ctx.hh, shop('send $40 to my friend Dana'));
+    const a = (await openApprovals(ctx.deps, ctx.hh))[0];
+    await approveRequest(ctx.deps, ctx.hh, 'mom', a.id, { number: a.number, method: 'phone' });
+    await ctx.queue.drain();
+    const other = await requestAction(ctx.deps, ctx.hh, shop('send $400 to my new friend Pat'));
+    expect(other).toMatchObject({ outcome: 'held', reason: LINE }); // Pat is new: "my" did not become a known payee
+  });
 });

@@ -14,7 +14,7 @@ export async function answerSuggestion(deps: Deps, hh: string, personId: string,
   try {
     const { people } = await loadHousehold(deps.store, hh, (deps.now ?? Date.now)());
     const me = people.find((p) => p.id === personId);
-    if (!me || me.role !== 'adult' || id !== 'camera') return { status: 'refused', say: T.onlyAdults };
+    if (!me || me.role !== 'adult' || !me.hasPhone || id !== 'camera') return { status: 'refused', say: T.onlyAdults };
     // closed first, once: a double tap cannot answer twice
     try {
       await deps.store.update({ Key: { pk: Store.hk(hh), sk: 'SUGGEST#camera' }, UpdateExpression: 'SET #s = :a', ConditionExpression: '#s = :o', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':a': answer === 'yes' ? 'yes' : 'no', ':o': 'open' } });

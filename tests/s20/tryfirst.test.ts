@@ -114,13 +114,13 @@ describe('the fast reader gives the same answers as the normal one', () => {
     const { decide, decidePrepared, prepareSets } = await import('../../src/policy/evaluator.js');
     const { defaultRules, generatePolicies } = await import('../../src/policy/rules.js');
     const base = defaultRules();
-    for (let n = 0; n < 34; n++) { // more rule sets than the engine keeps: the rest fall back to the slow way, same answers
+    for (let n = 0; n < 40; n++) { // more rule sets than the engine keeps: the rest fall back to the slow way, same answers
       const c = { ...base, weeklyCapCents: { ...base.weeklyCapCents, maya: 1000 + n * 100 } };
       const p = prepareSets(generatePolicies(c));
-      for (const role of ['adult', 'teen', 'child', 'guest'] as const) for (const action of ['light', 'unlock', 'purchase', 'order_gift']) for (const amountCents of [1500, 6000]) {
+      for (const role of ['adult', 'teen', 'child', 'guest'] as const) for (const action of ['light', 'unlock', 'garage', 'purchase', 'order_history', 'order_gift', 'delete_account']) for (const amountCents of [0, 1500, 6000]) {
         const q = { person: { id: role === 'teen' ? 'maya' : role, role }, action, service: 'mock-ride', serviceKnown: true, amountCents, weekSpentCents: 500, value: 70, session: 'phone' as const, localHour: 12 };
         expect(decidePrepared(p, q).answer, `${n} ${role} ${action} ${amountCents}`).toBe(decide(c, q).answer);
       }
     }
-  }, 120000);
+  }, 240000);
 });

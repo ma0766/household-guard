@@ -7,7 +7,7 @@ import { executeAction } from '../core/execute.js';
 import { beginAttempt, clearWrong, failAttempt, recordPush, isLocked } from '../identity/guard.js';
 import { setSession } from '../core/household.js';
 import { categoryOf, doneHome, emit } from '../audit/emit.js';
-import { storeDeviceKey, removeDeviceKey } from '../devices/vault.js';
+import { storeDeviceKey, removeDeviceKey, deviceKey } from '../devices/vault.js';
 import { completeRule } from '../rules/change.js';
 import { openTapWindow } from '../identity/tapwindow.js';
 
@@ -93,9 +93,19 @@ export async function tapNumber(deps: Deps, hh: string, personId: string, name: 
   } else if (c.kind === 'rule') {
     try {
       const svc = (c.meta?.change as { service?: string } | undefined)?.service;
+      if (c.meta?.needsKey && svc && (await deviceKey(deps.store, hh, svc))) throw new Error('already added'); // a second card cannot overwrite the first adult's key
       if (c.meta?.needsKey && svc) await storeDeviceKey(deps.store, hh, svc, secret!, personId); // encrypted; the key is in no log, no answer, no record but this one
-      const { private: priv, ...r } = await completeRule(deps, hh, personId, c);
-      if (c.meta?.needsKey && svc && !r.done) await removeDeviceKey(deps.store, hh, svc);
+      let done = false;
+      let priv: string | undefined;
+      let r: { done: boolean; reason: string; jobId?: string };
+      try {
+        const out = await completeRule(deps, hh, personId, c);
+        priv = out.private;
+        r = { done: out.done, reason: out.reason, ...(out.jobId ? { jobId: out.jobId } : {}) };
+        done = out.done;
+      } finally {
+        if (c.meta?.needsKey && svc && !done) await removeDeviceKey(deps.store, hh, svc); // not added (refused, or an error): no key is left behind
+      }
       result = r;
       privateLine = priv;
     } catch {
