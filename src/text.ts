@@ -65,6 +65,8 @@ export const T = {
   cameraOff: 'The hallway camera is off.',
   keyFirst: 'Type the key on your phone first.',
   addOnPhone: 'Finish on your phone. Type the key there.',
+  noProject: 'I could not find that project.',
+  published: 'Done. It is published.',
   deviceAlready: 'That is already added.',
   noDevice: "I don't know that device.",
   vacuumStarted: 'Okay. The vacuum is cleaning.',

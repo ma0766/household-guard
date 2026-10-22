@@ -19,6 +19,7 @@ import { defaultHub, type StandInHub } from './hub/hub.js';
 import { localOutbox } from './notify/notify.js';
 import { setRideState } from './connectors/mock-ride.js';
 import { getSession, loadHousehold } from './core/household.js';
+import { planPage } from './projects/projects.js';
 
 const WEB_ROOT = process.env.HG_WEB_ROOT ?? join(fileURLToPath(new URL('..', import.meta.url)), 'dist', 'web');
 const TYPES: Record<string, string> = {
@@ -141,6 +142,13 @@ export function createApp(given?: Deps) {
         // the page an adult opens from the email: it carries its own short-lived key in the link
         if (url.pathname === '/approve') return void res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'", 'referrer-policy': 'no-referrer', 'cache-control': 'no-store' }).end(APPROVE_PAGE);
         if (url.pathname === '/demo/outbox' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) return sendJson(res, { sent: localOutbox.sent });
+        // a project plan: an unguessable address, the plan as plain text, nothing on the page can act
+        const plan = url.pathname.match(/^\/plan\/([A-Za-z0-9_-]{1,40})\/([A-Za-z0-9_-]{6,20})\/([A-Za-z0-9_-]{10,40})$/);
+        if (plan) {
+          const html = await planPage(getDeps(), plan[1], plan[2], plan[3]);
+          if (!html) return void res.writeHead(404).end();
+          return void res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'", 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }).end(html);
+        }
         if (url.pathname === '/privacy') return void res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' }).end(PRIVACY);
         // local demo only: hands out a signed token so the web client can sign in
         if (url.pathname === '/demo-token' && (process.env.HG_LOCAL === '1' || process.env.HG_DEMO === '1')) {

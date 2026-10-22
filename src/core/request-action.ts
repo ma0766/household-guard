@@ -28,6 +28,8 @@ import type { RiskChecker } from '../risk/risk.js';
 import { handlePurchase } from './purchase.js';
 import { auditAsk } from '../audit/emit.js';
 import type { RuleParser } from '../rules/sentence.js';
+import type { Planner } from '../projects/planner.js';
+import { findProject, publishProject, startProject } from '../projects/projects.js';
 import { handleOrders } from '../orders/orders.js';
 
 export interface Deps {
@@ -39,6 +41,7 @@ export interface Deps {
   home?: HomeBackend; // a real smart home (Home Assistant); without it the simulated home answers
   hub?: ConnectorHub; // the apps a person has connected (Composio, or the stand-in)
   notifier?: Notifier; // how adults hear about held requests (email)
+  planner?: Planner; // writes a project's one-page plan (Bedrock, or a stand-in); it only writes
   ruleParser?: RuleParser; // turns a typed rule sentence into one known setting (Bedrock, or a stand-in); never used to decide a request
   trace?: { input?: DecisionInput }; // set per request: the first decision's inputs, kept in the log so a new rule can be tried on the past week
   hooks?: { beforeReserve?: () => Promise<void> }; // tests only: line two requests up at the same instant
@@ -94,6 +97,18 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
 
     if (d.answer === 'allow') {
       if (args.action === 'timer' && !(Number.isInteger(value) && value >= 1 && value <= 1440)) return result({ outcome: 'denied', reason: T.howLong, done: false }, tz, now, base);
+      if (args.action === 'start_project') {
+        const p = await startProject(deps, hh, person, args.item);
+        return p.ok ? result({ outcome: 'allowed', reason: p.say, done: false }, tz, now, { ...base, job_id: p.id, next: 'wait_for_plan' }) : result({ outcome: 'denied', reason: p.say, done: false }, tz, now, base);
+      }
+      if (args.action === 'publish_project') {
+        // publishing or sending is acting in the family's name: the adult taps on her own phone, and only then does it go out
+        const proj = await findProject(deps, hh, args.item);
+        if (!proj) return result({ outcome: 'denied', reason: T.noProject, done: false }, tz, now, base);
+        const { challenge, locked } = await openChallenge(deps, hh, person, 'action', args, { project: proj.id });
+        if (locked || !challenge) return result({ outcome: 'held', reason: T.locked, done: false }, tz, now, base);
+        return result({ outcome: 'allowed', reason: T.confirmOnPhone(challenge.number), done: false }, tz, now, { ...base, next: 'confirm_on_phone', number: challenge.number, job_id: challenge.id, tier: 'high' });
+      }
       if (args.action === 'connect_device') return await handleConnectDevice(deps, hh, { person, rules, tz, now, args, base });
       if (args.service === VACUUM && args.action === 'vacuum') return await handleVacuum(deps, hh, { tz, now, args, base });
       if (args.action === 'build_site') {

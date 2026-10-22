@@ -80,7 +80,7 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // Forbids in `auto` only push an ask from "do it" to "hold for an adult"; forbids in `both` mean no.
 
   // an app or service the house has not allowed: hold for an adult. (The site builder is the house's own tool: no allowed-app list applies.)
-  auto.service_unknown = `forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" && action != Action::"connect_device" };`;
+  auto.service_unknown = `forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" && action != Action::"connect_device" && action != Action::"start_project" && action != Action::"publish_project" };`;
 
   // low risk: anyone, known service
   for (const a of EVERYDAY_ACTIONS) auto[a] = `permit(principal, action == Action::${q(a)}, resource);`;
@@ -102,6 +102,12 @@ export function generatePolicies(c: RulesConfig): PolicySets {
     auto.camera = `permit(principal in Role::"adult", action == Action::"camera", resource);`;
     auto.camera_needs_phone = `forbid(principal, action == Action::"camera", resource) when { context.session != "phone" };`;
   }
+
+  // projects: anyone who is part of the family may ask for a plan (it only writes text). Publishing or sending is acting in the family's
+  // name: an adult, with her own phone tap. Anyone else is held for an adult.
+  auto.start_project = `permit(principal, action == Action::"start_project", resource) when { principal in Role::"adult" || principal in Role::"teen" || principal in Role::"child" };`;
+  auto.publish_project = `permit(principal in Role::"adult", action == Action::"publish_project", resource);`;
+  auto.publish_project_needs_phone = `forbid(principal, action == Action::"publish_project", resource) when { context.session != "phone" };`;
 
   // building and publishing a site: an adult with her own phone tap. Everyone else is held for an adult.
   auto.build_site = `permit(principal in Role::"adult", action == Action::"build_site", resource);`;
@@ -176,7 +182,7 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   c.needsApproval.forEach((r, i) => (auto[`needs_approval_${i}`] = `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));
 
   // anything a known person may ask for, but wasn't automatic, can be held for an adult. Unknown action → no permit → deny.
-  approvable.hold_known = `permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"vacuum", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
+  approvable.hold_known = `permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"vacuum", Action::"publish_project", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
   approvable.guests_are_never_held = `forbid(principal in Role::"guest", action, resource);`;
   return { auto, approvable };
 }
