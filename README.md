@@ -17,6 +17,7 @@ Built for the Amazon Developer Hackathon (Alexa+ track, AWS Builder and Open Sou
 6. A parent changes Maya's limit from a rule card, or types it ("Maya can spend 30 dollars a week"). The house reads it back, shows **"With this rule, 1 of Maya's 2 requests would change"** from the last 7 days, and saves only after the parent taps on their own phone. A new limit replaces the old one; one more tap undoes it for 24 hours.
 7. Taps only for what matters: lights, music, weather, timers and the garage (adults and teens) need none. A buy, a door and a rule change do. One tap covers that person's next buys for 5 minutes, inside their limits.
 8. Guests: a switch for everyday things, and named guests with their own PIN, list and last day. They never buy, unlock, change rules or hear orders.
+10. **Six kinds of action** (looking things up, controlling, money, doors and cameras, acting in your name, adding powers). A new device says what it offers; an adult adds it on her own phone, where the key is typed. Gift cards, crypto, wire transfers and new payees always wait for another adult. "Let the dog walker in weekdays 12 to 1" opens the door only then. "Start a project" writes a plan; publishing needs an adult's tap.
 9. Ask **"why?"** after any answer: one sentence names the rule that decided.
 
 ## Hard rules (these are the product)
@@ -77,6 +78,7 @@ Lambda + Function URL (Lambda Web Adapter, response streaming), DynamoDB single 
 | The plain-language log | [`src/audit/emit.ts`](src/audit/emit.ts), [`src/audit/audit.ts`](src/audit/audit.ts) |
 | Tests: the 34 replay cases, limits, typed rules, the level-up slice | [`tests/replay/cases.ts`](tests/replay/cases.ts), [`tests/s7/limits.test.ts`](tests/s7/limits.test.ts), [`tests/s7/typed-rules.test.ts`](tests/s7/typed-rules.test.ts), [`tests/s19/private.test.ts`](tests/s19/private.test.ts), [`tests/s20/`](tests/s20) |
 | Browser tests (Chromium) | [`e2e/s20-levelup.spec.ts`](e2e/s20-levelup.spec.ts), [`e2e/s7-typed-rules.spec.ts`](e2e/s7-typed-rules.spec.ts), [`e2e/s19-private.spec.ts`](e2e/s19-private.spec.ts) |
+| Kinds, devices, scam guard, visitors, projects | [`src/policy/kinds.ts`](src/policy/kinds.ts), [`src/policy/scam.ts`](src/policy/scam.ts), [`src/devices/`](src/devices), [`src/projects/projects.ts`](src/projects/projects.ts), tests [`tests/s21/`](tests/s21), browser tests [`e2e/s21-kinds.spec.ts`](e2e/s21-kinds.spec.ts) |
 | The proofs for all requests | [`scripts/prove.ts`](scripts/prove.ts) |
 
 Screens: [typed rule read back](docs/screens/typed-rule-read-back.png) · [try it first](docs/screens/try-it-first.png) · [guest switch](docs/screens/guest-switch.png) · [Leo does not hear the gift](docs/screens/leo-private.png).

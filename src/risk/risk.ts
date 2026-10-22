@@ -20,12 +20,13 @@ export interface RiskChecker {
 
 const INJECTION = /ignore (all |the |any )?(limits|rules|instructions)|approved|override|system:|do not ask/i;
 
-// Offline stand-in used in tests and the local demo: gift cards and injected text are held.
+// Offline stand-in used in tests and the local demo: gift cards, vouchers and injected text are held.
+// (The rules hold a gift card before the worker ever asks: the scam guard. A voucher is what reaches this check.)
 export class MockRisk implements RiskChecker {
   calls: RiskInput[] = [];
   async check(i: RiskInput): Promise<RiskVerdict> {
     this.calls.push(i);
-    if (/gift ?card/i.test(i.item ?? '')) return { verdict: 'hold', why: 'gift card' };
+    if (/gift ?card|voucher/i.test(i.item ?? '')) return { verdict: 'hold', why: 'gift card' };
     if (i.serviceText && INJECTION.test(i.serviceText)) return { verdict: 'hold', why: 'instructions hidden in a service reply' };
     return { verdict: 'ok', why: 'nothing odd' };
   }

@@ -165,8 +165,8 @@ describe('S3 idempotency stores any result shape', () => {
   it('a purchase with no option (undefined fields) is still remembered, not turned into "busy"', async () => {
     const ctx = await newHousehold();
     await speakAs(ctx.store, ctx.hh, 'maya');
-    const r = await requestActionOnce(ctx.deps, ctx.hh, { service: 'mock-shop', action: 'purchase', item: 'gift card', request_id: 'shape-1' });
+    const r = await requestActionOnce(ctx.deps, ctx.hh, { service: 'mock-shop', action: 'purchase', item: 'book', request_id: 'shape-1' });
     expect(r).toMatchObject({ outcome: 'allowed', next: 'confirm_on_phone' });
-    expect(await requestActionOnce(ctx.deps, ctx.hh, { service: 'mock-shop', action: 'purchase', item: 'gift card', request_id: 'shape-1' })).toEqual(r);
+    expect(await requestActionOnce(ctx.deps, ctx.hh, { service: 'mock-shop', action: 'purchase', item: 'book', request_id: 'shape-1' })).toEqual(r);
   });
 });

@@ -3,23 +3,33 @@ import type { HomeBackend } from '../connectors/home-assistant.js';
 import type { ConnectorHub } from '../hub/hub.js';
 import type { Notifier } from '../notify/notify.js';
 import { Store } from './store.js';
+import { notifyAdults } from '../identity/guard.js';
 import { getSession, loadHousehold, ensureSeeded } from './household.js';
-import { formatLocal, hourOf } from './time.js';
+import { formatLocal, hourOf, weekdayOf } from './time.js';
 import { decide, type DecisionInput, type PolicyDecision } from '../policy/evaluator.js';
 import { explainDecision } from '../policy/explain.js';
 import { KNOWN_ACTIONS, ORDER_ACTIONS, type RulesConfig } from '../policy/rules.js';
 import { SIM_HOME } from '../connectors/sim-home.js';
 import { handleAppAction, tellAdultsAboutApp } from './app-action.js';
+import { serviceKnownFor } from '../policy/kinds.js';
+import { kindOf } from '../policy/kinds.js';
+import { deviceByWords } from '../devices/catalog.js';
+import { runVacuum, VACUUM } from '../devices/vacuum.js';
+import { deviceKey } from '../devices/vault.js';
+import { checkDevices } from '../devices/health.js';
+import { proposeRule } from '../rules/change.js';
 import { tierOf } from './tiers.js';
 import { executeAction } from './execute.js';
 import { openChallenge } from '../approvals/challenge.js';
 import { T } from '../text.js';
-import type { ActionArgs, ActionResult, Outcome } from './types.js';
+import type { ActionArgs, ActionResult, Outcome, Person } from './types.js';
 import type { JobQueue } from '../queue/queue.js';
 import type { RiskChecker } from '../risk/risk.js';
 import { handlePurchase } from './purchase.js';
 import { auditAsk } from '../audit/emit.js';
 import type { RuleParser } from '../rules/sentence.js';
+import type { Planner } from '../projects/planner.js';
+import { findProject, startProject } from '../projects/projects.js';
 import { handleOrders } from '../orders/orders.js';
 
 export interface Deps {
@@ -31,6 +41,7 @@ export interface Deps {
   home?: HomeBackend; // a real smart home (Home Assistant); without it the simulated home answers
   hub?: ConnectorHub; // the apps a person has connected (Composio, or the stand-in)
   notifier?: Notifier; // how adults hear about held requests (email)
+  planner?: Planner; // writes a project's one-page plan (Bedrock, or a stand-in); it only writes
   ruleParser?: RuleParser; // turns a typed rule sentence into one known setting (Bedrock, or a stand-in); never used to decide a request
   trace?: { input?: DecisionInput }; // set per request: the first decision's inputs, kept in the log so a new rule can be tried on the past week
   hooks?: { beforeReserve?: () => Promise<void> }; // tests only: line two requests up at the same instant
@@ -73,11 +84,12 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       person: { id: person.id, role: person.role },
       action: args.action,
       service: args.service,
-      serviceKnown: rules.allowedServices.includes(args.service),
+      serviceKnown: serviceKnownFor(rules, args.service, args.action),
       amountCents: 0,
       weekSpentCents: 0,
       value: Number.isFinite(value) ? Math.trunc(value) : 0,
       session: method,
+      weekday: weekdayOf(now, tz),
       localHour: hourOf(now, tz),
     };
     const d = decideTraced(deps, rules, input);
@@ -85,6 +97,20 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
 
     if (d.answer === 'allow') {
       if (args.action === 'timer' && !(Number.isInteger(value) && value >= 1 && value <= 1440)) return result({ outcome: 'denied', reason: T.howLong, done: false }, tz, now, base);
+      if (args.action === 'start_project') {
+        const p = await startProject(deps, hh, person, args.item);
+        return p.ok ? result({ outcome: 'allowed', reason: p.say, done: false }, tz, now, { ...base, job_id: p.id, next: 'wait_for_plan' }) : result({ outcome: 'denied', reason: p.say, done: false }, tz, now, base);
+      }
+      if (args.action === 'publish_project') {
+        // publishing or sending is acting in the family's name: the adult taps on her own phone, and only then does it go out
+        const proj = await findProject(deps, hh, args.item);
+        if (!proj) return result({ outcome: 'denied', reason: T.noProject, done: false }, tz, now, base);
+        const { challenge, locked } = await openChallenge(deps, hh, person, 'action', args, { project: proj.id });
+        if (locked || !challenge) return result({ outcome: 'held', reason: T.locked, done: false }, tz, now, base);
+        return result({ outcome: 'allowed', reason: T.confirmOnPhone(challenge.number), done: false }, tz, now, { ...base, next: 'confirm_on_phone', number: challenge.number, job_id: challenge.id, tier: 'high' });
+      }
+      if (args.action === 'connect_device') return await handleConnectDevice(deps, hh, { person, rules, tz, now, args, base });
+      if (args.service === VACUUM && args.action === 'vacuum') return await handleVacuum(deps, hh, { tz, now, args, base });
       if (args.action === 'build_site') {
         // a long job: nothing is built until THIS person taps her own phone; then it is queued and the work happens in the worker
         const { challenge, locked } = await openChallenge(deps, hh, person, 'action', args, { site: { item: args.item } });
@@ -95,7 +121,7 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       if (args.service === SIM_HOME) {
         const tier = tierOf(args);
         // low risk: just do it. Medium by PIN (no phone): do it. Otherwise: a number to match on the person's OWN phone.
-        if (tier === 'low' || (tier === 'medium' && method === 'pin')) {
+        if (tier === 'low' || (tier === 'medium' && method === 'pin') || person.role === 'visitor') { // a visitor inside their window: the adult's yes was given when the visit was set up
           const ex = await executeAction(deps, hh, person.id, args);
           return result({ outcome: 'allowed', reason: ex.reason, done: ex.done }, tz, now, base);
         }
@@ -111,8 +137,9 @@ async function decideAndAct(deps: Deps, hh: string, args: ActionArgs): Promise<A
       const reason = !input.serviceKnown ? T.newService : (args.action === 'unlock' || args.action === 'garage') && method === 'pin' ? T.confirmPhone : args.action === 'thermostat' ? T.bigChange : T.needsAdult;
       return result({ outcome: 'held', reason, done: false }, tz, now, base);
     }
-    const known = (KNOWN_ACTIONS as readonly string[]).includes(args.action);
-    const reason = !known ? T.cantDo : d.determining.some((x) => x === 'everyday_needs_a_person') ? T.everydayOff : d.determining.some((x) => x === 'floor_guests_no_buy') ? T.guestNoBuy : isGuest ? T.whoAreYou : d.determining.some((x) => x.startsWith('adults_only_') || x === 'floor_children_no_unlock') ? T.onlyAdults : T.cantDo;
+    if (person.role === 'visitor') await tellAdultsAboutVisitor(deps, hh, person, now); // outside their window: no, and an adult is told
+    const known = !!kindOf(args.action) || (KNOWN_ACTIONS as readonly string[]).includes(args.action);
+    const reason = !known ? T.cantDo : d.determining.some((x) => x === 'everyday_needs_a_person') ? T.everydayOff : args.action === 'camera' && person.role === 'adult' && !rules.cameraOn ? T.cameraOff : args.action === 'connect_device' && !isGuest ? T.onlyAdults : d.determining.some((x) => x === 'floor_guests_no_buy') ? T.guestNoBuy : isGuest ? T.whoAreYou : d.determining.some((x) => x.startsWith('adults_only_') || x === 'floor_children_no_unlock') ? T.onlyAdults : T.cantDo;
     return result({ outcome: 'denied', reason, done: false }, tz, now, base);
   } catch {
     return result({ outcome: 'held', reason: T.oops, done: false }, tz, now);
@@ -144,4 +171,35 @@ async function handleWhy(deps: Deps, hh: string, personId: string, tz: string, n
   const last = await deps.store.get(Store.hk(hh), `LASTASK#${personId}`);
   const rule = typeof last?.rule === 'string' ? last.rule : '';
   return result({ outcome: 'allowed', reason: rule ? T.why(rule) : T.noWhy, done: true }, tz, now, { person: personId, rule });
+}
+
+// "Connect my new robot vacuum": the reply is quick (no key, no network). It starts a card on the adult's own phone, where the key is typed.
+// Only an adult with a phone confirmation gets here (the rules said so); the device's kinds come from its own declaration.
+async function handleConnectDevice(deps: Deps, hh: string, c: { person: Person; rules: RulesConfig; tz: string; now: number; args: ActionArgs; base: Record<string, unknown> }): Promise<ActionResult> {
+  const { person, rules, tz, now, args, base } = c;
+  const dev = deviceByWords(String(args.item ?? ''));
+  if (!dev) return result({ outcome: 'denied', reason: T.noDevice, done: false }, tz, now, base);
+  if (rules.serviceKinds?.[dev.service]) return result({ outcome: 'denied', reason: T.deviceAlready, done: false }, tz, now, base);
+  const r = await proposeRule(deps, hh, { change: { template: 'declare_service', service: dev.service } }, person.id, { needsKey: true });
+  if (r.status !== 'waiting') return result({ outcome: 'held', reason: r.say, done: false }, tz, now, base);
+  return result({ outcome: 'allowed', reason: `${T.addOnPhone} ${r.say}`, done: false }, tz, now, { ...base, next: 'finish_on_phone', number: r.number, job_id: r.challenge_id, tier: 'high' });
+}
+
+async function handleVacuum(deps: Deps, hh: string, c: { tz: string; now: number; args: ActionArgs; base: Record<string, unknown> }): Promise<ActionResult> {
+  const { tz, now, args, base } = c;
+  if (!(await deviceKey(deps.store, hh, VACUUM))) return result({ outcome: 'held', reason: T.notReady, done: false }, tz, now, base);
+  const what = String(args.value ?? 'start') === 'stop' ? 'stop' : 'start';
+  const r = await runVacuum(deps.store, hh, what); // a failure throws, and the caller holds
+  await checkDevices(deps, hh); // the device's own status: stuck or error tells the adults
+  if (!r.ok) return result({ outcome: 'held', reason: r.status === 'stuck' ? T.vacuumStuck : T.vacuumError, done: false }, tz, now, base);
+  return result({ outcome: 'allowed', reason: what === 'start' ? T.vacuumStarted : T.vacuumStopped, done: true }, tz, now, base);
+}
+
+async function tellAdultsAboutVisitor(deps: Deps, hh: string, person: Person, now: number): Promise<void> {
+  try {
+    const minute = Math.floor(now / 60_000);
+    await deps.store.put({ pk: Store.hk(hh), sk: `VISITALERT#${person.id}#${Math.floor(minute / 10)}`, ttl: Math.floor(now / 1000) + 1200 }, { ifNotExists: true }).then(() => notifyAdults(deps.store, hh, `${person.name} tried the door at the wrong time. It stayed shut.`, now, person.id, person.name)).catch((e: any) => { if (e?.name !== 'ConditionalCheckFailedException') throw e; });
+  } catch {
+    /* telling an adult never changes the answer */
+  }
 }

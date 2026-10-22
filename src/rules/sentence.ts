@@ -62,6 +62,13 @@ export function toChange(o: unknown, people: PersonLite[]): Parsed {
       if (!Array.isArray(r) || r.some((x) => x !== 'teen' && x !== 'child')) return q('Which kids may hear orders: teens, children, or none?');
       return { change: { template: 'private_orders', roles: r as ('teen' | 'child')[] } };
     }
+    case 'add_visitor': {
+      const name = String(j.name ?? '').replace(/[^A-Za-z ]/g, '').trim();
+      if (name.length < 2) return q('Who is coming?');
+      if (j.days !== 'weekdays' && j.days !== 'weekends' && j.days !== 'every day') return q('Which days: weekdays, weekends, or every day?');
+      if (!inHour(j.from_hour) || !Number.isInteger(j.to_hour) || (j.to_hour as number) > 24 || (j.to_hour as number) <= (j.from_hour as number) || (j.to_hour as number) - (j.from_hour as number) > 12) return q('From what hour to what hour?');
+      return { change: { template: 'add_visitor', name, days: j.days, fromHour: j.from_hour as number, toHour: j.to_hour as number } };
+    }
     case 'guest_switch': {
       if (typeof j.enabled !== 'boolean') return q('Should everyday things stay open to anyone at home?');
       return { change: { template: 'guest_switch', enabled: j.enabled } };
@@ -88,6 +95,18 @@ export class StandInRuleParser implements RuleParser {
     const named = people.filter((p) => p.role !== 'guest' && new RegExp(`\\b${p.name.toLowerCase()}\\b`).test(t));
     const amounts = [...t.matchAll(/\$?\s*(\d+(?:\.\d{1,2})?)\s*(dollars?|bucks|\$)?/g)].filter((m) => m[2] || /\$/.test(m[0]));
     const wantsLimit = /\b(spend|limit|allowance|budget)\b/.test(t);
+    const visit = t.match(/\blet (?:the |my |our )?([a-z ]{2,24}?) in\b/);
+    if (visit) {
+      const days = /\bweekdays?\b/.test(t) ? 'weekdays' : /\bweekends?\b/.test(t) ? 'weekends' : /\b(every ?day|daily)\b/.test(t) ? 'every day' : undefined;
+      const tm = t.match(/\b(\d{1,2})(?::00)?\s*(am|pm)?\s*(?:to|-|until)\s*(\d{1,2})(?::00)?\s*(am|pm)?\b/);
+      if (!days) return q('Which days: weekdays, weekends, or every day?');
+      if (!tm) return q('From what hour to what hour?');
+      let from = Number(tm[1]) % 12 + (tm[2] === 'pm' || (!tm[2] && Number(tm[1]) < 7) ? 12 : 0);
+      if (Number(tm[1]) === 12 && tm[2] !== 'am') from = 12;
+      let to = Number(tm[3]) % 12 + (tm[4] === 'pm' ? 12 : 0);
+      if (!tm[4]) while (to <= from) to += 12;
+      return toChange({ template: 'add_visitor', name: visit[1].trim().replace(/^./, (c) => c.toUpperCase()), days, from_hour: from, to_hour: to }, people);
+    }
     const noTap = /\bwithout a tap\b|\bno tap\b|\btaps? for every buy\b/.test(t);
     const everyday = /\beveryday things?\b/.test(t);
     const kinds = [wantsLimit && !noTap, noTap, everyday, /\bquiet hours?\b|\bno buying after\b/.test(t), /\bhear orders?\b|\borders? (stay )?private\b/.test(t), /\badults only\b|\bonly adults\b.*\b(unlock|garage|door)/.test(t)].filter(Boolean).length;
@@ -129,6 +148,7 @@ Settings (answer with exactly one JSON object, no other text):
 {"template":"must_haves","bag_included":<true|false>,"arrive_by_hour":<0-23 or null>}   what a cheaper ride must have
 {"template":"quiet_hours","from_hour":<0-23>,"to_hour":<0-23>} or {"template":"quiet_hours","off":true}   no buying for kids
 {"template":"private_orders","roles":["teen"|"child"]}   who besides adults may hear order history ([] = only adults)
+{"template":"add_visitor","name":"<who>","days":"weekdays"|"weekends"|"every day","from_hour":<0-23>,"to_hour":<1-24>}   let a visitor (the dog walker) open the front door only in that window
 {"template":"guest_switch","enabled":<true|false>}   "everyday things for anyone at home" (lights, heat, music, weather, timers) for people nobody confirmed
 {"template":"no_tap_buys","person":"<id>","dollars":<1-50>} or {"template":"no_tap_buys","person":"<id>","off":true}   small buys that need no phone tap
 If the sentence is unclear, names nobody on the list, mixes two settings, has no amount, or fits none of these: answer {"question":"<one short question, under 12 words, plain words>"}.

@@ -1,4 +1,6 @@
 import type { Person } from '../core/types.js';
+import { deviceByService } from '../devices/catalog.js';
+import { KINDS, KIND_WORDS, type Kind } from '../policy/kinds.js';
 import { EVERYDAY_ACTIONS, KNOWN_ACTIONS, type RulesConfig } from '../policy/rules.js';
 import { validateRules } from '../policy/evaluator.js';
 import { hourWord, money } from '../text.js';
@@ -12,6 +14,11 @@ export type RuleChange =
   | { template: 'must_haves'; bagIncluded?: boolean; arriveByHour?: number | null }
   | { template: 'private_orders'; roles: ('teen' | 'child')[] }
   | { template: 'quiet_hours'; fromHour: number | null; toHour?: number }
+  | { template: 'kind_rule'; role: 'teen' | 'child' | 'guest'; kind: Kind; effect: 'deny' | 'needs_approval' | null } // aim a rule at a whole kind of action; null removes it
+  | { template: 'declare_service'; service: string } // add a device: its kinds come from its own declaration (src/devices/catalog.ts)
+  | { template: 'add_visitor'; name: string; days: 'weekdays' | 'weekends' | 'every day'; fromHour: number; toHour: number } // let someone in, only in this window
+  | { template: 'end_visitor'; id: string }
+  | { template: 'camera'; enabled: boolean }
   | { template: 'guest_switch'; enabled: boolean }
   | { template: 'add_guest'; name: string; allowed: string[]; until: string } // until = a date, YYYY-MM-DD, in the house's own zone (end of that day)
   | { template: 'end_guest'; id: string }
@@ -85,6 +92,54 @@ export function applyChange(before: RulesConfig, change: RuleChange, people: Per
       sentence = names.length ? `Adults and ${names.join(' and ')} hear orders. Gifts stay private.` : 'Only adults hear orders.';
       const added = names.filter((n) => !(before.orderRoles ?? []).map((r) => (r === 'teen' ? 'teens' : 'children')).includes(n));
       if (added.length) warning = `This lets ${added.join(' and ')} hear what the house ordered. Gifts stay private.`;
+      break;
+    }
+    case 'kind_rule': {
+      const who = { teen: 'teens', child: 'children', guest: 'guests' } as Record<string, string>;
+      if (!who[change.role] || !(KINDS as readonly string[]).includes(change.kind)) return { ok: false, error: 'I do not know that kind.' };
+      if (change.kind === 'info' && change.effect === 'deny' && change.role !== 'guest') return { ok: false, error: 'Looking things up stays open.' };
+      const rest = (before.kindRules ?? []).filter((r) => !(r.role === change.role && r.kind === change.kind));
+      next.kindRules = change.effect ? [...rest, { role: change.role, kind: change.kind, effect: change.effect }] : rest;
+      if (!next.kindRules.length) delete next.kindRules;
+      const words = KIND_WORDS[change.kind];
+      sentence = change.effect === 'deny' ? `No ${words} for ${who[change.role]}.` : change.effect === 'needs_approval' ? `${who[change.role][0].toUpperCase()}${who[change.role].slice(1)} need an adult's yes for ${words}.` : `No special rule for ${who[change.role]} and ${words}.`;
+      if (!change.effect && (before.kindRules ?? []).some((r) => r.role === change.role && r.kind === change.kind)) warning = `This lets ${who[change.role]} use ${words} again.`;
+      break;
+    }
+    case 'declare_service': {
+      const d = deviceByService(String(change.service));
+      if (!d) return { ok: false, error: "I don't know that device." };
+      next.allowedServices = [...new Set([...before.allowedServices, d.service])].sort();
+      next.serviceKinds = { ...(before.serviceKinds ?? {}), [d.service]: [...d.kinds] };
+      sentence = `${d.name[0].toUpperCase()}${d.name.slice(1)} is added.`;
+      break;
+    }
+    case 'add_visitor': {
+      const name = String(change.name ?? '').replace(/[^A-Za-z ]/g, '').trim().slice(0, 20).trim();
+      const slug = name.toLowerCase().replace(/ +/g, '-');
+      if (name.length < 2) return { ok: false, error: 'Who is coming?' };
+      if (people.some((p) => p.name.toLowerCase() === name.toLowerCase() && p.id !== `v-${slug}`)) return { ok: false, error: 'Someone has that name.' };
+      const days = { weekdays: [1, 2, 3, 4, 5], weekends: [6, 7], 'every day': [1, 2, 3, 4, 5, 6, 7] }[change.days as 'weekdays'];
+      if (!days) return { ok: false, error: 'Which days?' };
+      const { fromHour: f, toHour: t } = change;
+      if (!Number.isInteger(f) || !Number.isInteger(t) || f < 0 || t > 24 || f >= t || t - f > 12) return { ok: false, error: 'That time does not look right.' };
+      next.visitors = [...(before.visitors ?? []).filter((v) => v.id !== `v-${slug}`), { id: `v-${slug}`, name, days, fromHour: f, toHour: t }];
+      sentence = `${name} can come in ${change.days === 'every day' ? 'every day' : `on ${change.days}`} from ${hourWord(f)} to ${hourWord(t)}.`;
+      warning = `This lets ${name} open the front door in that time.`;
+      break;
+    }
+    case 'end_visitor': {
+      const v = (before.visitors ?? []).find((x) => x.id === change.id);
+      if (!v) return { ok: false, error: "I don't know that visitor." };
+      next.visitors = (before.visitors ?? []).filter((x) => x.id !== change.id);
+      if (!next.visitors.length) delete next.visitors;
+      sentence = `${v.name} can not come in any more.`;
+      break;
+    }
+    case 'camera': {
+      next.cameraOn = !!change.enabled;
+      sentence = change.enabled ? 'The hallway camera is on.' : 'The hallway camera is off.';
+      if (change.enabled) warning = 'This lets adults look at the hallway camera.';
       break;
     }
     case 'guest_switch': {

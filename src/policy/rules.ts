@@ -1,4 +1,5 @@
 import type { Role } from '../core/types.js';
+import type { Kind } from './kinds.js';
 
 // The rule card data. Nobody types Cedar: policies are generated from this and validated before use.
 export interface RulesConfig {
@@ -12,10 +13,22 @@ export interface RulesConfig {
   deny: { role: Role; action: string }[];
   mustHaves: { arriveByHour?: number; bagIncluded?: boolean };
   quietHours?: { fromHour: number; toHour: number }; // no buying for non-adults, in the house's own time zone (S10)
+  serviceKinds?: Record<string, Kind[]>; // what each added service or device says it offers (the shipped ones are in kinds.ts)
+  kindRules?: { role: Role; kind: Kind; effect: 'deny' | 'needs_approval' }[]; // a rule aimed at a whole kind of action
+  cameraOn?: boolean; // the hallway camera: off until an adult says yes
+  visitors?: VisitorRule[]; // people let in for a window of time (the dog walker)
   guestEveryday?: boolean; // "Everyday things for anyone at home" (default on). Off = anyone not confirmed (PIN or phone tap) can do nothing.
   guests?: NamedGuest[]; // named guests: a PIN of their own, their own allowed list, an end date
   noTapBuyCents?: Record<string, number>; // per person: small buys up to this amount skip the phone tap (off by default)
   orderRoles?: Role[]; // S19: who besides adults may hear order history, delivery news and the cart. Missing = adults only. Gifts are never read to non-adults, whatever this says.
+}
+
+export interface VisitorRule {
+  id: string; // v-dog-walker
+  name: string;
+  days: number[]; // 1 = Monday ... 7 = Sunday, in the house's own zone
+  fromHour: number; // from this hour ...
+  toHour: number; // ... up to (not including) this hour
 }
 
 export interface NamedGuest {
@@ -29,7 +42,7 @@ export const EVERYDAY_ACTIONS = ['light', 'thermostat', 'music', 'weather', 'tim
 export const ORDER_ACTIONS = ['order_history', 'order_status', 'cart', 'mark_gift'] as const;
 
 export const KNOWN_ACTIONS = ['light', 'thermostat', 'music', 'weather', 'timer', 'unlock', 'garage', 'purchase', 'use_app', 'build_site'] as const;
-export const ROLES: Role[] = ['adult', 'teen', 'child', 'guest'];
+export const ROLES: Role[] = ['adult', 'teen', 'child', 'guest', 'visitor'];
 
 export function defaultRules(): RulesConfig {
   return {
@@ -67,7 +80,7 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // Forbids in `auto` only push an ask from "do it" to "hold for an adult"; forbids in `both` mean no.
 
   // an app or service the house has not allowed: hold for an adult. (The site builder is the house's own tool: no allowed-app list applies.)
-  auto.service_unknown = `forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" };`;
+  auto.service_unknown = `forbid(principal, action, resource) when { !context.service_known && action != Action::"build_site" && action != Action::"connect_device" && action != Action::"start_project" && action != Action::"publish_project" };`;
 
   // low risk: anyone, known service
   for (const a of EVERYDAY_ACTIONS) auto[a] = `permit(principal, action == Action::${q(a)}, resource);`;
@@ -76,6 +89,25 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // a connected app (S13): anyone signed in may use an app the house has allowed; guests never
   auto.use_app = `permit(principal, action == Action::"use_app", resource);`;
   auto.use_app_not_guests = `forbid(principal in Role::"guest", action == Action::"use_app", resource);`;
+
+  // a device that was added (a robot vacuum): anyone may control it (its kinds come from its own declaration, checked above)
+  auto.vacuum = `permit(principal, action == Action::"vacuum", resource);`;
+
+  // adding a device: an adult, with her own phone. Everyone else is refused.
+  auto.connect_device = `permit(principal in Role::"adult", action == Action::"connect_device", resource);`;
+  auto.connect_device_needs_phone = `forbid(principal, action == Action::"connect_device", resource) when { context.session != "phone" };`;
+
+  // the hallway camera: access. Off until an adult says yes; then adults only, with a tap.
+  if (c.cameraOn) {
+    auto.camera = `permit(principal in Role::"adult", action == Action::"camera", resource);`;
+    auto.camera_needs_phone = `forbid(principal, action == Action::"camera", resource) when { context.session != "phone" };`;
+  }
+
+  // projects: anyone who is part of the family may ask for a plan (it only writes text). Publishing or sending is acting in the family's
+  // name: an adult, with her own phone tap. Anyone else is held for an adult.
+  auto.start_project = `permit(principal, action == Action::"start_project", resource) when { principal in Role::"adult" || principal in Role::"teen" || principal in Role::"child" };`;
+  auto.publish_project = `permit(principal in Role::"adult", action == Action::"publish_project", resource);`;
+  auto.publish_project_needs_phone = `forbid(principal, action == Action::"publish_project", resource) when { context.session != "phone" };`;
 
   // building and publishing a site: an adult with her own phone tap. Everyone else is held for an adult.
   auto.build_site = `permit(principal in Role::"adult", action == Action::"build_site", resource);`;
@@ -86,13 +118,20 @@ export function generatePolicies(c: RulesConfig): PolicySets {
 
   // device class: adults only. Unlocking always needs the adult's own phone; the garage is a spoken heads-up with no tap.
   for (const a of c.adultsOnlyActions) {
-    both(`adults_only_${a}`, `forbid(principal, action == Action::${q(a)}, resource) unless { principal in Role::"adult" };`);
+    both(`adults_only_${a}`, `forbid(principal, action == Action::${q(a)}, resource) unless { principal in Role::"adult" || principal in Role::"visitor" };`);
     auto[`adult_${a}`] = `permit(principal in Role::"adult", action == Action::${q(a)}, resource);`;
-    if (a !== 'garage') auto[`${a}_needs_phone`] = `forbid(principal, action == Action::${q(a)}, resource) when { context.session != "phone" };`;
+    if (a !== 'garage') auto[`${a}_needs_phone`] = `forbid(principal, action == Action::${q(a)}, resource) when { context.session != "phone" } unless { principal in Role::"visitor" };`; // a visitor has no phone: the adult's yes was given when the visit was set up
   }
   // the garage: adults and teens, once confirmed. Children and guests never.
   auto.garage_open = `permit(principal, action == Action::"garage", resource) when { principal in Role::"adult" || principal in Role::"teen" };`;
   both('garage_not_for_kids', `forbid(principal, action == Action::"garage", resource) when { principal in Role::"child" || principal in Role::"guest" };`);
+
+  // visitors: the only thing a visitor can ever do is open the door, and only inside the window an adult set. Never held for an adult: outside it, no.
+  both('visitors_only_the_door', `forbid(principal, action, resource) when { principal in Role::"visitor" } unless { action == Action::"unlock" };`);
+  approvable.visitors_never_held = `forbid(principal in Role::"visitor", action, resource);`;
+  for (const v of c.visitors ?? []) {
+    auto[`visitor_${v.id}`] = `permit(principal == Person::${q(v.id)}, action == Action::"unlock", resource) when { [${v.days.join(', ')}].contains(context.weekday) && context.local_hour >= ${v.fromHour} && context.local_hour < ${v.toHour} };`;
+  }
 
   // named guests: each has an allowed list and an end date (the end date is checked when the house loads people; a guest past it is gone)
   for (const g of c.guests ?? []) {
@@ -104,6 +143,8 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // Buying is allowed, and a forbid holds it for an adult when it is over the person's limit, or the person has no limit at all.
   auto.purchase = `permit(principal, action == Action::"purchase", resource);`;
   const capped = Object.keys(c.weeklyCapCents);
+  // the scam guard: gift cards, crypto, wire transfers and a payee never paid before always wait for an adult, whatever the limit
+  auto.scam_guard = `forbid(principal, action == Action::"purchase", resource) when { context.scam };`;
   auto.purchase_needs_a_limit = capped.length ? `forbid(principal, action == Action::"purchase", resource) unless { [${capped.map((id) => `Person::${q(id)}`).join(', ')}].contains(principal) };` : `forbid(principal, action == Action::"purchase", resource);`;
   for (const [id, week] of Object.entries(c.weeklyCapCents)) {
     const per = c.perRequestCapCents[id] ?? week;
@@ -129,12 +170,19 @@ export function generatePolicies(c: RulesConfig): PolicySets {
     both('quiet_hours', `forbid(principal, action == Action::"purchase", resource) when { ${inside} } unless { principal in Role::"adult" };`);
   }
 
+  // rules aimed at a whole kind of action
+  (c.kindRules ?? []).forEach((r, i) => {
+    const text = `forbid(principal in Role::${q(r.role)}, action, resource) when { context.kind == ${q(r.kind)} };`;
+    if (r.effect === 'deny') both(`kind_deny_${i}`, text);
+    else auto[`kind_approval_${i}`] = text;
+  });
+
   // explicit rule types
   c.deny.forEach((r, i) => both(`deny_${i}`, `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));
   c.needsApproval.forEach((r, i) => (auto[`needs_approval_${i}`] = `forbid(principal in Role::${q(r.role)}, action == Action::${q(r.action)}, resource);`));
 
   // anything a known person may ask for, but wasn't automatic, can be held for an adult. Unknown action → no permit → deny.
-  approvable.hold_known = `permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
+  approvable.hold_known = `permit(principal, action, resource) when { [Action::"light", Action::"thermostat", Action::"music", Action::"weather", Action::"timer", Action::"vacuum", Action::"publish_project", Action::"unlock", Action::"garage", Action::"purchase", Action::"use_app", Action::"build_site"].contains(action) };`;
   approvable.guests_are_never_held = `forbid(principal in Role::"guest", action, resource);`;
   return { auto, approvable };
 }

@@ -5,6 +5,7 @@ import { money } from '../text.js';
 // Which rule decided? Said in plain words for the audit sentence. The policy ids are ours; people only ever see these lines.
 // Order matters: when several rules stop an ask, the first match here is the one named.
 const BLOCKERS: [RegExp, (name: string, r: RulesConfig, id: string) => string][] = [
+  [/^scam_guard$/, () => 'Rule: scams often start like this.'],
   [/^floor_guests_no_buy$/, () => "Rule: guests can't buy."],
   [/^floor_children_no_unlock$/, () => "Rule: children can't unlock doors."],
   [/^quiet_hours$/, () => 'Rule: quiet hours.'],

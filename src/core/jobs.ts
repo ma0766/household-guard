@@ -3,6 +3,7 @@ import { Store } from './store.js';
 import { getChallenge } from '../approvals/challenge.js';
 import { getSession, loadHousehold } from './household.js';
 import { getRuleParse } from '../rules/sentence.js';
+import { getProject } from '../projects/projects.js';
 import { getSiteJob } from '../sites/job.js';
 import { T } from '../text.js';
 import { getApproval } from '../approvals/approvals.js';
@@ -47,6 +48,15 @@ export async function jobStatus(deps: Deps, hh: string, id: string): Promise<Job
       if (rp.status === 'queued' || rp.status === 'running') return { job_id: id, status: 'running', say: 'Working on it.', done: false };
       if (rp.status === 'ready') return { job_id: id, status: 'waiting', say: rp.say ?? '', done: false, challenge_id: rp.challengeId, number: rp.number, readback: rp.readback, try_first: rp.tryFirst ?? undefined } as JobView;
       return { job_id: id, status: rp.status === 'question' ? 'held' : 'failed', say: rp.say ?? '', done: false, ...(rp.status === 'question' ? { question: true } : {}) } as JobView;
+    }
+    const proj = await getProject(deps, hh, id);
+    if (proj) {
+      const sess = await getSession(deps.store, hh, (deps.now ?? Date.now)());
+      const me = sess && (await loadHousehold(deps.store, hh)).people.find((p) => p.id === sess.personId);
+      if (!me || (me.role !== 'adult' && me.id !== proj.personId)) return { job_id: id, status: 'unknown', say: "I can't find that.", done: false };
+      if (proj.status === 'queued' || proj.status === 'running') return { job_id: id, status: 'running', say: 'Working on it.', done: false };
+      if (proj.status === 'ready') return { job_id: id, status: 'done', say: 'Your plan is ready. It is on your phone.', done: true };
+      return { job_id: id, status: 'failed', say: 'I could not write the plan. An adult was told.', done: false };
     }
     const site = await getSiteJob(deps, hh, id);
     if (site) {

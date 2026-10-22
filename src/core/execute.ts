@@ -6,6 +6,7 @@ import { execSimHome, SIM_HOME } from '../connectors/sim-home.js';
 import { randomUUID } from 'node:crypto';
 import { startSiteJob } from '../sites/job.js';
 import { T } from '../text.js';
+import { publishProject } from '../projects/projects.js';
 import { createJob } from '../jobs/worker.js';
 
 export interface PurchaseMeta {
@@ -30,6 +31,10 @@ export async function executeAction(deps: Deps, hh: string, personId: string, ar
     const p = meta.purchase as PurchaseMeta;
     await createJob(deps, hh, { id: p.jobId, personId, service: args.service, item: args.item, optionId: p.optionId, amountCents: p.amountCents, reservationId: p.reservationId, replacesApprovalId: p.replacesApprovalId, savedCents: p.savedCents });
     return { done: false, reason: T.booking, jobId: p.jobId };
+  }
+  if (meta?.project) {
+    // acting in the family's name: it happens only here, after the adult's own tap
+    return (await publishProject(deps, hh, String(meta.project))) ? { done: true, reason: T.published } : { done: false, reason: T.notReady };
   }
   if (meta?.site) {
     const jobId = randomUUID().slice(0, 12);

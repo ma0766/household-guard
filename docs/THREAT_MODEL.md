@@ -97,3 +97,14 @@ Rule of thumb for every row: an error, a timeout or a doubt ends as **hold** or 
 | A guest PIN is overheard | Guest PINs only open a short list of everyday things (lights, heat, music, weather, timers). Guests never buy, unlock, use the garage, change rules or hear orders (proved for all requests). The PIN is shown once, on the adult's own phone, kept only as a scrypt hash, and the guest is switched off after the last day. | A guest who keeps the PIN has their list until the last day, or until an adult ends the stay. |
 | Teen on the garage | A teen may open the garage with a spoken heads-up (levelup decision); an adult can make it adults-only with one card. | The garage is no longer behind a tap. |
 | A typed rule or a model draft | The model only fills in one known setting; the answer is checked in code, against the Cedar schema, shown with the last 7 days replayed under it, and saved only after the adult's tap. The model never sees or decides a request. | A reader failure becomes a question; nothing changes. |
+
+## Kinds, devices, scams, visitors, projects (2026-10-22)
+
+| Risk | What we do | Honest limit |
+|---|---|---|
+| A device key leaks | Typed only on the adult's phone; sealed AES-256-GCM; never in a log, answer, record or job (tests scan every record prefix). | The seal key is the server's secret: whoever has the table AND the secret can open it. |
+| A kid adds a device | Only an adult with a phone confirmation gets the card; the card needs her own number tap and the key. | The vacuum is a stand-in; a real vendor sign-in is next. |
+| A scammer talks a grandparent into a gift card | Gift cards, crypto, wire transfers and first-time payees always wait for ANOTHER adult. | If a house has one adult, it waits for nobody: it stays held. Words we do not know ("prepaid voucher") are not caught; the AI risk check is a second net. |
+| A visitor's PIN is shared | The PIN opens only the front door, only in the window; outside it: no and an adult is told. | A shared PIN opens the door in the window. The adult can end the visits with one tap. |
+| A project plan acts | The writer only writes; publishing is an adult's tap; the plan page is text with a strict content rule at an unguessable address. | Anyone with the link can read the plan. |
+| A service that did not declare a kind | Held for an adult. | |

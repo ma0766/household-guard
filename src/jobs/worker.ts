@@ -2,12 +2,14 @@ import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
 import { commit, getReservation, pinReservation, release } from '../spend/spend.js';
 import { MOCK_RIDE, bookRide, quoteRide, type RideOption } from '../connectors/mock-ride.js';
-import { MOCK_SHOP, bookItem, quoteItem } from '../connectors/mock-shop.js';
+import { MOCK_SHOP, bookItem, knownPayee, quoteItem, rememberPayee } from '../connectors/mock-shop.js';
+import { scamKindOf } from '../policy/scam.js';
 import { approvalHash, createApproval, getApproval, supersede } from '../approvals/approvals.js';
 import { loadHousehold } from '../core/household.js';
 import { decide } from '../policy/evaluator.js';
 import { hourOf } from '../core/time.js';
 import { T, money } from '../text.js';
+import { serviceKnownFor } from '../policy/kinds.js';
 import { emit } from '../audit/emit.js';
 import { clearApprovalOwed, connectorState } from '../connectors/healing.js';
 
@@ -83,7 +85,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
     {
       const { people, rules, meta } = await loadHousehold(deps.store, hh);
       const who = people.find((p) => p.id === j.personId);
-      const again = who && decide(rules, { person: { id: who.id, role: who.role }, action: 'purchase', service: j.service, serviceKnown: rules.allowedServices.includes(j.service), amountCents: j.amountCents, weekSpentCents: 0, value: 0, session: 'phone', localHour: hourOf(now, meta.timezone) });
+      const again = who && decide(rules, { person: { id: who.id, role: who.role }, action: 'purchase', service: j.service, serviceKnown: serviceKnownFor(rules, j.service, 'purchase'), amountCents: j.amountCents, weekSpentCents: 0, value: 0, session: 'phone', localHour: hourOf(now, meta.timezone) });
       if (!who || again!.answer === 'deny') {
         const why = again?.determining.includes('quiet_hours') && rules.quietHours ? T.quietHours(rules.quietHours.fromHour, rules.quietHours.toHour) : T.cantDo;
         await release(deps.store, hh, j.reservationId);
@@ -92,16 +94,18 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
         return;
       }
     }
-    let service: { destination?: string; itemKey: string; amount: number; optionId?: string; opt?: RideOption; note?: string } | undefined;
+    let service: { payee?: string; destination?: string; itemKey: string; amount: number; optionId?: string; opt?: RideOption; note?: string } | undefined;
     if (j.service === MOCK_RIDE) {
       const q = await quoteRide(deps.store, hh, j.item);
       const opt = q?.options.find((o) => o.id === (j.optionId ?? 'standard'));
       if (q && opt) service = { destination: q.destination, itemKey: `${q.destination}/${opt.id}`, amount: opt.total_cents, optionId: opt.id, opt, note: q.note };
-    } else if (j.service === MOCK_SHOP) {
+    } else if (j.service === MOCK_SHOP || j.service === 'robot-vacuum') {
       const q = quoteItem(j.item);
-      if (q) service = { itemKey: q.item, amount: q.total_cents };
+      if (q) service = { itemKey: q.item, amount: q.total_cents, payee: q.payee };
     }
     if (!service) throw new Error('no quote');
+    // the scam guard is asked again on the fresh quote: a hold made here keeps the "another adult" rule
+    const scamNow = (j.service === MOCK_SHOP || j.service === 'robot-vacuum') && scamKindOf(service.itemKey.split(' to ')[0], service.payee, service.payee ? await knownPayee(deps.store, hh, service.payee) : true) !== undefined;
 
     // Re-quote. If what we would buy is not exactly what was approved, it goes BACK TO HOLD — the old yes does not apply (gap 5).
     const hashNow = approvalHash({ amount_cents: service.amount, merchant: j.service, item: service.itemKey, person: j.personId });
@@ -110,7 +114,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       await release(deps.store, hh, j.reservationId);
       const { people } = await loadHousehold(deps.store, hh);
       const name = people.find((p) => p.id === j.personId)?.name ?? 'Someone';
-      const a = await createApproval(deps, hh, { personId: j.personId, personName: name, service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.priceChanged });
+      const a = await createApproval(deps, hh, { personId: j.personId, personName: name, service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.priceChanged, scam: scamNow });
       await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: name, text: (t) => `The price changed for ${name} at ${t}. Not bought. An adult must say yes again.`, data: { amount_cents: service.amount } });
       return await finish(deps, hh, jobId, 'held', `${T.priceChanged} An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
     }
@@ -125,7 +129,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
           await release(deps.store, hh, j.reservationId);
           const { people } = await loadHousehold(deps.store, hh);
           const name = people.find((p) => p.id === j.personId)?.name ?? 'Someone';
-          const a = await createApproval(deps, hh, { personId: j.personId, personName: name, service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.afterRepair });
+          const a = await createApproval(deps, hh, { personId: j.personId, personName: name, service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.afterRepair, scam: scamNow });
           await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: name, text: (t) => `${name}'s ${money(service!.amount)} ride was held at ${t}. The ride service was just fixed. An adult must say yes once.`, data: { amount_cents: service!.amount, repaired: true } });
           return await finish(deps, hh, jobId, 'held', `${T.afterRepair} An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
         }
@@ -146,7 +150,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       }
       if (verdict === 'hold') {
         await release(deps.store, hh, j.reservationId);
-        const a = await createApproval(deps, hh, { personId: j.personId, personName: who?.name ?? 'Someone', service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.riskHeld });
+        const a = await createApproval(deps, hh, { personId: j.personId, personName: who?.name ?? 'Someone', service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.riskHeld, scam: scamNow });
         await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: who?.name ?? 'Someone', text: (t) => `${who?.name ?? 'Someone'}'s ${money(service!.amount)} buy needed a closer look at ${t}. Not bought. An adult must say yes.`, data: { amount_cents: service!.amount, risk: true } });
         return await finish(deps, hh, jobId, 'held', `That needs a closer look. An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
       }
@@ -156,6 +160,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
     if (j.service === MOCK_RIDE) total = (await bookRide(deps.store, hh, service.destination!, service.opt!, j.id)).total_cents;
     else total = (await bookItem(deps.store, hh, service.itemKey, service.amount, j.id)).total_cents;
     booked = true;
+    if (j.service === MOCK_SHOP && service.payee && j.approvalId) await rememberPayee(deps.store, hh, service.payee).catch(() => undefined); // an adult said yes to this payee: it is known from now on
   } catch {
     if (!booked) {
       await release(deps.store, hh, j.reservationId).catch(() => undefined);

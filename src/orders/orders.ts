@@ -7,6 +7,7 @@ import { explainDecision } from '../policy/explain.js';
 import type { RulesConfig } from '../policy/rules.js';
 import type { ActionArgs, ActionResult, Person, SessionMethod } from '../core/types.js';
 import { T } from '../text.js';
+import { serviceKnownFor } from '../policy/kinds.js';
 
 // S19: order history, delivery status and the cart are asked through request_action like everything else, and the same
 // rules engine decides. Two questions: may this person hear orders at all (order_history / order_status / cart), and may
@@ -44,7 +45,7 @@ interface Ctx { person: Person; method: SessionMethod; rules: RulesConfig; tz: s
 
 export async function handleOrders(deps: Deps, hh: string, c: Ctx): Promise<ActionResult> {
   const { person, rules, tz, now, args } = c;
-  const input = { person: { id: person.id, role: person.role }, action: args.action, service: args.service, serviceKnown: rules.allowedServices.includes(args.service), amountCents: 0, weekSpentCents: 0, value: 0, session: c.method, localHour: hourOf(now, tz) };
+  const input = { person: { id: person.id, role: person.role }, action: args.action, service: args.service, serviceKnown: serviceKnownFor(rules, args.service, args.action), amountCents: 0, weekSpentCents: 0, value: 0, session: c.method, localHour: hourOf(now, tz) };
   // nobody confirmed, a child, a guest, or a teen the card has not opened it to: one short plain answer, nothing else
   const first = decideTraced(deps, rules, input);
   const base = { person: person.id, person_name: person.name, service: args.service, action: args.action, rule: first.answer === 'allow' ? explainDecision(first, rules, person.name) : 'Rule: orders are private.' };

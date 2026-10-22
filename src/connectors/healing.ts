@@ -1,3 +1,4 @@
+import { checkDevices } from '../devices/health.js';
 import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
 import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
@@ -271,6 +272,7 @@ export async function healAll(deps: Deps, repairer: Repairer, only?: (hh: string
         const hh = r.pk.replace(/^H#/, '');
         try {
           results[hh] = (await healthCheck(deps, hh, repairer)).status;
+          await checkDevices(deps, hh).catch((e) => console.error('heal: device check failed for', hh, e)); // the devices' own status: stuck or error tells the adults
         } catch (e) {
           console.error('heal: check failed for', hh, e);
           results[hh] = 'broken';

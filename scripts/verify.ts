@@ -22,6 +22,7 @@ const SLICES: Record<string, string> = {
   S16: 'AgentCore Gateway + Policy (switch OFF by default)',
   S19: 'Private things stay private (orders, gifts)',
   S20: 'Level up: try it first, fewer taps, guests, why',
+  S21: 'Kinds of action, devices, scam guard, visitors, projects',
 };
 mkdirSync('test-results', { recursive: true });
 const run = (label: string, cmd: string, args: string[]) => {

@@ -3,6 +3,7 @@ import { Store } from '../core/store.js';
 import { getSession, loadHousehold } from '../core/household.js';
 import { openChallenge, type Challenge } from '../approvals/challenge.js';
 import { previewChange } from './preview.js';
+import { KIND_WORDS } from '../policy/kinds.js';
 import { tryFirst, type TryFirst } from './tryfirst.js';
 import { randomInt } from 'node:crypto';
 import { hashPin } from '../identity/pin.js';
@@ -51,7 +52,7 @@ export async function ruleEditor(deps: Deps, hh: string): Promise<{ refuse: Rule
   return { me, people, rules, tz: meta.timezone };
 }
 
-export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleChange; undo?: boolean }, asPerson?: string): Promise<RuleReply> {
+export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleChange; undo?: boolean }, asPerson?: string, opts: { needsKey?: boolean } = {}): Promise<RuleReply> {
   const now = (deps.now ?? Date.now)();
   try {
     const ed = await ruleEditor(deps, hh);
@@ -87,6 +88,7 @@ export async function proposeRule(deps: Deps, hh: string, req: { change?: RuleCh
     const tf = await tryFirst(deps, hh, rules, after, people, tz, now, focus);
     meta2.text = `${meta2.text} ${tf.summary}`;
     meta2.tryFirst = tf;
+    if (opts.needsKey) meta2.needsKey = true; // the phone asks for the device's key, typed there and nowhere else
     const { challenge, locked } = await openChallenge(deps, hh, me, 'rule', undefined, meta2);
     if (locked || !challenge) return { status: 'locked', say: T.locked };
     return { status: 'waiting', say: T.confirmOnPhone(challenge.number), number: challenge.number, challenge_id: challenge.id, sentence, warning, preview, try_first: tf };
@@ -173,13 +175,28 @@ export async function completeRule(deps: Deps, hh: string, personId: string, c: 
       await deps.store.put({ pk, sk: `PERSON#${who.id}`, id: who.id, name: who.name, role: 'guest', hasPhone: false, pinHash: hashPin(guestPin), ttl: Math.floor((who.untilMs + 3 * 86400_000) / 1000) });
     }
   }
+  // a visitor gets a PIN of their own too (said once, on the adult's phone; kept only as a scrypt hash)
+  if (m.change?.template === 'add_visitor') {
+    const clean = String(m.change.name).replace(/[^A-Za-z ]/g, '').trim().slice(0, 20).trim();
+    const who = (next.visitors ?? []).find((x) => x.id === `v-${clean.toLowerCase().replace(/ +/g, '-')}`);
+    if (who) {
+      guestPin = String(randomInt(1000, 10000));
+      await deps.store.put({ pk, sk: `PERSON#${who.id}`, id: who.id, name: who.name, role: 'visitor', hasPhone: false, pinHash: hashPin(guestPin), ttl: Math.floor(now / 1000) + 400 * 86400 });
+    }
+  }
   const record =
     undoneVersion !== undefined
       ? { Update: { TableName: deps.store.table, Key: { pk, sk: chgKey(undoneVersion) }, UpdateExpression: 'SET #s = :u', ConditionExpression: '#s = :a', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':u': 'undone', ':a': 'applied' } } }
       : { Put: { TableName: deps.store.table, Item: { pk, sk: chgKey(next.version), version: next.version, by: me.id, sentence, before: rules, at: now, status: 'applied', ttl: Math.floor(now / 1000) + 90 * 86400 } } };
   if (!(await save(deps, hh, next, rules.version, [record]))) return { done: false, reason: 'The rules changed. Try again.' };
   await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} ${undoneVersion !== undefined ? 'undid' : 'changed'} a rule at ${t}. ${sentence}`, data: { version: next.version } });
-  return { done: true, reason: sentence, ...(guestPin ? { private: `Their PIN is ${guestPin}. Tell them.` } : {}) };
+  let tail = '';
+  if (m.change?.template === 'declare_service' && !next.cameraOn) {
+    // suggest the camera ONCE, after the first device is added. It stays off until an adult taps Yes.
+    const first = await deps.store.put({ pk, sk: 'SUGGEST#camera', id: 'camera', status: 'open', at: now, text: T.cameraAsk }, { ifNotExists: true }).then(() => true).catch((e: any) => (e?.name === 'ConditionalCheckFailedException' ? false : Promise.reject(e)));
+    if (first) tail = ` ${T.cameraAsk}`;
+  }
+  return { done: true, reason: `${sentence}${tail}`, ...(guestPin ? { private: `Their PIN is ${guestPin}. Tell them.` } : {}) };
 }
 
 // What a person may see about their own rules (kids can look, not change).
@@ -204,6 +221,8 @@ export function rulesHtml(rules: RulesConfig, people: { id: string; name: string
     ...people.filter((p) => p.role !== 'guest').map((p) => row('🛒', rules.weeklyCapCents[p.id] === undefined ? `${p.name}: an adult says yes to buys.` : `${p.name}: ${money(rules.weeklyCapCents[p.id])} a week.`)),
     row('🔒', `Adults only: ${rules.adultsOnlyActions.join(', ') || 'nothing'}.`),
     row('🚗', rules.adultsOnlyActions.includes('garage') ? 'The garage is for adults only.' : 'Adults and teens use the garage. No tap.'),
+    ...(rules.kindRules ?? []).map((k) => row('🧩', `${k.role === 'child' ? 'Children' : k.role === 'teen' ? 'Teens' : 'Guests'}: ${k.effect === 'deny' ? 'no' : 'an adult says yes to'} ${KIND_WORDS[k.kind]}.`)),
+    ...(rules.visitors ?? []).map((v) => row('🐕', `${v.name} can come in ${v.days.length === 7 ? 'every day' : v.days.length === 5 ? 'on weekdays' : 'on weekends'}, ${hourWord(v.fromHour)} to ${hourWord(v.toHour)}.`)),
     row('🏠', rules.guestEveryday === false ? 'Everyday things need a PIN or a tap.' : 'Everyday things are open to anyone at home.'),
     ...(rules.guests ?? []).map((g) => row('🧳', `Guest ${g.name}: ${g.allowed.join(', ') || 'nothing'}, until ${new Date(g.untilMs).toLocaleDateString('en-CA', { timeZone: 'America/New_York' })}.`)),
     ...Object.entries(rules.noTapBuyCents ?? {}).map(([id, c]) => row('👆', `${people.find((p) => p.id === id)?.name ?? id} buys up to ${money(c)} with no tap.`)),
@@ -215,4 +234,19 @@ export function rulesHtml(rules: RulesConfig, people: { id: string; name: string
     row('🔒', rules.floor.guestsNoBuy ? "Locked: guests can't buy." : "Off: guests can't buy."),
   ];
   return `<!doctype html><html lang="en"><meta charset="utf-8"><title>House rules</title><style>body{font:16px/1.4 system-ui,sans-serif;margin:0;padding:8px}.row{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #e4dfd2}.ic{width:26px}h2{font-size:16px;margin:0 0 6px}</style><h2>House rules</h2>${rows.join('')}`;
+}
+
+// One rule change made right now by an adult who has just said yes on their own phone (the Yes on a suggestion card).
+export async function applyNow(deps: Deps, hh: string, personId: string, change: RuleChange): Promise<{ done: boolean; reason: string }> {
+  const now = (deps.now ?? Date.now)();
+  const { people, rules, meta } = await loadHousehold(deps.store, hh, now);
+  const me = people.find((p) => p.id === personId);
+  if (!me || me.role !== 'adult') return { done: false, reason: T.onlyAdults };
+  const a = applyChange(rules, change, people, { now, tz: meta.timezone });
+  if (!a.ok) return { done: false, reason: a.error };
+  const pk = Store.hk(hh);
+  const record = { Put: { TableName: deps.store.table, Item: { pk, sk: chgKey(a.config.version), version: a.config.version, by: me.id, sentence: a.sentence, before: rules, at: now, status: 'applied', ttl: Math.floor(now / 1000) + 90 * 86400 } } };
+  if (!(await save(deps, hh, a.config, rules.version, [record]))) return { done: false, reason: 'The rules changed. Try again.' };
+  await emit(deps, hh, { kind: 'rule', category: 'rule', person: me.id, personName: me.name, text: (t) => `${me.name} changed a rule at ${t}. ${a.sentence}`, data: { version: a.config.version } });
+  return { done: true, reason: a.sentence };
 }

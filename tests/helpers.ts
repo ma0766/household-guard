@@ -17,7 +17,7 @@ export async function newHousehold(extra: Partial<Deps> = {}) {
   return { hh, store, deps, queue };
 }
 
-export type Who = 'mom' | 'maya' | 'leo' | 'guest';
+export type Who = 'mom' | 'maya' | 'leo' | 'guest' | 'grandma';
 export async function speakAs(store: Store, hh: string, who: Who, method: 'phone' | 'pin' = 'phone', now?: number) {
   if (who === 'guest') return; // no confirmed session = guest
   await setSession(store, hh, who, method, now);

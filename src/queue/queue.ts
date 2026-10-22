@@ -5,7 +5,7 @@ import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 export interface JobMessage {
   hh: string;
   jobId: string;
-  kind?: 'site' | 'rule'; // absent = a ride/purchase job
+  kind?: 'site' | 'rule' | 'project'; // absent = a ride/purchase job
 }
 export interface JobQueue {
   send(m: JobMessage): Promise<void>;

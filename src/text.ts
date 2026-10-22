@@ -15,6 +15,7 @@ export const T = {
       case 'garage': return 'Heads up. The garage is opening.';
       case 'music': return `Done. Playing ${item || 'music'}.`;
       case 'weather': return 'It is 72 degrees and sunny.';
+      case 'camera': return 'Done. The hallway looks quiet.';
       case 'timer': return `Done. Timer set for ${value} ${Number(value) === 1 ? 'minute' : 'minutes'}.`;
       case 'thermostat': return `Done. It is set to ${value} degrees.`;
       default: return 'Done.';
@@ -60,6 +61,20 @@ export const T = {
   serviceDown: 'That service is not working. An adult was told.',
   afterRepair: 'Held: this service was just fixed. An adult must say yes once.',
   quietHours: (from: number, to: number) => `Quiet hours: no buying from ${hourWord(from)} to ${hourWord(to)}.`,
+  cameraAsk: 'Want the hallway camera to check on it? Off until you say yes.',
+  cameraOff: 'The camera is off.',
+  keyFirst: 'Type the key on your phone first.',
+  addOnPhone: 'Finish on your phone. Type the key there.',
+  noProject: 'I could not find that project.',
+  published: 'Done. It is published.',
+  deviceAlready: 'That one is here.',
+  noDevice: "I don't know that device.",
+  vacuumStarted: 'Okay. The vacuum is cleaning.',
+  vacuumStopped: 'Okay. It stopped.',
+  vacuumStuck: 'The vacuum is stuck. An adult was told.',
+  vacuumError: 'The vacuum has an error. An adult was told.',
+  scam: 'People pretending to be family often ask for this. Call them first.',
+  anotherAdult: 'Ask another adult to say yes.',
   guestNoBuy: "Guests can't buy things.",
   childNoBuy: 'An adult must say yes to buys.',
   overWeekly: (name: string, cap: number) => `Held: over ${name}'s ${money(cap)} a week.`,
@@ -78,5 +93,5 @@ export const T = {
   adultCanTap: (n: number) => `An adult can tap ${n} to say yes.`,
 };
 
-export const roleName: Record<Role, string> = { adult: 'adult', teen: 'teen', child: 'child', guest: 'guest' };
+export const roleName: Record<Role, string> = { adult: 'adult', teen: 'teen', child: 'child', guest: 'guest', visitor: 'visitor' };
 

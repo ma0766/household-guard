@@ -87,6 +87,7 @@ async function connect() {
   await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'web-client', version: '0.1.0' } });
   await rpc('notifications/initialized', undefined, undefined);
   connected = true;
+  if (new URLSearchParams(location.search).get('grandma') === '1') await fetch('/demo/grandma', { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: '{}' }); // local demo: Grandma joins this house
 }
 
 async function callTool(name: string, args: Record<string, unknown>) {
@@ -104,6 +105,7 @@ const PEOPLE = [
   { id: 'guest', name: 'Guest', phone: false },
 ];
 // the reset demo house (npm run demo:reset) also has Dad: open the page with ?dad=1 to see his button and phone
+if (new URLSearchParams(location.search).get('grandma') === '1') PEOPLE.splice(1, 0, { id: 'grandma', name: 'Grandma', phone: true });
 if (new URLSearchParams(location.search).get('dad') === '1') PEOPLE.splice(1, 0, { id: 'dad', name: 'Dad', phone: true });
 const saysEl = $('alexa-says');
 function says(text: string | undefined, outcome = 'allowed') {
@@ -128,6 +130,21 @@ async function waitJob(id: string) {
       void refresh(true);
       if (r.status === 'held' && r.approval_id) return waitJob(r.approval_id); // sent back to an adult: keep listening for their answer
       return r;
+    }
+  }
+}
+
+// a plan being written: ask again until it is ready (the link then shows on the asker's own phone)
+async function waitPlan(id: string) {
+  const mine = ++watch;
+  for (let i = 0; i < 120 && mine === watch; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    const j = await callTool('job_status', { job_id: id });
+    if (mine !== watch) return;
+    if (j.status === 'done' || j.status === 'failed' || j.status === 'unknown') {
+      says(j.say, j.done ? 'allowed' : 'denied');
+      void refresh(true);
+      return;
     }
   }
 }
@@ -188,7 +205,7 @@ async function refreshPhones() {
     if (!r.ok) continue;
     const inbox = await r.json();
     const body = phoneEls[p.id];
-    const sig = JSON.stringify([inbox.challenges, inbox.notices, inbox.approvals]);
+    const sig = JSON.stringify([inbox.challenges, inbox.notices, inbox.approvals, inbox.suggestions, inbox.links]);
     if (body.dataset.sig === sig) continue;
     body.dataset.sig = sig;
     body.innerHTML = '';
@@ -196,12 +213,23 @@ async function refreshPhones() {
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `<p>${c.text}</p>`;
+      let keyInput: HTMLInputElement | undefined;
+      if (c.needs_key) {
+        // a device's key is typed here, on this phone, and nowhere else: not said aloud, not in the log
+        keyInput = document.createElement('input');
+        keyInput.type = 'password';
+        keyInput.placeholder = 'Device key';
+        keyInput.autocomplete = 'off';
+        keyInput.setAttribute('data-testid', `phone-${p.id}-key`);
+        card.appendChild(keyInput);
+      }
       for (const n of c.options) {
         const btn = document.createElement('button');
         btn.textContent = String(n);
         btn.setAttribute('data-testid', `phone-${p.id}-num-${n}`);
         btn.onclick = async () => {
-          const out = await (await fetch(`/phone/${p.id}/confirm`, { method: 'POST', headers: { authorization: `Bearer ${phoneTokens[p.id]}`, 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: c.id, number: n }) })).json();
+          const out = await (await fetch(`/phone/${p.id}/confirm`, { method: 'POST', headers: { authorization: `Bearer ${phoneTokens[p.id]}`, 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: c.id, number: n, ...(keyInput ? { key: keyInput.value } : {}) }) })).json();
+          if (keyInput) keyInput.value = '';
           if (out.status !== 'confirmed') says(out.say, 'denied');
           else if (/PIN is/.test(out.say ?? '')) showSecret(p.id, out.say); // a new guest's PIN: shown on this phone only, never said aloud
         };
@@ -243,13 +271,42 @@ async function refreshPhones() {
       card.appendChild(no);
       body.appendChild(card);
     }
+    for (const s of inbox.suggestions ?? []) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-testid', `suggestion-${p.id}`);
+      card.innerHTML = `<p>${s.text}</p>`;
+      for (const [label, answer] of [['Yes', 'yes'], ['No', 'no']] as const) {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.className = answer === 'no' ? 'secondary' : '';
+        b.setAttribute('data-testid', `suggest-${answer}-${p.id}`);
+        b.onclick = async () => {
+          const out = await (await fetch(`/phone/${p.id}/suggestion`, { method: 'POST', headers: { authorization: `Bearer ${phoneTokens[p.id]}`, 'content-type': 'application/json' }, body: JSON.stringify({ id: s.id, answer }) })).json();
+          says(out.say, out.status === 'refused' ? 'denied' : 'allowed');
+          void refresh(true);
+        };
+        card.appendChild(b);
+      }
+      body.appendChild(card);
+    }
+    for (const l of inbox.links ?? []) {
+      const e = document.createElement('p');
+      const a = document.createElement('a');
+      a.textContent = l.text;
+      a.href = l.url;
+      a.target = '_blank';
+      a.setAttribute('data-testid', `plan-link-${p.id}`);
+      e.appendChild(a);
+      body.appendChild(e);
+    }
     for (const n of inbox.notices) {
       const e = document.createElement('p');
       e.className = 'notice';
       e.textContent = n.text;
       body.appendChild(e);
     }
-    if (!inbox.challenges.length && !inbox.notices.length && !(inbox.approvals ?? []).length) body.textContent = 'Nothing waiting.';
+    if (!inbox.challenges.length && !inbox.notices.length && !(inbox.approvals ?? []).length && !(inbox.suggestions ?? []).length && !(inbox.links ?? []).length) body.textContent = 'Nothing waiting.';
   }
 }
 // ---- "What happened": the screen comes from the house itself (show_on_screen), shown in a sandboxed frame ----
@@ -340,6 +397,9 @@ async function demoPost(path: string) {
   return { ok: res.ok, ...body };
 }
 $('btn-break-ride').onclick = () => void demoPost('/demo/break-ride').then((r) => (r.ok ? says('The ride service shipped a new version.', 'held') : says(r.say ?? 'Only an adult can do that.', 'denied')));
+const localDemo = async (path: string, body: object = {}) => (await fetch(path, { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body) })).ok;
+$('btn-vac-stuck').onclick = async () => { await connect(); says((await localDemo('/demo/vacuum', { status: 'stuck' })) ? 'The vacuum says it is stuck.' : 'That demo button is off here.', 'held'); };
+$('btn-check-devices').onclick = async () => { await connect(); await localDemo('/demo/check-devices'); says('Checked the devices.', 'allowed'); void refresh(true); };
 $('btn-check-rides').onclick = () => void demoPost('/demo/check-rides').then((r) => (r.ok ? says(r.say ?? 'Checked.', 'allowed') : says(r.say ?? 'Only an adult can do that.', 'denied')));
 let tick = 0;
 let refreshing = false; // never start a round while the last one is still running
@@ -436,6 +496,13 @@ function parse(text: string): Record<string, unknown> | undefined {
   if (/\btimer\b/.test(t)) return { service: 'sim-home', action: 'timer', item: 'timer', value: Number(t.match(/(\d+)/)?.[1] ?? 5) };
   if (/\bweather\b/.test(t)) return { service: 'sim-home', action: 'weather', item: 'weather' };
   if (/\b(music|song|jazz|playlist)\b/.test(t) && !/spotify/.test(t)) return { service: 'sim-home', action: 'music', item: (t.match(/jazz|rock|pop|classical/) ?? ['music'])[0] };
+  if (/\b(connect|add)\b.*\b(vacuum|robot)/.test(t)) return { service: 'devices', action: 'connect_device', item: 'robot vacuum' };
+  if (/\bvacuum\b.*\bbags?\b|\bbags?\b.*\bvacuum/.test(t) || /\bbags?\b/.test(t)) return { service: 'robot-vacuum', action: 'purchase', item: 'vacuum bag' };
+  if (/\bvacuum\b|\brobot\b/.test(t)) return { service: 'robot-vacuum', action: 'vacuum', item: 'vacuum', value: /\bstop\b/.test(t) ? 'stop' : 'start' };
+  if (/\bcamera\b/.test(t)) return { service: 'sim-home', action: 'camera', item: 'hallway camera' };
+  if (/\bstart a project\b/.test(t)) return { service: 'projects', action: 'start_project', item: text.replace(/^.*?start a project:?\s*/i, '') };
+  if (/\bpublish\b/.test(t)) return { service: 'projects', action: 'publish_project', item: text.replace(/^.*?publish\s*/i, '') };
+  if (/\b(send|wire|pay)\b.*\bto\b|\bcrypto\b|\bbitcoin\b/.test(t)) return { service: 'mock-shop', action: 'purchase', item: text };
   if (/delete .*account/.test(t)) return { service: 'sim-home', action: 'delete_account' };
   if (/unlock/.test(t)) return { service: 'sim-home', action: 'unlock', item: 'front door' };
   if (/garage/.test(t)) return { service: 'sim-home', action: 'garage', item: 'garage', value: 'open' };
@@ -444,7 +511,8 @@ function parse(text: string): Record<string, unknown> | undefined {
   if (/deliver|arriv|package|shipped/.test(t)) return { service: 'mock-shop', action: 'order_status' };
   if (/\border(ed|s)?\b/.test(t) && !/\bride\b|gift card/.test(t)) return { service: 'mock-shop', action: 'order_history' };
   if (/ride|taxi|cab/.test(t)) return { service: 'mock-ride', action: 'purchase', item: `ride to the ${(t.match(/airport|mall|library|school/) ?? ['mall'])[0]}`, ...(/shared/.test(t) ? { option_id: 'shared' } : {}) };
-  if (/gift card/.test(t)) return { service: 'mock-shop', action: 'purchase', item: 'gift card' };
+  if (/voucher/.test(t)) return { service: 'mock-shop', action: 'purchase', item: 'voucher' };
+  if (/gift card/.test(t)) return { service: 'mock-shop', action: 'purchase', item: text.match(/\$\s*\d+/) ? `a ${text.match(/\$\s*\d+/)![0]} gift card` : 'gift card' };
   if (/light/.test(t)) return { service: 'sim-home', action: 'light', item: 'lights', value: /\boff\b/.test(t) ? 'off' : 'on' };
   return undefined;
 }
@@ -469,23 +537,24 @@ function showAlt(a?: { args: Record<string, unknown>; alt: { option_id: string; 
 }
 
 async function say(text: string) {
-  const who = text.match(/\bi(?:'m| am) (\w+),? (?:my )?pin(?: is)? (\d{4})\b/i); // a named guest says who they are with their own PIN
+  const who = text.match(/\bi(?:'m| am) ([a-z][a-z ]{1,19}?),? (?:my )?pin(?: is)? (\d{4})\b/i); // a named guest says who they are with their own PIN
   if (who) {
     const r = await callTool('confirm_identity', { name: who[1], pin: who[2] });
     return says(r.say, r.status === 'confirmed' ? 'allowed' : 'denied');
   }
   const args = parse(text);
-  if (!args && /\b(spend|limit|rule|quiet hours|hear orders)\b/i.test(text)) { $('rule-sentence').scrollIntoView?.({ block: 'nearest' }); ($('rule-sentence') as HTMLInputElement).value = text; return void typedRule(text); } // a rule said in the question box goes the same way
+  if (!args && /\b(spend|limit|rule|quiet hours|hear orders|let .* in|without a tap|everyday things)\b/i.test(text)) { $('rule-sentence').scrollIntoView?.({ block: 'nearest' }); ($('rule-sentence') as HTMLInputElement).value = text; return void typedRule(text); } // a rule said in the question box goes the same way
   if (!args) return says("Sorry, I didn't get that. Try: turn off the lights, or book a ride.", 'held');
   const r = await callTool('request_action', { ...args, request_id: crypto.randomUUID() }); // one id per utterance; a retry of the same call reuses it
   says(r.say ?? r.reason, r.outcome === 'allowed' && !r.done ? 'held' : r.outcome);
   showAlt(r.alternative ? { args, alt: r.alternative, approval: r.approval_id } : undefined);
-  if (r.next === 'confirm_on_phone' && r.job_id) void waitJob(r.job_id);
+  if ((r.next === 'confirm_on_phone' || r.next === 'finish_on_phone') && r.job_id) void waitJob(r.job_id);
+  else if (r.next === 'wait_for_plan' && r.job_id) void waitPlan(r.job_id);
   else if (r.approval_id) void waitJob(r.approval_id);
   return r;
 }
 
-const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card', 'What did Mom order?', 'What did we order?', 'Open the garage', 'Play some jazz', 'Set a timer for 5 minutes'];
+const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card', 'Buy a voucher', 'What did Mom order?', 'What did we order?', 'Open the garage', 'Play some jazz', 'Set a timer for 5 minutes', 'Connect my new robot vacuum', 'Start the vacuum', 'Order vacuum bags', 'Show the hallway camera', 'Buy a $200 gift card', 'Start a project: a website for my bakery', 'Publish the bakery project'];
 for (const q of QUICK) {
   const b = document.createElement('button');
   b.className = 'secondary';
