@@ -7,6 +7,7 @@ import { readAudit } from '../../src/audit/audit.js';
 import { countBookings } from '../../src/connectors/mock-ride.js';
 import { T } from '../../src/text.js';
 import { addGrandma } from './helpers.js';
+import { tap } from '../s20/helpers.js';
 import { setSession } from '../../src/core/household.js';
 
 const shop = (item: string) => ({ service: 'mock-shop', action: 'purchase', item });
@@ -45,10 +46,20 @@ describe('the scam guard', () => {
     await speakAs(ctx.store, ctx.hh, 'mom', 'phone');
     for (const item of ['a $20 gift card', 'bitcoin $100', 'a wire transfer of $300']) expect((await requestAction(ctx.deps, ctx.hh, shop(item))).outcome, item).toBe('held');
   });
-  it('a teen or a child asking for one is held too; a guest is still refused', async () => {
-    const ctx = await newHousehold();
+  it('a teen taps for herself, and then the buy still waits for an adult, even if the risk check says fine; a guest is refused', async () => {
+    const alwaysOk = { async check() { return { verdict: 'ok' as const, why: 'fine' }; } };
+    const ctx = await newHousehold({ risk: alwaysOk });
     await speakAs(ctx.store, ctx.hh, 'maya', 'phone');
-    expect((await requestAction(ctx.deps, ctx.hh, shop('gift card'))).reason).toBe(LINE);
+    const r = await requestAction(ctx.deps, ctx.hh, shop('gift card'));
+    expect(r).toMatchObject({ outcome: 'allowed', next: 'confirm_on_phone' }); // her own tap, as the rules always said
+    await tap(ctx, 'maya', r.job_id as string);
+    await ctx.queue.drain();
+    expect(await countBookings(ctx.store, ctx.hh)).toBe(0);
+    const a = (await openApprovals(ctx.deps, ctx.hh))[0];
+    expect(a).toMatchObject({ personId: 'maya', scam: true, reason: LINE });
+    expect((await approveRequest(ctx.deps, ctx.hh, 'mom', a.id, { number: a.number, method: 'phone' })).status).toBe('approved');
+    await ctx.queue.drain();
+    expect(await countBookings(ctx.store, ctx.hh)).toBe(1);
     await ctx.store.delete((await import('../../src/core/store.js')).Store.hk(ctx.hh), 'SESSION#current');
     expect((await requestAction(ctx.deps, ctx.hh, shop('gift card'))).outcome).toBe('denied');
   });
