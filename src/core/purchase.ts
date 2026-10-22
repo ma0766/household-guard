@@ -70,7 +70,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
 
   const week = weekKey(now, tz);
   const spent = await spentThisWeek(deps.store, hh, week, person.id);
-  const d = decideTraced(deps, rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: serviceKnownFor(rules, args.service, 'purchase'), amountCents: amount, weekSpentCents: spent, value: 0, session: method, scam, localHour: hourOf(now, tz) });
+  const d = decideTraced(deps, rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: serviceKnownFor(rules, args.service, 'purchase'), amountCents: amount, weekSpentCents: spent, value: 0, session: method, scam: scam && person.role === 'adult', localHour: hourOf(now, tz) });
   const extra = { ...base, amount_cents: amount, option_id: optionId, rule: explainDecision(d, rules, person.name) };
 
   if (d.answer === 'deny') {

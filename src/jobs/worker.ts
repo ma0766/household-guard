@@ -156,6 +156,17 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
       }
     }
 
+    // The scam guard, for everyone: a gift card, crypto, a wire transfer or a payee never paid before is never bought on the asker's own tap.
+    // (An adult asking is held at the front door. A teen or child taps for themselves, and here it waits for ANOTHER adult, whatever the risk check said.)
+    if (!j.approvalId && scamNow) {
+      await release(deps.store, hh, j.reservationId);
+      const { people } = await loadHousehold(deps.store, hh);
+      const who = people.find((p) => p.id === j.personId);
+      const a = await createApproval(deps, hh, { personId: j.personId, personName: who?.name ?? 'Someone', service: j.service, itemText: j.item, itemKey: service.itemKey, optionId: service.optionId, amountCents: service.amount, reason: T.scam, rule: 'Rule: scams often start like this.', scam: true });
+      await emit(deps, hh, { kind: 'held', category: 'cart', person: j.personId, personName: who?.name ?? 'Someone', text: (t) => `${who?.name ?? 'Someone'}'s ${money(service!.amount)} buy was held at ${t}. Rule: scams often start like this.`, data: { amount_cents: service!.amount } });
+      return await finish(deps, hh, jobId, 'held', `${T.scam} An adult can tap ${a.number} to say yes.`, { newApprovalId: a.id });
+    }
+
     // book exactly the quote that was hash-checked above — never a fresh second quote
     if (j.service === MOCK_RIDE) total = (await bookRide(deps.store, hh, service.destination!, service.opt!, j.id)).total_cents;
     else total = (await bookItem(deps.store, hh, service.itemKey, service.amount, j.id)).total_cents;
