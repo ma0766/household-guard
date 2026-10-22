@@ -46,9 +46,10 @@ test('2 device: a teen cannot add a device, and no card reaches an adult', async
   await expect(says).toHaveText('Only adults can do that.');
   await expect(says).toHaveAttribute('data-outcome', 'denied');
   await expect(page.getByTestId('phone-mom')).not.toContainText(/key|vacuum/i);
+  await page.screenshot({ path: SHOT('teen-cannot-add-device'), fullPage: true }); // the refusal to add a device, with nothing on Mom's phone
   await say(page, 'show the hallway camera'); // a teen is refused the camera too
   await expect(says).toHaveAttribute('data-outcome', 'denied');
-  await page.screenshot({ path: SHOT('teen-cannot-add-device'), fullPage: true });
+  await page.screenshot({ path: SHOT('teen-refused-camera'), fullPage: true });
 });
 
 test('2 camera: suggested once, off until an adult says Yes; a guest is refused it', async ({ page }) => {
