@@ -91,5 +91,5 @@ export const T = {
   adultCanTap: (n: number) => `An adult can tap ${n} to say yes.`,
 };
 
-export const roleName: Record<Role, string> = { adult: 'adult', teen: 'teen', child: 'child', guest: 'guest' };
+export const roleName: Record<Role, string> = { adult: 'adult', teen: 'teen', child: 'child', guest: 'guest', visitor: 'visitor' };
 

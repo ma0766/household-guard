@@ -15,6 +15,7 @@ action light, thermostat, music, weather, timer, unlock, garage, purchase, use_a
     local_hour: Long,
     kind: String,
     scam: Bool,
+    weekday: Long,
   },
 };
 `;

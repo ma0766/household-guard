@@ -16,10 +16,19 @@ export interface RulesConfig {
   serviceKinds?: Record<string, Kind[]>; // what each added service or device says it offers (the shipped ones are in kinds.ts)
   kindRules?: { role: Role; kind: Kind; effect: 'deny' | 'needs_approval' }[]; // a rule aimed at a whole kind of action
   cameraOn?: boolean; // the hallway camera: off until an adult says yes
+  visitors?: VisitorRule[]; // people let in for a window of time (the dog walker)
   guestEveryday?: boolean; // "Everyday things for anyone at home" (default on). Off = anyone not confirmed (PIN or phone tap) can do nothing.
   guests?: NamedGuest[]; // named guests: a PIN of their own, their own allowed list, an end date
   noTapBuyCents?: Record<string, number>; // per person: small buys up to this amount skip the phone tap (off by default)
   orderRoles?: Role[]; // S19: who besides adults may hear order history, delivery news and the cart. Missing = adults only. Gifts are never read to non-adults, whatever this says.
+}
+
+export interface VisitorRule {
+  id: string; // v-dog-walker
+  name: string;
+  days: number[]; // 1 = Monday ... 7 = Sunday, in the house's own zone
+  fromHour: number; // from this hour ...
+  toHour: number; // ... up to (not including) this hour
 }
 
 export interface NamedGuest {
@@ -33,7 +42,7 @@ export const EVERYDAY_ACTIONS = ['light', 'thermostat', 'music', 'weather', 'tim
 export const ORDER_ACTIONS = ['order_history', 'order_status', 'cart', 'mark_gift'] as const;
 
 export const KNOWN_ACTIONS = ['light', 'thermostat', 'music', 'weather', 'timer', 'unlock', 'garage', 'purchase', 'use_app', 'build_site'] as const;
-export const ROLES: Role[] = ['adult', 'teen', 'child', 'guest'];
+export const ROLES: Role[] = ['adult', 'teen', 'child', 'guest', 'visitor'];
 
 export function defaultRules(): RulesConfig {
   return {
@@ -103,13 +112,20 @@ export function generatePolicies(c: RulesConfig): PolicySets {
 
   // device class: adults only. Unlocking always needs the adult's own phone; the garage is a spoken heads-up with no tap.
   for (const a of c.adultsOnlyActions) {
-    both(`adults_only_${a}`, `forbid(principal, action == Action::${q(a)}, resource) unless { principal in Role::"adult" };`);
+    both(`adults_only_${a}`, `forbid(principal, action == Action::${q(a)}, resource) unless { principal in Role::"adult" || principal in Role::"visitor" };`);
     auto[`adult_${a}`] = `permit(principal in Role::"adult", action == Action::${q(a)}, resource);`;
-    if (a !== 'garage') auto[`${a}_needs_phone`] = `forbid(principal, action == Action::${q(a)}, resource) when { context.session != "phone" };`;
+    if (a !== 'garage') auto[`${a}_needs_phone`] = `forbid(principal, action == Action::${q(a)}, resource) when { context.session != "phone" } unless { principal in Role::"visitor" };`; // a visitor has no phone: the adult's yes was given when the visit was set up
   }
   // the garage: adults and teens, once confirmed. Children and guests never.
   auto.garage_open = `permit(principal, action == Action::"garage", resource) when { principal in Role::"adult" || principal in Role::"teen" };`;
   both('garage_not_for_kids', `forbid(principal, action == Action::"garage", resource) when { principal in Role::"child" || principal in Role::"guest" };`);
+
+  // visitors: the only thing a visitor can ever do is open the door, and only inside the window an adult set. Never held for an adult: outside it, no.
+  both('visitors_only_the_door', `forbid(principal, action, resource) when { principal in Role::"visitor" } unless { action == Action::"unlock" };`);
+  approvable.visitors_never_held = `forbid(principal in Role::"visitor", action, resource);`;
+  for (const v of c.visitors ?? []) {
+    auto[`visitor_${v.id}`] = `permit(principal == Person::${q(v.id)}, action == Action::"unlock", resource) when { [${v.days.join(', ')}].contains(context.weekday) && context.local_hour >= ${v.fromHour} && context.local_hour < ${v.toHour} };`;
+  }
 
   // named guests: each has an allowed list and an end date (the end date is checked when the house loads people; a guest past it is gone)
   for (const g of c.guests ?? []) {

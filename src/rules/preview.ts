@@ -10,7 +10,7 @@ import { hourWord, money } from '../text.js';
 const RANK: Record<Answer, number> = { deny: 0, hold: 1, allow: 2 };
 const AMOUNTS = [1500, 2500, 3000, 5000, 25000, 60000];
 const WHAT: Record<string, string> = { unlock: 'unlock the front door', garage: 'open the garage', purchase: 'buy things', thermostat: 'change the heat', light: 'turn lights on or off', use_app: 'use apps', build_site: 'publish a site', order_history: 'hear what the house ordered', order_status: 'hear about deliveries', cart: 'hear what is in the cart' };
-const WHO: Record<Role, string> = { adult: 'an adult', teen: 'a teen', child: 'a child', guest: 'a guest' };
+const WHO: Record<Role, string> = { adult: 'an adult', teen: 'a teen', child: 'a child', guest: 'a guest', visitor: 'a visitor' };
 
 function questions(p: Person, services: string[], known: (s: string) => boolean): DecisionInput[] {
   const base = { person: { id: p.id, role: p.role }, service: 'sim-home', serviceKnown: true, amountCents: 0, weekSpentCents: 0, value: 72, session: 'phone' as const, localHour: 12 };

@@ -16,6 +16,8 @@ export type RuleChange =
   | { template: 'quiet_hours'; fromHour: number | null; toHour?: number }
   | { template: 'kind_rule'; role: 'teen' | 'child' | 'guest'; kind: Kind; effect: 'deny' | 'needs_approval' | null } // aim a rule at a whole kind of action; null removes it
   | { template: 'declare_service'; service: string } // add a device: its kinds come from its own declaration (src/devices/catalog.ts)
+  | { template: 'add_visitor'; name: string; days: 'weekdays' | 'weekends' | 'every day'; fromHour: number; toHour: number } // let someone in, only in this window
+  | { template: 'end_visitor'; id: string }
   | { template: 'camera'; enabled: boolean }
   | { template: 'guest_switch'; enabled: boolean }
   | { template: 'add_guest'; name: string; allowed: string[]; until: string } // until = a date, YYYY-MM-DD, in the house's own zone (end of that day)
@@ -110,6 +112,28 @@ export function applyChange(before: RulesConfig, change: RuleChange, people: Per
       next.allowedServices = [...new Set([...before.allowedServices, d.service])].sort();
       next.serviceKinds = { ...(before.serviceKinds ?? {}), [d.service]: [...d.kinds] };
       sentence = `${d.name[0].toUpperCase()}${d.name.slice(1)} is added.`;
+      break;
+    }
+    case 'add_visitor': {
+      const name = String(change.name ?? '').replace(/[^A-Za-z ]/g, '').trim().slice(0, 20).trim();
+      const slug = name.toLowerCase().replace(/ +/g, '-');
+      if (name.length < 2) return { ok: false, error: 'Who is coming?' };
+      if (people.some((p) => p.name.toLowerCase() === name.toLowerCase() && p.id !== `v-${slug}`)) return { ok: false, error: 'Someone has that name.' };
+      const days = { weekdays: [1, 2, 3, 4, 5], weekends: [6, 7], 'every day': [1, 2, 3, 4, 5, 6, 7] }[change.days as 'weekdays'];
+      if (!days) return { ok: false, error: 'Which days?' };
+      const { fromHour: f, toHour: t } = change;
+      if (!Number.isInteger(f) || !Number.isInteger(t) || f < 0 || t > 24 || f >= t || t - f > 12) return { ok: false, error: 'That time does not look right.' };
+      next.visitors = [...(before.visitors ?? []).filter((v) => v.id !== `v-${slug}`), { id: `v-${slug}`, name, days, fromHour: f, toHour: t }];
+      sentence = `${name} can come in ${change.days === 'every day' ? 'every day' : `on ${change.days}`} from ${hourWord(f)} to ${hourWord(t)}.`;
+      warning = `This lets ${name} open the front door in that time.`;
+      break;
+    }
+    case 'end_visitor': {
+      const v = (before.visitors ?? []).find((x) => x.id === change.id);
+      if (!v) return { ok: false, error: "I don't know that visitor." };
+      next.visitors = (before.visitors ?? []).filter((x) => x.id !== change.id);
+      if (!next.visitors.length) delete next.visitors;
+      sentence = `${v.name} can not come in any more.`;
       break;
     }
     case 'camera': {

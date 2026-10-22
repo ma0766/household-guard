@@ -75,7 +75,8 @@ export async function loadHousehold(store: Store, hh: string, now = Date.now()):
   if (!meta || !rules) throw new Error('household not set up');
   const config = rules.config as RulesConfig;
   const live = new Set((config.guests ?? []).filter((g) => g.untilMs > now).map((g) => g.id));
-  const alive = (people as unknown as Person[]).filter((p) => p.role !== 'guest' || p.id === 'guest' || live.has(p.id));
+  const visiting = new Set((config.visitors ?? []).map((v) => v.id));
+  const alive = (people as unknown as Person[]).filter((p) => (p.role === 'visitor' ? visiting.has(p.id) : p.role !== 'guest' || p.id === 'guest' || live.has(p.id)));
   return { meta: meta as unknown as HouseholdMeta, people: alive, rules: config };
 }
 

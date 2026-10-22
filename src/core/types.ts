@@ -1,4 +1,4 @@
-export type Role = 'adult' | 'teen' | 'child' | 'guest';
+export type Role = 'adult' | 'teen' | 'child' | 'guest' | 'visitor';
 export type SessionMethod = 'phone' | 'pin' | 'none';
 
 export interface Person {

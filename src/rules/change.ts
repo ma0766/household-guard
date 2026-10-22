@@ -175,6 +175,15 @@ export async function completeRule(deps: Deps, hh: string, personId: string, c: 
       await deps.store.put({ pk, sk: `PERSON#${who.id}`, id: who.id, name: who.name, role: 'guest', hasPhone: false, pinHash: hashPin(guestPin), ttl: Math.floor((who.untilMs + 3 * 86400_000) / 1000) });
     }
   }
+  // a visitor gets a PIN of their own too (said once, on the adult's phone; kept only as a scrypt hash)
+  if (m.change?.template === 'add_visitor') {
+    const clean = String(m.change.name).replace(/[^A-Za-z ]/g, '').trim().slice(0, 20).trim();
+    const who = (next.visitors ?? []).find((x) => x.id === `v-${clean.toLowerCase().replace(/ +/g, '-')}`);
+    if (who) {
+      guestPin = String(randomInt(1000, 10000));
+      await deps.store.put({ pk, sk: `PERSON#${who.id}`, id: who.id, name: who.name, role: 'visitor', hasPhone: false, pinHash: hashPin(guestPin), ttl: Math.floor(now / 1000) + 400 * 86400 });
+    }
+  }
   const record =
     undoneVersion !== undefined
       ? { Update: { TableName: deps.store.table, Key: { pk, sk: chgKey(undoneVersion) }, UpdateExpression: 'SET #s = :u', ConditionExpression: '#s = :a', ExpressionAttributeNames: { '#s': 'status' }, ExpressionAttributeValues: { ':u': 'undone', ':a': 'applied' } } }
@@ -213,6 +222,7 @@ export function rulesHtml(rules: RulesConfig, people: { id: string; name: string
     row('🔒', `Adults only: ${rules.adultsOnlyActions.join(', ') || 'nothing'}.`),
     row('🚗', rules.adultsOnlyActions.includes('garage') ? 'The garage is for adults only.' : 'Adults and teens use the garage. No tap.'),
     ...(rules.kindRules ?? []).map((k) => row('🧩', `${k.role === 'child' ? 'Children' : k.role === 'teen' ? 'Teens' : 'Guests'}: ${k.effect === 'deny' ? 'no' : 'an adult says yes to'} ${KIND_WORDS[k.kind]}.`)),
+    ...(rules.visitors ?? []).map((v) => row('🐕', `${v.name} can come in ${v.days.length === 7 ? 'every day' : v.days.length === 5 ? 'on weekdays' : 'on weekends'}, ${hourWord(v.fromHour)} to ${hourWord(v.toHour)}.`)),
     row('🏠', rules.guestEveryday === false ? 'Everyday things need a PIN or a tap.' : 'Everyday things are open to anyone at home.'),
     ...(rules.guests ?? []).map((g) => row('🧳', `Guest ${g.name}: ${g.allowed.join(', ') || 'nothing'}, until ${new Date(g.untilMs).toLocaleDateString('en-CA', { timeZone: 'America/New_York' })}.`)),
     ...Object.entries(rules.noTapBuyCents ?? {}).map(([id, c]) => row('👆', `${people.find((p) => p.id === id)?.name ?? id} buys up to ${money(c)} with no tap.`)),
