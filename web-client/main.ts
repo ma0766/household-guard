@@ -444,6 +444,7 @@ function parse(text: string): Record<string, unknown> | undefined {
   if (/deliver|arriv|package|shipped/.test(t)) return { service: 'mock-shop', action: 'order_status' };
   if (/\border(ed|s)?\b/.test(t) && !/\bride\b|gift card/.test(t)) return { service: 'mock-shop', action: 'order_history' };
   if (/ride|taxi|cab/.test(t)) return { service: 'mock-ride', action: 'purchase', item: `ride to the ${(t.match(/airport|mall|library|school/) ?? ['mall'])[0]}`, ...(/shared/.test(t) ? { option_id: 'shared' } : {}) };
+  if (/voucher/.test(t)) return { service: 'mock-shop', action: 'purchase', item: 'voucher' };
   if (/gift card/.test(t)) return { service: 'mock-shop', action: 'purchase', item: 'gift card' };
   if (/light/.test(t)) return { service: 'sim-home', action: 'light', item: 'lights', value: /\boff\b/.test(t) ? 'off' : 'on' };
   return undefined;
@@ -485,7 +486,7 @@ async function say(text: string) {
   return r;
 }
 
-const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card', 'What did Mom order?', 'What did we order?', 'Open the garage', 'Play some jazz', 'Set a timer for 5 minutes'];
+const QUICK = ['Turn off the lights', 'Unlock the front door', 'Delete my account', 'Set the thermostat to 72', 'Book a ride to the mall', 'Book a ride to the airport', 'Buy a gift card', 'Buy a voucher', 'What did Mom order?', 'What did we order?', 'Open the garage', 'Play some jazz', 'Set a timer for 5 minutes'];
 for (const q of QUICK) {
   const b = document.createElement('button');
   b.className = 'secondary';

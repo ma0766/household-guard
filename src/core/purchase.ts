@@ -11,7 +11,8 @@ import { release, releaseExpired, reserve, spentThisWeek, RESERVATION_MS } from 
 import { ConnectorError, MOCK_RIDE, quoteRide, type RideOption } from '../connectors/mock-ride.js';
 import { connectorState } from '../connectors/healing.js';
 import { createApproval, getApproval, supersede } from '../approvals/approvals.js';
-import { MOCK_SHOP, quoteItem } from '../connectors/mock-shop.js';
+import { MOCK_SHOP, quoteItem, knownPayee } from '../connectors/mock-shop.js';
+import { scamKindOf } from '../policy/scam.js';
 import { openChallenge } from '../approvals/challenge.js';
 import { createJob } from '../jobs/worker.js';
 import { T } from '../text.js';
@@ -37,6 +38,7 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
   let optionId: string | undefined;
   let itemKey: string;
   let rideOptions: RideOption[] = [];
+  let scam = false; // the scam guard (src/policy/scam.ts)
   let owed = false; // a freshly repaired service: one adult yes before money moves (S11)
   if (args.service === MOCK_RIDE) {
     const cs = await connectorState(deps.store, hh);
@@ -61,13 +63,14 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
     if (!q) return result({ outcome: 'denied', reason: T.cantFind, done: false }, tz, now, base);
     amount = q.total_cents;
     itemKey = q.item;
+    scam = scamKindOf(q.item, q.payee, q.payee ? await knownPayee(deps.store, hh, q.payee) : true) !== undefined;
   } else {
     return result({ outcome: 'held', reason: T.newService, done: false }, tz, now, base);
   }
 
   const week = weekKey(now, tz);
   const spent = await spentThisWeek(deps.store, hh, week, person.id);
-  const d = decideTraced(deps, rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: serviceKnownFor(rules, args.service, 'purchase'), amountCents: amount, weekSpentCents: spent, value: 0, session: method, localHour: hourOf(now, tz) });
+  const d = decideTraced(deps, rules, { person: { id: person.id, role: person.role }, action: 'purchase', service: args.service, serviceKnown: serviceKnownFor(rules, args.service, 'purchase'), amountCents: amount, weekSpentCents: spent, value: 0, session: method, scam, localHour: hourOf(now, tz) });
   const extra = { ...base, amount_cents: amount, option_id: optionId, rule: explainDecision(d, rules, person.name) };
 
   if (d.answer === 'deny') {
@@ -76,9 +79,9 @@ export async function handlePurchase(deps: Deps, hh: string, c: PurchaseCtx): Pr
   }
   if (d.answer === 'hold' || (d.answer === 'allow' && owed)) {
     // Held for an adult. Offer the lowest total that the rules allow and that meets the person's must-haves.
-    const reason = d.answer === 'allow' ? T.afterRepair : heldReason(rules, person, amount, spent);
+    const reason = d.answer === 'allow' ? T.afterRepair : d.blockedBy.includes('scam_guard') ? T.scam : heldReason(rules, person, amount, spent);
     const alt = owed ? undefined : bestValue(rules, person, method, args.service, rideOptions, amount, spent, now, tz);
-    const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason, rule: extra.rule });
+    const a = await createApproval(deps, hh, { personId: person.id, personName: person.name, service: args.service, itemText: args.item, itemKey, optionId, amountCents: amount, reason, rule: extra.rule, ...(d.blockedBy.includes('scam_guard') ? { scam: true } : {}) });
     const say = [reason, alt ? `${T.altOffer(alt.label.toLowerCase(), alt.total_cents)} ${T.wantThat}` : '', T.adultCanTap(a.number)].filter(Boolean).join(' ');
     const out = result({ outcome: 'held', reason, done: false }, tz, now, { ...extra, approval_id: a.id, number: a.number, ...(alt ? { alternative: { option_id: alt.id, label: alt.label, total_cents: alt.total_cents, saves_cents: amount - alt.total_cents, note: T.lowestWeFound } } : {}) });
     out.say = say;

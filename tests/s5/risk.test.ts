@@ -13,6 +13,7 @@ import { ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
 
 const ride = (to: string) => ({ service: 'mock-ride', action: 'purchase', item: `ride to the ${to}` });
 const giftCard = { service: 'mock-shop', action: 'purchase', item: 'gift card' };
+const voucher = { service: 'mock-shop', action: 'purchase', item: 'voucher' }; // kinds step 3: gift cards are held by the rules first; a voucher is what reaches the risk check
 const week = () => weekKey(Date.now(), 'America/New_York');
 type Ctx = Awaited<ReturnType<typeof newHousehold>>;
 const alwaysOk: RiskChecker & { calls: number } = { calls: 0, async check() { this.calls++; return { verdict: 'ok', why: 'naive' }; } };
@@ -28,24 +29,24 @@ async function requestAndTap(ctx: Ctx, args: any) {
 }
 
 describe('S5 risk check (stricter only)', () => {
-  it('gift card: the rules say yes, the risk check says hold → nothing bought, money released, an adult is asked', async () => {
+  it('voucher: the rules say yes, the risk check says hold → nothing bought, money released, an adult is asked', async () => {
     const risk = new MockRisk();
     const ctx = await newHousehold({ risk });
-    const { r, job } = await requestAndTap(ctx, giftCard);
+    const { r, job } = await requestAndTap(ctx, voucher);
     expect(r).toMatchObject({ outcome: 'allowed', amount_cents: 1500 }); // the rules alone allowed it
     expect(job).toMatchObject({ status: 'held', done: false });
     expect(job!.say).toMatch(/closer look/);
     expect(await countBookings(ctx.store, ctx.hh)).toBe(0);
     expect(await spentThisWeek(ctx.store, ctx.hh, week(), 'maya')).toBe(0);
     const card = (await phoneInbox(ctx.deps, ctx.hh, 'mom')).approvals[0];
-    expect(card).toMatchObject({ who: 'Maya', what: 'gift card', why: 'Held: this needs a closer look.' });
+    expect(card).toMatchObject({ who: 'Maya', what: 'voucher', why: 'Held: this needs a closer look.' });
     expect(risk.calls).toHaveLength(1);
   });
 
-  it('after an adult says yes to that exact gift card it goes through (the adult is stronger than the check)', async () => {
+  it('after an adult says yes to that exact voucher it goes through (the adult is stronger than the check)', async () => {
     const risk = new MockRisk();
     const ctx = await newHousehold({ risk });
-    const { job } = await requestAndTap(ctx, giftCard);
+    const { job } = await requestAndTap(ctx, voucher);
     const appr = (await ctx.store.query((await import('../../src/core/store.js')).Store.hk(ctx.hh), 'APPROVAL#')).find((a) => a.status === 'open')!;
     const ok = await approveRequest(ctx.deps, ctx.hh, 'mom', appr.id, { number: appr.number, method: 'phone' });
     await ctx.queue.drain();
@@ -180,10 +181,12 @@ describe('S5 live Bedrock (Claude Haiku on Amazon Bedrock, us-east-1)', () => {
     expect(plain.why).not.toMatch(/failed/); // a real answer, not a failure-hold
   }, 60000);
 
-  it('the whole flow with the real model: teen gift card passes the rules, the live check holds it, nothing is bought', async () => {
+  it('the whole flow with the real model: a teen gift card is held by the rules before any model call, nothing is bought', async () => {
     const ctx = await newHousehold({ risk: new AskAgainOnOutage() });
-    const { r, job } = await requestAndTap(ctx, giftCard);
-    expect(r).toMatchObject({ outcome: 'allowed', amount_cents: 1500 });
+    await speakAs(ctx.store, ctx.hh, 'maya');
+    const r = await requestAction(ctx.deps, ctx.hh, giftCard);
+    expect(r).toMatchObject({ outcome: 'held', amount_cents: 1500 });
+    const job = { status: 'held', done: false };
     expect(job).toMatchObject({ status: 'held', done: false });
     expect(await countBookings(ctx.store, ctx.hh)).toBe(0);
     expect(await spentThisWeek(ctx.store, ctx.hh, week(), 'maya')).toBe(0);

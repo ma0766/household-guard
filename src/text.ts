@@ -60,6 +60,8 @@ export const T = {
   serviceDown: 'That service is not working. An adult was told.',
   afterRepair: 'Held: this service was just fixed. An adult must say yes once.',
   quietHours: (from: number, to: number) => `Quiet hours: no buying from ${hourWord(from)} to ${hourWord(to)}.`,
+  scam: 'People pretending to be family often ask for this. Call them first.',
+  anotherAdult: 'Ask another adult to say yes.',
   guestNoBuy: "Guests can't buy things.",
   childNoBuy: 'An adult must say yes to buys.',
   overWeekly: (name: string, cap: number) => `Held: over ${name}'s ${money(cap)} a week.`,

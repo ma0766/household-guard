@@ -107,6 +107,8 @@ export function generatePolicies(c: RulesConfig): PolicySets {
   // Buying is allowed, and a forbid holds it for an adult when it is over the person's limit, or the person has no limit at all.
   auto.purchase = `permit(principal, action == Action::"purchase", resource);`;
   const capped = Object.keys(c.weeklyCapCents);
+  // the scam guard: gift cards, crypto, wire transfers and a payee never paid before always wait for an adult, whatever the limit
+  auto.scam_guard = `forbid(principal, action == Action::"purchase", resource) when { context.scam };`;
   auto.purchase_needs_a_limit = capped.length ? `forbid(principal, action == Action::"purchase", resource) unless { [${capped.map((id) => `Person::${q(id)}`).join(', ')}].contains(principal) };` : `forbid(principal, action == Action::"purchase", resource);`;
   for (const [id, week] of Object.entries(c.weeklyCapCents)) {
     const per = c.perRequestCapCents[id] ?? week;

@@ -34,7 +34,7 @@ export const CASES: ReplayCase[] = [
   { id: 'guest-ride-denied', slice: 3, who: 'guest', args: buy('mock-ride', 'ride to the mall'), expect: { outcome: 'denied' } },
   { id: 'child-ride-held', slice: 3, who: 'leo', method: 'pin', args: buy('mock-ride', 'ride to the school'), expect: { outcome: 'held' } },
   { id: 'adult-ride-airport-38-allowed', slice: 3, who: 'mom', args: buy('mock-ride', 'ride to the airport'), expect: { outcome: 'allowed' } },
-  { id: 'teen-gift-card-15-allowed-by-rules', slice: 3, who: 'maya', args: buy('mock-shop', 'gift card'), expect: { outcome: 'allowed' } },
+  { id: 'teen-gift-card-15-held-by-scam-guard', slice: 3, who: 'maya', args: buy('mock-shop', 'gift card'), expect: { outcome: 'held' } }, // kinds step 3: a gift card always waits for an adult (it was 'allowed' before the scam guard)
   { id: 'teen-unknown-store-held', slice: 3, who: 'maya', args: buy('mock-food', 'pizza'), expect: { outcome: 'held' } },
   { id: 'adult-lights-by-pin-done', slice: 3, who: 'mom', method: 'pin', args: home('light', 'lights', 'off'), expect: { outcome: 'allowed', done: true } },
   { id: 'adult-unlock-by-pin-held', slice: 3, who: 'mom', method: 'pin', args: home('unlock', 'front door'), expect: { outcome: 'held' } },

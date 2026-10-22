@@ -49,6 +49,9 @@ forbid(principal, action == Action::"garage", resource) when { principal in Role
 @id("purchase")
 permit(principal, action == Action::"purchase", resource);
 
+@id("scam_guard")
+forbid(principal, action == Action::"purchase", resource) when { context.scam };
+
 @id("purchase_needs_a_limit")
 forbid(principal, action == Action::"purchase", resource) unless { [Person::"mom", Person::"maya"].contains(principal) };
 

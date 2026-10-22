@@ -2,7 +2,7 @@ import type { Deps } from '../core/request-action.js';
 import { Store } from '../core/store.js';
 import { commit, getReservation, pinReservation, release } from '../spend/spend.js';
 import { MOCK_RIDE, bookRide, quoteRide, type RideOption } from '../connectors/mock-ride.js';
-import { MOCK_SHOP, bookItem, quoteItem } from '../connectors/mock-shop.js';
+import { MOCK_SHOP, bookItem, quoteItem, rememberPayee } from '../connectors/mock-shop.js';
 import { approvalHash, createApproval, getApproval, supersede } from '../approvals/approvals.js';
 import { loadHousehold } from '../core/household.js';
 import { decide } from '../policy/evaluator.js';
@@ -93,14 +93,14 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
         return;
       }
     }
-    let service: { destination?: string; itemKey: string; amount: number; optionId?: string; opt?: RideOption; note?: string } | undefined;
+    let service: { payee?: string; destination?: string; itemKey: string; amount: number; optionId?: string; opt?: RideOption; note?: string } | undefined;
     if (j.service === MOCK_RIDE) {
       const q = await quoteRide(deps.store, hh, j.item);
       const opt = q?.options.find((o) => o.id === (j.optionId ?? 'standard'));
       if (q && opt) service = { destination: q.destination, itemKey: `${q.destination}/${opt.id}`, amount: opt.total_cents, optionId: opt.id, opt, note: q.note };
     } else if (j.service === MOCK_SHOP) {
       const q = quoteItem(j.item);
-      if (q) service = { itemKey: q.item, amount: q.total_cents };
+      if (q) service = { itemKey: q.item, amount: q.total_cents, payee: q.payee };
     }
     if (!service) throw new Error('no quote');
 
@@ -157,6 +157,7 @@ export async function processJob(deps: Deps, hh: string, jobId: string): Promise
     if (j.service === MOCK_RIDE) total = (await bookRide(deps.store, hh, service.destination!, service.opt!, j.id)).total_cents;
     else total = (await bookItem(deps.store, hh, service.itemKey, service.amount, j.id)).total_cents;
     booked = true;
+    if (j.service === MOCK_SHOP && service.payee && j.approvalId) await rememberPayee(deps.store, hh, service.payee).catch(() => undefined); // an adult said yes to this payee: it is known from now on
   } catch {
     if (!booked) {
       await release(deps.store, hh, j.reservationId).catch(() => undefined);

@@ -16,6 +16,7 @@ export interface DecisionInput {
   weekSpentCents: number;
   value: number;
   session: SessionMethod;
+  scam?: boolean; // the scam guard flagged this buy (gift card, crypto, wire transfer, a payee never paid before)
   localHour: number; // 0-23 in the house's own zone (S10). Required: a caller that forgets it must not skip quiet hours.
 }
 export type Answer = 'allow' | 'hold' | 'deny';
@@ -32,7 +33,7 @@ const callOf = (i: DecisionInput) => ({
   principal: uid('Person', i.person.id),
   action: uid('Action', i.action),
   resource: uid('Service', i.service),
-  context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour, kind: kindOf(i.action) ?? 'unknown' },
+  context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour, kind: kindOf(i.action) ?? 'unknown', scam: !!i.scam },
   entities: [
     { uid: uid('Person', i.person.id), attrs: {}, parents: [uid('Role', i.person.role)] },
     { uid: uid('Role', i.person.role), attrs: {}, parents: [] },
@@ -45,7 +46,7 @@ function ask(policies: Record<string, string>, i: DecisionInput) {
     principal: uid('Person', i.person.id),
     action: uid('Action', i.action),
     resource: uid('Service', i.service),
-    context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour, kind: kindOf(i.action) ?? 'unknown' },
+    context: { service_known: i.serviceKnown, amount_cents: i.amountCents, week_spent_cents: i.weekSpentCents, value: i.value, session: i.session, local_hour: i.localHour, kind: kindOf(i.action) ?? 'unknown', scam: !!i.scam },
     policies: { staticPolicies: policies },
     entities: [
       { uid: uid('Person', i.person.id), attrs: {}, parents: [uid('Role', i.person.role)] },
